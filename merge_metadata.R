@@ -15,29 +15,28 @@ library(HDF5Array)
 
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
-metadata_directory = args[[1]]
-output_file = args[[2]]
-
+input_file_paths = args[1:(length(args)-2)]
+files_metadata = args[[length(args)-1]]
+output_file = args[[length(args)]]
 
 # Read metadata
 metadata = 
-	metadata_directory |> 
-	dir(full.names = TRUE) |> 
+	input_file_paths|> 
 	map(readRDS)
 	
-
 # Get which column don't have too many NAs
 common_colnames = 
 	metadata |> 
 	map_dfr(
 		~ colnames(.x) |>
-			as_tibble() |>
-			mutate(dataset_id = unique(.x$dataset_id))
+			as_tibble() 
 	) |>  
 	dplyr::count(value) |> 
 	mutate(n_datasets = length(metadata)) |> 
 	filter(n > (n_datasets / 2)) |>
 	pull(value)
+
+print(common_colnames)
 
 # Get all metadata
 metadata  |>
@@ -46,7 +45,7 @@ metadata  |>
 	map( ~
 			 	.x |>
 			 	select(
-			 		
+			 		.cell,
 			 		# Select most common columns across datasets
 			 		one_of(common_colnames),
 			 		
@@ -98,6 +97,7 @@ metadata  |>
 			 	when("percent.medulla" %in% colnames(.) ~ mutate(., percent.medulla = percent.medulla |> as.character() ), ~(.)) |>
 			 	when("Age" %in% colnames(.) ~ mutate(., Age = Age |> as.numeric() ), ~(.)) |>
 			 	when("nCount_RNA" %in% colnames(.) ~ mutate(., nCount_RNA = nCount_RNA |> as.numeric() ), ~(.)) |>
+			 	when("is_primary_data" %in% colnames(.) ~ mutate(., is_primary_data = is_primary_data |> as.character() ), ~(.)) |>
 			 	#mutate(across(contains("cluster", ignore.case = TRUE), ~ as.character)) |>
 			 	select(-one_of('PCW')) |> 
 			 	
@@ -149,7 +149,7 @@ metadata  |>
 		T ~ PatientID
 	)) |> 
 	
-	unite("sample___", c(
+	unite(".sample", c(
 		Sample, SampleID, sample_uuid, Sample_ID, 
 		scRNASeq_sample_ID, Sample_Tag, Sample.ID, sample_names, 
 		Short_Sample, Sample.ID.short, Sample.name,
@@ -157,15 +157,15 @@ metadata  |>
 		library_uuid, suspension_uuid, Patient, tissue_section_uuid, DonorID, specimen, SpecimenID, Fetus_id, individual, tissue
 	), na.rm = TRUE, sep = "___", remove = F) |> 
 	
-	select(sample___, common_colnames) |> 
+	select(.cell, .sample, common_colnames) |> 
 		
 	# make lighter
 	mutate_if(is.character, as.factor) |>
 	
 	# Add files metadata
-	left_join(readRDS(glue("{root_directory}/files_metadata.rds")) |> select_if(function(x) !is.list(x)), by="file_id") |>
+	left_join(readRDS(files_metadata) |> select_if(function(x) !is.list(x)), by="file_id") |>
 
-	saveRDS(output_path_metadata)
+	saveRDS(output_file)
 	
 
 # 
@@ -177,7 +177,7 @@ metadata  |>
 
 
 
-# # TROUBLESHOOT FOR DECIDING SAMPLE ID
+# # TROUBLESHOOT FOR DECIDING SAMPLE ID - DO NOT DELETE
 # x=metadata |> 
 # 	map_dfr(
 # 		~ .x |>
@@ -249,7 +249,7 @@ metadata  |>
 # 		T ~ PatientID
 # 	)) |> 
 # 	
-# 	unite("sample___", c(
+# 	unite(".sample", c(
 # 		Sample, SampleID, sample_uuid, Sample_ID, 
 # 		scRNASeq_sample_ID, Sample_Tag, Sample.ID, sample_names, 
 # 		Short_Sample, Sample.ID.short, Sample.name,
@@ -258,6 +258,6 @@ metadata  |>
 # 	), na.rm = TRUE, sep = "___", remove = F) 
 # 
 # y |> 
-# 	dplyr::count(file_id, sample___ ) |> 
+# 	dplyr::count(file_id, .sample ) |> 
 # 	arrange(desc(n)) |> 
 # 	View()
