@@ -1,2 +1,5 @@
 makeflow.failed.*
 *.makeflowlog
+*.makeflow
+reference_azimuth_NEW_UWOT.rds
+slurm.wrapper

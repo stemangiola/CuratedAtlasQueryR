@@ -65,7 +65,6 @@ file_id = basename(input_file) |> tools::file_path_sans_ext() |> str_split("___"
 output_file |> dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
 
 # Read file_cell_types
-
 data = readH5AD(input_file, reader = "R",	use_hdf5 = TRUE	)
 
 # Read file_cell_types
