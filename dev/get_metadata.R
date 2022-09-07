@@ -44,17 +44,8 @@ output_file = args[[2]]
 output_file |> dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
 
 # Read metadata
-col_data = 
-	readH5AD(input_file,	reader = "R",	use_hdf5 = TRUE	) |> 
-	colData() 
-
-# Process
-if( ncol(col_data) == 0 )
-	col_data = 
-	readH5AD(input_file,	use_hdf5 = TRUE	) |> 
-	colData() 
-
-col_data |> 
+readH5AD(input_file,	use_hdf5 = TRUE	) |> 
+	colData() |> 
  	as_tibble(rownames = ".cell") |>
 	
 	# Link file IDs
