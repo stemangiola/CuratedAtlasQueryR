@@ -3,3 +3,4 @@ makeflow.failed.*
 *.makeflow
 reference_azimuth_NEW_UWOT.rds
 slurm.wrapper
+ERROR-1.output
