@@ -12,7 +12,7 @@ library(DelayedArray)
 library(HDF5Array)
 
 source("utility.R")
-options(scipen=999)
+options(scipen = 999)
 #
 
 # # CREATE MAKEFILE
@@ -28,87 +28,72 @@ options(scipen=999)
 # #
 # metadata = readRDS(metadata_path)
 #
-# file_cell_type_table =
-# 	metadata |>
+# metadata |>
 # 	distinct(.sample, file_id) |>
 # 	mutate(
 # 		input_file_path = glue("{raw_data_directory}/{file_id}.H5AD") |> as.character(),
-# 		output_file_path = glue("{splitted_data_directory}/{.sample}.H5AD" |> as.character())
+# 		output_file_path = glue("{splitted_data_directory}/{.sample}" |> as.character())
 # 	) |>
-# 	with_groups(input_file_path, ~ .x |> summarise(output_files_path = paste(output_file_path, collapse=" ")))
 #
-# file_cell_type_table |>
-# 	# tibble(split_file_paths, splitted_file_paths) |>
-# 	mutate(Mb = map_dbl(input_file_path, ~ (file.info(.x)$size /1e6) |> as.integer() )) |>
-# 	mutate(memory = pmax(Mb * 10, 40000)) |>
-# 	mutate(memory = case_when(
-# 		input_file_path %in% c(
-# 			"/vast/scratch/users/mangiola.s/human_cell_atlas/raw_data/b50b15f1-bf19-4775-ab89-02512ec941a6.H5AD",
-# 			"/vast/scratch/users/mangiola.s/human_cell_atlas/raw_data/56e0359f-ee8d-4ba5-a51d-159a183643e5.H5AD",
-# 			"/vast/scratch/users/mangiola.s/human_cell_atlas/raw_data/51f114ae-232a-4550-a910-934e175db814.H5AD",
-# 			"/vast/scratch/users/mangiola.s/human_cell_atlas/raw_data/21ca95b3-776b-4fa2-9956-09a07c0e5224.H5AD"
-# 		) ~ 160000,
-# 		input_file_path ==	"/vast/scratch/users/mangiola.s/human_cell_atlas/raw_data/08247324-7ab7-45c5-8bd6-6c22676761ed.H5AD" ~ 200000,
+# 	mutate(Mb = map_dbl(input_file_path, ~ (file.info(.x)$size / 1e6) |> as.integer())) |>
+# 	mutate(memory = pmax(Mb * 2, 30000)) |>
+# 	mutate(
+# 		memory = case_when(
+# 			input_file_path %in% c(
+# 				"/vast/scratch/users/mangiola.s/human_cell_atlas/raw_data/b50b15f1-bf19-4775-ab89-02512ec941a6.H5AD",
+# 				"/vast/scratch/users/mangiola.s/human_cell_atlas/raw_data/56e0359f-ee8d-4ba5-a51d-159a183643e5.H5AD",
+# 				"/vast/scratch/users/mangiola.s/human_cell_atlas/raw_data/51f114ae-232a-4550-a910-934e175db814.H5AD",
+# 				"/vast/scratch/users/mangiola.s/human_cell_atlas/raw_data/21ca95b3-776b-4fa2-9956-09a07c0e5224.H5AD"
+# 			) ~ 160000,
+# 			input_file_path ==	"/vast/scratch/users/mangiola.s/human_cell_atlas/raw_data/08247324-7ab7-45c5-8bd6-6c22676761ed.H5AD" ~ 200000,
 #
-# 		TRUE ~ memory
-# 	)) |>
+# 			TRUE ~ memory
+# 		)
+# 	) |>
 # 	rowid_to_column() |>
-# 	mutate(commands = pmap(list(output_files_path, input_file_path,  memory, rowid), ~
-# 												 	c(
-# 												 		glue("CATEGORY=split_data{..4}\nMEMORY={..3}\nCORES=1\nWALL_TIME=30000"),
-# 												 		glue("{..1}:{..2} {metadata_path}\n{tab}Rscript split_files.R {..2} {metadata_path} {splitted_data_directory}")
-# 												 	)
+# 	mutate(commands = pmap(
+# 		list(output_file_path, input_file_path,  memory, rowid),
+# 		~
+# 			c(
+# 				glue("CATEGORY=split_data{..4}\nMEMORY={..3}\nCORES=1\nWALL_TIME=10000"),
+# 				glue(
+# 					"{..1}:{..2} {metadata_path}\n{tab}Rscript split_files.R {..2} {metadata_path} {..1}"
+# 				)
+# 			)
 # 	))  |>
 # 	pull(commands) |>
 # 	unlist() |>
 # 	write_lines(glue("split_files.makeflow"))
 
 # Read arguments
-args = commandArgs(trailingOnly=TRUE)
+args = commandArgs(trailingOnly = TRUE)
 input_file = args[[1]]
 metadata_file = args[[2]]
-directory_out = args[[3]]
+output_file = args[[3]]
 
 file_id = basename(input_file) |> tools::file_path_sans_ext() |> str_split("___") %>% .[[1]] %>% .[1]
+.sample = basename(output_file) |> tools::file_path_sans_ext()
 
-metadata =  readRDS(glue("{dirname(input_file)}/../metadata/{file_id}.rds"))
-
-
-#directory_out = output_files_path[[1]] |> dirname()
-
-# # If I have one cell type I don't need to do anything
-# if(length(output_files_path) == 1){
-# 	system(glue("cp {input_file} {output_files_path[[1]]}"))
-# } else{
-
+metadata =
+	readRDS(glue("{dirname(input_file)}/../metadata/{file_id}.rds")) |>
+	select(.cell, .sample)
 
 
 # Create directory
-directory_out |> dir.create( showWarnings = FALSE, recursive = TRUE)
+output_file |> dir.create(showWarnings = FALSE, recursive = TRUE)
 
-data =readH5AD(input_file,	use_hdf5 = TRUE	)
+data = readH5AD(input_file,	use_hdf5 = TRUE)
 
 colnames(data) = metadata |> pull(.cell)
 
-data |>
-	left_join(metadata |> distinct(.cell, .sample)) |>
-	nest(data = -.sample) |>
+h5 =
+	data |>
+	left_join(metadata) |>
+	filter(.sample == !!.sample)
 
-	mutate(saved = map2(data, .sample, ~ {
-		print(.y)
-
-				h5 = .x
-		#colData(h5) = h5 |> colData() |> as_tibble() |>  droplevels() |> DataFrame()
-
-		# Deal with writeH5AD error for 1-line files
-		if(ncol(h5)==1){
-			h5 = cbind(h5, h5)
-			colnames(h5) = colnames(h5)[1] |> c(glue("{colnames(h5)[1]}_FAKE_CELL_DELETE"))
-		}
-
-		h5 |>	writeH5AD(glue("{directory_out}/{.y}.H5AD"))
-	})) |>
-	select(.sample)
+# if (ncol(h5) == 1) {
+# 	h5 = cbind(h5, h5)
+# 	colnames(h5) = colnames(h5)[1] |> c(glue("{colnames(h5)[1]}_FAKE_CELL_DELETE"))
 # }
 
-
+h5 |>	saveHDF5SummarizedExperiment(output_file, replace=TRUE)

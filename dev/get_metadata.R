@@ -161,7 +161,11 @@ col_data |>
  	when(unique(.$file_id)=="c790ef7a-1523-4627-8603-d6a02f8f4877" ~ mutate(., sample_placeholder =orig.ident), ~ (.))  %>%
  	when(unique(.$file_id)=="1e81a742-e457-4fc6-9c39-c55189ec9dc2" ~ mutate(., sample_placeholder =orig.ident), ~ (.))  %>%
  	when(unique(.$file_id)=="351ef284-b59e-43a5-83ba-0eb907dc282c" ~ mutate(., sample_placeholder =orig.ident), ~ (.))  %>%
- 	when(unique(.$file_id)=="f498030e-246c-4376-87e3-90b28c7efb00" ~ mutate(., sample_placeholder =Name), ~ (.))  %>%
+	when(unique(.$file_id)=="f498030e-246c-4376-87e3-90b28c7efb00" ~ mutate(., sample_placeholder =Name), ~ (.))  %>%
+
+	# These are the datasets with too few cells per inferred samples, therefore simplifying
+	when(unique(.$file_id)=="e3a56e00-8417-4d82-9d35-3fab3aac12f2" ~ mutate(., SpecimenID =NA), ~ (.))  %>%
+	when(unique(.$file_id)=="17b34e42-bbd2-494b-bf32-b9229344a3f6" ~ mutate(., Sample =NA), ~ (.))  %>%
 
  	# Empirically infer samples from many characteristics
  	unite(".sample_name", one_of(

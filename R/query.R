@@ -9,17 +9,19 @@
 #' @importFrom purrr map
 #' @importFrom zellkonverter readH5AD
 #' @importFrom BiocGenerics cbind
+#' @importFrom glue glue
+#'
 #' @export
 #'
 #'
 
-get_SingleCellExperiment = function(.data){
+get_SingleCellExperiment = function(.data, repository = "/vast/scratch/users/mangiola.s/human_cell_atlas/splitted_light_data/"){
 
 	.data |>
-		pull(file_path) |>
+		pull(.sample) |>
 		unique() |>
 		as.character() |>
-		map(~ readH5AD(.x,	use_hdf5 = TRUE	) ) |>
+		map(~ readH5AD(glue("{repository}/{.x}"),	use_hdf5 = TRUE	) ) |>
 
 		# Temporary
 		map(~ {

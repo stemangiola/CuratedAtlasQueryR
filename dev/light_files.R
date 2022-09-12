@@ -13,7 +13,8 @@ library(HDF5Array)
 
 
 
-# CREATE MAKEFILE
+
+# # CREATE MAKEFILE
 # tab = "\t"
 # root_directory = "/vast/scratch/users/mangiola.s/human_cell_atlas"
 # splitted_data_directory = glue("{root_directory}/splitted_data")
@@ -28,8 +29,8 @@ library(HDF5Array)
 # metadata |>
 # 	distinct(.sample, file_id) |>
 # 	mutate(
-# 		input_file_path = glue("{splitted_data_directory}/{.sample}.H5AD") |> as.character(),
-# 		output_file_path = glue("{light_data_directory}/{.sample}.H5AD" |> as.character())
+# 		input_file_path = glue("{splitted_data_directory}/{.sample}") |> as.character(),
+# 		output_file_path = glue("{light_data_directory}/{.sample}" |> as.character())
 # 	) |>
 #
 # 	mutate(Mb = map_dbl(input_file_path, ~ (file.info(.x)$size /1e6) |> as.integer() )) |>
@@ -71,7 +72,7 @@ output_file |> dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
 # 	data@colData = data@colData[,!colnames(data@colData) %in% "Cell"]
 #
 # } else
-	data = readH5AD(input_file,	use_hdf5 = TRUE	)
+data = loadHDF5SummarizedExperiment(input_file	)
 
 rownames(data) = rowData(data)$feature_name
 rowData(data) = NULL
@@ -117,21 +118,21 @@ data@assays@data$X =
 	when(
 		transformation=="log" ~ {
 			.x = expm1(.)
-			type(.x) = "integer"
+			#type(.x) = "integer"
 			.x
 		},
 		transformation=="square_root" ~ {
 			.x = (.)^2
-			type(.x) = "integer"
+			#type(.x) = "integer"
 			.x
 		},
 		~ {
 			.x = (.)
-			type(.x) = "integer"
+			#type(.x) = "integer"
 			.x
 		}
 	)
 
 
-data |>	writeH5AD(output_file)
+data |>	saveHDF5SummarizedExperiment(output_file, replace=TRUE)
 
