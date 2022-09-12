@@ -10,6 +10,7 @@
 #' @importFrom zellkonverter readH5AD
 #' @importFrom BiocGenerics cbind
 #' @importFrom glue glue
+#' @importFrom HDF5Array loadHDF5SummarizedExperiment
 #'
 #' @export
 #'
@@ -21,7 +22,7 @@ get_SingleCellExperiment = function(.data, repository = "/vast/scratch/users/man
 		pull(.sample) |>
 		unique() |>
 		as.character() |>
-		map(~ readH5AD(glue("{repository}/{.x}"),	use_hdf5 = TRUE	) ) |>
+		map(~ loadHDF5SummarizedExperiment(glue("{repository}/{.x}")	) ) |>
 
 		# Temporary
 		map(~ {

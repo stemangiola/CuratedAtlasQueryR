@@ -2,7 +2,9 @@
 
 export(get_SingleCellExperiment)
 importFrom(BiocGenerics,cbind)
+importFrom(HDF5Array,loadHDF5SummarizedExperiment)
 importFrom(dplyr,pull)
+importFrom(glue,glue)
 importFrom(purrr,map)
 importFrom(purrr,reduce)
 importFrom(tidySingleCellExperiment,inner_join)

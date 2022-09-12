@@ -24,7 +24,7 @@ Biarch: true
 biocViews: AssayDomain, Infrastructure, RNASeq, DifferentialExpression, GeneExpression, Normalization, Clustering, QualityControl, Sequencing, Transcription, Transcriptomics
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
 LazyDataCompression: xz
 URL: https://github.com/stemangiola/HCAquery
 BugReports: https://github.com/stemangiola/HCAquery/issues

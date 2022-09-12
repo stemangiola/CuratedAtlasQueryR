@@ -27,8 +27,8 @@ source("utility.R")
 # cell_type_df = "metadata_cell_type.csv"
 #
 # light_file_paths = dir(light_data_directory, full.names = TRUE)
-# file_id = basename(light_file_paths) |> tools::file_path_sans_ext()
-# annotated_file_paths = glue("{annotated_data_directory}/{file_id}.rds")
+# .sample = basename(light_file_paths) |> tools::file_path_sans_ext()
+# annotated_file_paths = glue("{annotated_data_directory}/{.sample}.rds")
 #
 # c(
 # 	glue("CATEGORY=light_data\nMEMORY=30024\nCORES=1\nWALL_TIME=10000"),
@@ -50,7 +50,7 @@ output_file |>  dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
 
 # Read file_cell_types
 data =
-	readH5AD(input_file,	use_hdf5 = TRUE	)  |>
+	loadHDF5SummarizedExperiment(input_file	)  |>
 
 	# add lineage 1
 	left_join(readRDS(metadata) |> distinct(.cell, .sample, cell_type)) |>

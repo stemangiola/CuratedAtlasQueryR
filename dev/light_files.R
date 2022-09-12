@@ -33,7 +33,7 @@ library(HDF5Array)
 # 		output_file_path = glue("{light_data_directory}/{.sample}" |> as.character())
 # 	) |>
 #
-# 	mutate(Mb = map_dbl(input_file_path, ~ (file.info(.x)$size /1e6) |> as.integer() )) |>
+# 	mutate(Mb = map_dbl(input_file_path, ~ (file.info(glue("{.x}/se.rds"))$size /1e6) |> as.integer() )) |>
 # 	mutate(memory = pmax(Mb * 10, 10000)) |>
 # 	rowid_to_column() |>
 # 	mutate(commands = pmap(list(output_file_path, input_file_path,  memory, rowid, file_id), ~

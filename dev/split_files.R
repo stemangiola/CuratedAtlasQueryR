@@ -55,7 +55,7 @@ options(scipen = 999)
 # 		list(output_file_path, input_file_path,  memory, rowid),
 # 		~
 # 			c(
-# 				glue("CATEGORY=split_data{..4}\nMEMORY={..3}\nCORES=1\nWALL_TIME=10000"),
+# 				glue("CATEGORY=split_data{..4}\nMEMORY={..3}\nCORES=1\nWALL_TIME=30000"),
 # 				glue(
 # 					"{..1}:{..2} {metadata_path}\n{tab}Rscript split_files.R {..2} {metadata_path} {..1}"
 # 				)
@@ -96,4 +96,4 @@ h5 =
 # 	colnames(h5) = colnames(h5)[1] |> c(glue("{colnames(h5)[1]}_FAKE_CELL_DELETE"))
 # }
 
-h5 |>	saveHDF5SummarizedExperiment(output_file, replace=TRUE)
+h5 |>	saveHDF5SummarizedExperiment(output_file, replace=TRUE, verbose=TRUE)

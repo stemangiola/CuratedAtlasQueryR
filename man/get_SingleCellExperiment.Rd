@@ -4,7 +4,10 @@
 \alias{get_SingleCellExperiment}
 \title{sccomp_glm main}
 \usage{
-get_SingleCellExperiment(.data)
+get_SingleCellExperiment(
+  .data,
+  repository = "/vast/scratch/users/mangiola.s/human_cell_atlas/splitted_light_data/"
+)
 }
 \description{
 The function for linear modelling takes as input a table of cell counts with three columns containing a cell-group identifier, sample identifier, integer count and the covariates (continuous or discrete). The user can define a linear model with an input R formula, where the first covariate is the factor of interest. Alternatively, sccomp accepts single-cell data containers (Seurat, SingleCellExperiment44, cell metadata or group-size). In this case, sccomp derives the count data from cell metadata.
