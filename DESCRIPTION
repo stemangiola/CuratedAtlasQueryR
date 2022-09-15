@@ -18,17 +18,17 @@ Imports:
 	glue,
 	HDF5Array
 Suggests:
-  glue,
-  here,
-  stringr,
-  Seurat,
-  tidyseurat,
-  scMerge,
-  DelayedArray,
-  openssl,
-  cellxgenedp,
-  SingleCellExperiment,
-  zellkonverter
+	glue,
+	here,
+	stringr,
+	Seurat,
+	tidyseurat,
+	scMerge,
+	DelayedArray,
+	openssl,
+	cellxgenedp,
+	SingleCellExperiment,
+	zellkonverter
 VignetteBuilder:
     knitr
 RdMacros:
