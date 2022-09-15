@@ -1,53 +1,50 @@
-# Instructions on how to parse the Human CellAtlas
 
-# Step 1 download
 
-```
-Rscript download.R /vast/scratch/users/mangiola.s/human_cell_atlas
 
-```
-# Get gene names
-
-```
-Rscript get_gene_names.R /vast/scratch/users/mangiola.s/human_cell_atlas
-
-```
-
-# Create metadata
-
-```
-
-conda activate cctools-env
-makeflow -J 200 -T slurm get_metadata.makeflow 
-
-```
-
-# Step 3 split files
-
-```
-
-conda activate cctools-env
-makeflow -J 200 -T slurm split_files.makeflow 
-
-```
-
-# Step 4 consolidate files
-
-```
-
-conda activate cctools-env
-makeflow -J 200 -T slurm light_files.makeflow 
-
-```
-
-# Query
+Load Metadata
 
 ```{r}
 library(HCAquery)
 library(tidyverse)
+library(SingleCellExperiment)
+library(tidySingleCellExperiment)
 hca_metadata = readRDS("/vast/scratch/users/mangiola.s/human_cell_atlas/metadata.rds")
 options("restore_SingleCellExperiment_show" = TRUE)
+```
+
+
+
+```{r}
 hca_metadata |> 
+	distinct(.sample)
+```
+
+```{r}
+hca_metadata |> 
+	  distinct(file_id)
+```
+
+```{r}
+sce |> 
+	  nrow()
+```
+
+```{r}
+hca_metadata |> 
+	  distinct(cell_type)
+```
+```{r}
+hca_metadata |> 
+	distinct(tissue, file_id) |> 
+	count(tissue) |> 
+	arrange(desc(n))
+```
+
+Query
+
+```{r}
+sce = 
+	hca_metadata |> 
 	filter(
 		ethnicity == "African" & 
 		assay |> str_detect("10x") & 
@@ -56,4 +53,7 @@ hca_metadata |>
 	) |> 
 	get_SingleCellExperiment()
 	
+sce
 ```
+
+

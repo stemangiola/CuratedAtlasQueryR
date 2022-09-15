@@ -4,3 +4,4 @@ makeflow.failed.*
 reference_azimuth_NEW_UWOT.rds
 slurm.wrapper
 ERROR-1.output
+core.26183

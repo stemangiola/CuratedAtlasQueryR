@@ -7,7 +7,6 @@
 #' @importFrom tidySingleCellExperiment inner_join
 #' @importFrom purrr reduce
 #' @importFrom purrr map
-#' @importFrom zellkonverter readH5AD
 #' @importFrom BiocGenerics cbind
 #' @importFrom glue glue
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment
@@ -18,11 +17,21 @@
 
 get_SingleCellExperiment = function(.data, repository = "/vast/scratch/users/mangiola.s/human_cell_atlas/splitted_light_data/"){
 
-	.data |>
+	files_to_read =
+		.data |>
 		pull(.sample) |>
 		unique() |>
-		as.character() |>
-		map(~ loadHDF5SummarizedExperiment(glue("{repository}/{.x}")	) ) |>
+		as.character()
+
+	message(glue("Reading {length(files_to_read)} files."))
+
+	sce =
+		files_to_read |>
+		map(~ {
+			cat(".")
+			loadHDF5SummarizedExperiment(glue("{repository}/{.x}")	)
+			}
+		) |>
 
 		# Temporary
 		map(~ {
@@ -36,4 +45,9 @@ get_SingleCellExperiment = function(.data, repository = "/vast/scratch/users/man
 
 		# Attach metadata
 		inner_join(.data, by=".cell")
+
+	cat("\n")
+
+	sce
+
 }

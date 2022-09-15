@@ -14,6 +14,7 @@ library(HDF5Array)
 library(tidyseurat)
 library(celldex)
 library(SingleR)
+library(glmGamPoi)
 source("utility.R")
 
 
@@ -80,14 +81,17 @@ if(ncol(data) <= 30){
 		# Convert
 		as.Seurat(counts = "X",  data = NULL)
 
-
+	# If I have negative values
+	if((data@assays$originalexp@counts |> as.matrix() |> min()) < 0)
+		data@assays$originalexp@counts[data@assays$originalexp@counts<0] <- 0
 
 	VariableFeatures(data) = reference_azimuth |> VariableFeatures()
 
 	data = data	|>
 
 		# Normalise RNA - not informed by smartly selected variable genes
-		SCTransform(assay="originalexp") |>
+		# _Originally posted by @ChristophH in https://github.com/satijalab/seurat/issues/3618#issuecomment-719492054_
+		SCTransform(assay="originalexp", method = 'glmGamPoi') |>
 		RunPCA(approx=FALSE) |>
 		RunUMAP(dims = 1:30, spread = 0.5,min.dist  = 0.01, n.neighbors = 10L, return.model=TRUE, umap.method = 'uwot')
 	#

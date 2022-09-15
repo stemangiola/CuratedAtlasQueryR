@@ -133,6 +133,10 @@ data@assays@data$X =
 		}
 	)
 
+# If I have negative values
+if((data@assays@data$X |> as.matrix() |> min()) < 0)
+	data@assays@data$X[data@assays@data$X<0] <- 0
+
 
 data |>	saveHDF5SummarizedExperiment(output_file, replace=TRUE)
 
