@@ -18,7 +18,6 @@ Imports:
 	glue,
 	HDF5Array
 Suggests:
-	glue,
 	here,
 	stringr,
 	Seurat,
@@ -28,7 +27,10 @@ Suggests:
 	openssl,
 	cellxgenedp,
 	SingleCellExperiment,
-	zellkonverter
+	celldex,
+	SingleR,
+	tools,
+	rmarkdown
 VignetteBuilder:
     knitr
 RdMacros:
