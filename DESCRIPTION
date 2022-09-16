@@ -33,7 +33,7 @@ Suggests:
 	celldex,
 	SingleR,
 	tools,
-	rmarkdown,
+	rmarkdown
 VignetteBuilder:
     knitr
 RdMacros:
