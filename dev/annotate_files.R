@@ -19,23 +19,7 @@ source("utility.R")
 
 
 
-# # # CREATE MAKEFILE
-# tab = "\t"
-# root_directory = "/vast/scratch/users/mangiola.s/human_cell_atlas"
-# annotated_data_directory = glue("{root_directory}/annotated_data")
-# light_data_directory = glue("{root_directory}/splitted_light_data")
-# metadata = glue("{root_directory}/metadata.rds")
-# cell_type_df = "metadata_cell_type.csv"
-#
-# light_file_paths = dir(light_data_directory, full.names = TRUE)
-# .sample = basename(light_file_paths) |> tools::file_path_sans_ext()
-# annotated_file_paths = glue("{annotated_data_directory}/{.sample}.rds")
-#
-# c(
-# 	glue("CATEGORY=light_data\nMEMORY=30024\nCORES=1\nWALL_TIME=10000"),
-# 	glue("{annotated_file_paths}:{light_file_paths} {metadata} {cell_type_df}\n{tab}Rscript annotate_files.R {light_file_paths} {metadata} {cell_type_df} {annotated_file_paths}")
-# )  |>
-# 	write_lines(glue("annotate_files.makeflow"))
+
 
 
 
@@ -93,7 +77,7 @@ if(ncol(data) <= 30){
 		# _Originally posted by @ChristophH in https://github.com/satijalab/seurat/issues/3618#issuecomment-719492054_
 		SCTransform(assay="originalexp", method = 'glmGamPoi') |>
 		RunPCA(approx=FALSE) |>
-		RunUMAP(dims = 1:30, spread = 0.5,min.dist  = 0.01, n.neighbors = 10L, return.model=TRUE, umap.method = 'uwot')
+		RunUMAP(dims = 1:30, spread = 0.5, min.dist  = 0.01, n.neighbors = 10L, return.model=TRUE, umap.method = 'uwot')
 	#
 	anchors <- FindTransferAnchors(
 		reference = reference_azimuth,
@@ -103,16 +87,25 @@ if(ncol(data) <= 30){
 		dims = 1:30
 	)
 
-	data=	MapQuery(
-		anchorset = anchors,
-		query = data,
-		reference = reference_azimuth ,
-		refdata = list(
-			celltype.l1 = "celltype.l1",
-			celltype.l2 = "celltype.l2"
-		),
-		reference.reduction = "pca",
-		reduction.model = "umap"
+	data=
+		tryCatch(
+		expr = {
+			MapQuery(
+				anchorset = anchors,
+				query = data,
+				reference = reference_azimuth ,
+				refdata = list(
+					celltype.l1 = "celltype.l1",
+					celltype.l2 = "celltype.l2"
+				),
+				reference.reduction = "pca",
+				reduction.model = "umap"
+			)
+		},
+		error = function(e){
+			print(e)
+			data
+		}
 	)
 
 
@@ -124,7 +117,7 @@ if(ncol(data) <= 30){
 		SingleR(ref = blueprint, assay.type.test=1,
 						labels = blueprint$label.fine)
 
-		data |>
+	data |>
 		left_join(
 			annotation  |>
 				as_tibble(rownames=".cell") |>
@@ -133,7 +126,7 @@ if(ncol(data) <= 30){
 
 	# Just select essential information
 	as_tibble() |>
-		select(.cell, predicted.celltype.l1, predicted.celltype.l2, blueprint_singler, contains("refUMAP")) |>
+		select(.cell, one_of("predicted.celltype.l1", "predicted.celltype.l2"), blueprint_singler, contains("refUMAP")) |>
 
 		# Save
 		saveRDS(output_file)
