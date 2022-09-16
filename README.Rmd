@@ -1,14 +1,19 @@
+---
+output:
+  rmarkdown::github_document
+---
 
 
 Load Metadata
 
 ```{r}
 library(HCAquery)
-library(tidyverse)
+library(dplyr)
+library(dbplyr)
 library(SingleCellExperiment)
 library(tidySingleCellExperiment)
-hca_metadata = readRDS("/vast/scratch/users/mangiola.s/human_cell_atlas/metadata.rds")
-options("restore_SingleCellExperiment_show" = TRUE)
+
+hca_metadata = get_metadata()
 ```
 
 
@@ -21,11 +26,6 @@ hca_metadata |>
 ```{r}
 hca_metadata |> 
 	  distinct(file_id)
-```
-
-```{r}
-sce |> 
-	  nrow()
 ```
 
 ```{r}
@@ -46,9 +46,9 @@ sce =
 	hca_metadata |> 
 	filter(
 		ethnicity == "African" & 
-		assay |> str_detect("10x") & 
+		assay %LIKE% "%10x%" & 
 		tissue == "lung parenchyma" & 
-		cell_type |> str_detect("CD4")
+		cell_type %LIKE% "%CD4%"
 	) |> 
 	get_SingleCellExperiment()
 	
