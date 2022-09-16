@@ -71,7 +71,7 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 #'
 get_metadata = function(sqlite_path = NULL){
   if (is.null(sqlite_path)){
-    sqlite_path = "/vast/scratch/users/milton.m/metadata.sqlite"
+    sqlite_path = "/vast/projects/RCP/human_cell_atlas/metadata.sqlite"
   }
   
   SQLite() |>
