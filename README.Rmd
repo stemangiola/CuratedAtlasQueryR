@@ -1,4 +1,8 @@
-
+---
+title: "HCAquery"
+output: github_document
+always_allow_html: true
+---
 
 Load Metadata
 
@@ -24,7 +28,7 @@ hca_metadata |>
 ```
 
 ```{r}
-sce |> 
+hca_metadata |> 
 	  nrow()
 ```
 
