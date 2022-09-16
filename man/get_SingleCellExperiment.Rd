@@ -2,13 +2,19 @@
 % Please edit documentation in R/query.R
 \name{get_SingleCellExperiment}
 \alias{get_SingleCellExperiment}
-\title{sccomp_glm main}
+\title{Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame}
 \usage{
 get_SingleCellExperiment(
   .data,
-  repository = "/vast/scratch/users/mangiola.s/human_cell_atlas/splitted_light_data/"
+  repository = "/vast/projects/RCP/human_cell_atlas/splitted_light_data/"
 )
 }
+\arguments{
+\item{.data}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
+This can be obtained from the [get_metadata()] function.}
+
+\item{repository}{A character vector of length one, which is a file path to where the single cell data is stored}
+}
 \description{
-The function for linear modelling takes as input a table of cell counts with three columns containing a cell-group identifier, sample identifier, integer count and the covariates (continuous or discrete). The user can define a linear model with an input R formula, where the first covariate is the factor of interest. Alternatively, sccomp accepts single-cell data containers (Seurat, SingleCellExperiment44, cell metadata or group-size). In this case, sccomp derives the count data from cell metadata.
+Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame
 }
