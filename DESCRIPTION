@@ -16,7 +16,10 @@ Imports:
 	zellkonverter,
 	BiocGenerics,
 	glue,
-	HDF5Array
+	HDF5Array,
+	DBI,
+	RSQLite,
+	dbplyr
 Suggests:
 	here,
 	stringr,
@@ -30,7 +33,7 @@ Suggests:
 	celldex,
 	SingleR,
 	tools,
-	rmarkdown
+	rmarkdown,
 VignetteBuilder:
     knitr
 RdMacros:
