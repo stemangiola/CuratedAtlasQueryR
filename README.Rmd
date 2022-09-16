@@ -1,8 +1,8 @@
 ---
-output:
-  rmarkdown::github_document
+title: "HCAquery"
+output: github_document
+always_allow_html: true
 ---
-
 
 Load Metadata
 
@@ -17,7 +17,6 @@ hca_metadata = get_metadata()
 ```
 
 
-
 ```{r}
 hca_metadata |> 
 	distinct(.sample)
@@ -30,8 +29,14 @@ hca_metadata |>
 
 ```{r}
 hca_metadata |> 
+	  nrow()
+```
+
+```{r}
+hca_metadata |> 
 	  distinct(cell_type)
 ```
+
 ```{r}
 hca_metadata |> 
 	distinct(tissue, file_id) |> 
@@ -42,6 +47,7 @@ hca_metadata |>
 Query
 
 ```{r}
+options("restore_SingleCellExperiment_show" = TRUE)
 sce = 
 	hca_metadata |> 
 	filter(
