@@ -48,8 +48,6 @@ library(HDF5Array)
 
 
 
-
-
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
 input_file = args[[1]]

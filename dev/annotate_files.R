@@ -20,9 +20,6 @@ source("utility.R")
 
 
 
-
-
-
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
 input_file = args[[1]]
@@ -56,9 +53,11 @@ if(ncol(data) <= 30){
 
 	reference_azimuth = readRDS("reference_azimuth_NEW_UWOT.rds")
 
-	data@assays@data$X = data@assays@data$X |>  as("dgCMatrix")
+	# Selectonly interesting genes
+	data = data[rownames(data) %in% VariableFeatures(reference_azimuth),]
 
-	# Normalise
+	# Convert to Seurat matrix
+	data@assays@data$X = data@assays@data$X |>  as("dgCMatrix")
 	data =
 		data |>
 
@@ -71,13 +70,13 @@ if(ncol(data) <= 30){
 
 	VariableFeatures(data) = reference_azimuth |> VariableFeatures()
 
-	data = data	|>
-
-		# Normalise RNA - not informed by smartly selected variable genes
-		# _Originally posted by @ChristophH in https://github.com/satijalab/seurat/issues/3618#issuecomment-719492054_
-		SCTransform(assay="originalexp", method = 'glmGamPoi') |>
-		RunPCA(approx=FALSE) |>
-		RunUMAP(dims = 1:30, spread = 0.5, min.dist  = 0.01, n.neighbors = 10L, return.model=TRUE, umap.method = 'uwot')
+	# data = data	|>
+	#
+	# 	# Normalise RNA - not informed by smartly selected variable genes
+	# 	# _Originally posted by @ChristophH in https://github.com/satijalab/seurat/issues/3618#issuecomment-719492054_
+	# 	SCTransform(assay="originalexp", method = 'glmGamPoi') |>
+	# 	RunPCA(approx=FALSE) |>
+	# 	RunUMAP(dims = 1:30, spread = 0.5, min.dist  = 0.01, n.neighbors = 10L, return.model=TRUE, umap.method = 'uwot')
 	#
 	anchors <- FindTransferAnchors(
 		reference = reference_azimuth,
@@ -87,7 +86,7 @@ if(ncol(data) <= 30){
 		dims = 1:30
 	)
 
-	data=
+	data =
 		tryCatch(
 		expr = {
 			MapQuery(
