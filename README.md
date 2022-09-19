@@ -4,6 +4,20 @@ HCAquery
 Load Metadata
 
 ``` r
+library(HCAquery)
+library(dplyr)
+library(dbplyr)
+library(SingleCellExperiment)
+library(tidySingleCellExperiment)
+```
+
+Load the data
+
+``` r
+hca_metadata = get_metadata()
+```
+
+``` r
 hca_metadata |> 
     distinct(.sample)
 ```
