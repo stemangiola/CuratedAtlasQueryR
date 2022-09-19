@@ -12,12 +12,12 @@
 #' @importFrom glue glue
 #' @importFrom dplyr as_tibble
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment
-#' 
+#'
 #' @export
 #'
 #'
 get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/human_cell_atlas/splitted_light_data/"){
-  
+
   # We have to convert to an in-memory table here, or some of the dplyr operations will fail when passed a database connection
   raw_data = as_tibble(.data)
 
@@ -64,17 +64,15 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 #' Currently this defaults to an internal location within WEHI's milton system.
 #'
 #' @export
-#' 
+#'
 #' @importFrom DBI dbConnect
 #' @importFrom RSQLite SQLite
+#' @importFrom RSQLite SQLITE_RO
 #' @importFrom dplyr tbl
 #'
-get_metadata = function(sqlite_path = NULL){
-  if (is.null(sqlite_path)){
-    sqlite_path = "/vast/projects/RCP/human_cell_atlas/metadata.sqlite"
-  }
-  
+get_metadata = function(sqlite_path = "/vast/projects/RCP/human_cell_atlas/metadata.sqlite"){
+
   SQLite() |>
-    dbConnect(drv=_, dbname=sqlite_path) |>
+    dbConnect(drv=_, dbname=sqlite_path, flags=SQLITE_RO) |>
     tbl("metadata")
 }
