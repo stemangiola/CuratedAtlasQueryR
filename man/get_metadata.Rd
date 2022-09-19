@@ -5,7 +5,9 @@
 \title{Returns a data frame of Human Cell Atlas metadata, which should be filtered
 and ultimately passed into get_SingleCellExperiment.}
 \usage{
-get_metadata(sqlite_path = NULL)
+get_metadata(
+  sqlite_path = "/vast/projects/RCP/human_cell_atlas/metadata.sqlite"
+)
 }
 \arguments{
 \item{sqlite_path}{Path to the sqlite database where the metadata can be found.

@@ -6,13 +6,17 @@ always_allow_html: true
 
 Load Metadata
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(HCAquery)
 library(dplyr)
 library(dbplyr)
 library(SingleCellExperiment)
 library(tidySingleCellExperiment)
+```
 
+Load the data
+
+```{r}
 hca_metadata = get_metadata()
 ```
 
