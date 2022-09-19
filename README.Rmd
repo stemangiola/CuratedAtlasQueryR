@@ -6,7 +6,7 @@ always_allow_html: true
 
 Load Metadata
 
-```{r}
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
 library(HCAquery)
 library(dplyr)
 library(dbplyr)
