@@ -23,7 +23,7 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 
 	files_to_read =
 	  raw_data |>
-		pull(.sample) |>
+		pull(file_id_db) |>
 		unique() |>
 		as.character()
 
@@ -33,16 +33,17 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 		files_to_read |>
 		map(~ {
 			cat(".")
-			loadHDF5SummarizedExperiment(glue("{repository}/{.x}")	)
+			x = loadHDF5SummarizedExperiment(glue("{repository}/{.x}")	)
+			x[,colnames(x) %in% (raw_data |> pull(.cell))]
 			}
 		) |>
 
-		# Temporary
-		map(~ {
-			x = .x
-			x@int_colData$colPairs = x@int_colData$colPairs[,0]
-			x
-		}) |>
+		# # Temporary
+		# map(~ {
+		# 	x = .x
+		# 	x@int_colData$colPairs = x@int_colData$colPairs[,0]
+		# 	x
+		# }) |>
 
 		# Combine
 		do.call(cbind, args=_) |>
