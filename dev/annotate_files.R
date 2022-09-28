@@ -23,7 +23,7 @@ source("utility.R")
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
 input_file = args[[1]]
-metadata = args[[2]]
+`metadata` = args[[2]]
 cell_type_df = args[[3]]
 output_file = args[[4]]
 
@@ -53,22 +53,24 @@ if(ncol(data) <= 30){
 
 	reference_azimuth = readRDS("reference_azimuth_NEW_UWOT.rds")
 
+	data_seurat = data
+
 	# Selectonly interesting genes
-	data = data[rownames(data) %in% VariableFeatures(reference_azimuth),]
+	data_seurat = data_seurat[rownames(data_seurat) %in% VariableFeatures(reference_azimuth),]
 
 	# Convert to Seurat matrix
-	data@assays@data$X = data@assays@data$X |>  as("dgCMatrix")
-	data =
-		data |>
+	data_seurat@assays@data$X = data_seurat@assays@data$X |>  as("dgCMatrix")
+	data_seurat =
+		data_seurat |>
 
 		# Convert
 		as.Seurat(counts = "X",  data = NULL)
 
 	# If I have negative values
-	if((data@assays$originalexp@counts |> as.matrix() |> min()) < 0)
-		data@assays$originalexp@counts[data@assays$originalexp@counts<0] <- 0
+	if((data_seurat@assays$originalexp@counts |> as.matrix() |> min()) < 0)
+		data_seurat@assays$originalexp@counts[data_seurat@assays$originalexp@counts<0] <- 0
 
-	VariableFeatures(data) = reference_azimuth |> VariableFeatures()
+	VariableFeatures(data_seurat) = reference_azimuth |> VariableFeatures()
 
 	# data = data	|>
 	#
@@ -80,18 +82,18 @@ if(ncol(data) <= 30){
 	#
 	anchors <- FindTransferAnchors(
 		reference = reference_azimuth,
-		query = data,
+		query = data_seurat,
 		normalization.method = "SCT",
 		reference.reduction = "pca",
 		dims = 1:30
 	)
 
-	data =
+	data_seurat =
 		tryCatch(
 		expr = {
 			MapQuery(
 				anchorset = anchors,
-				query = data,
+				query = data_seurat,
 				reference = reference_azimuth ,
 				refdata = list(
 					celltype.l1 = "celltype.l1",
@@ -103,16 +105,19 @@ if(ncol(data) <= 30){
 		},
 		error = function(e){
 			print(e)
-			data
+			data_seurat
 		}
 	)
 
 
 	blueprint <- BlueprintEncodeData()
+	#MonacoImmuneData = MonacoImmuneData()
+
+	library(scuttle)
 
 	annotation <-
 		data |>
-		as.SingleCellExperiment() |>
+		logNormCounts(assay.type = "X") |>
 		SingleR(ref = blueprint, assay.type.test=1,
 						labels = blueprint$label.fine)
 

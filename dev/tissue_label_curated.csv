@@ -1,0 +1,166 @@
+tissue,tissue_harmonised
+adipose tissue,adipose
+subcutaneous adipose tissue,adipose
+omentum,adipose
+adrenal gland,adrenal gland
+axilla,axilla
+bladder organ,bladder
+blood,blood
+umbilical cord blood,blood
+venous blood,blood
+bone marrow,bone
+bone spine,bone
+rib,bone
+spinal cord,bone
+vault of skull,bone
+anterior cingulate cortex,brain
+brain,brain
+cerebellum,brain
+cerebral cortex,brain
+dorsolateral prefrontal cortex,brain
+entorhinal cortex,brain
+frontal cortex,brain
+hippocampal formation,brain
+occipital cortex,brain
+orbitofrontal cortex,brain
+parietal cortex,brain
+prefrontal cortex,brain
+primary motor cortex,brain
+primary somatosensory cortex,brain
+primary visual cortex,brain
+temporal cortex,brain
+temporal lobe,brain
+caudal ganglionic eminence,brain
+medial ganglionic eminence,brain
+middle temporal gyrus,brain
+parietal lobe,brain
+superior frontal gyrus,brain
+telencephalon,brain
+breast,breast
+mammary gland,breast
+upper outer quadrant of breast,breast
+epithelium of esophagus,esophagus
+esophagus,esophagus
+conjunctiva,eye
+cornea,eye
+eye,eye
+peripheral region of retina,eye
+pigment epithelium of eye,eye
+retina,eye
+fovea centralis,eye
+macula lutea proper,eye
+retinal neural layer,eye
+sclera,eye
+gall bladder,gall bladder
+anterior wall of left ventricle,heart
+aorta,heart
+apex of heart,heart
+cardiac atrium,heart
+cardiac ventricle,heart
+coronary artery,heart
+endometrium,heart
+heart,heart
+heart left ventricle,heart
+heart right ventricle,heart
+interventricular septum,heart
+right cardiac atrium,heart
+left cardiac atrium,heart
+ascending colon,intestine
+colon,intestine
+duodeno-jejunal junction,intestine
+duodenum,intestine
+intestine,intestine
+large intestine,intestine
+sigmoid colon,intestine
+small intestine,intestine
+transverse colon,intestine
+caecum,intestine
+ileum,intestine
+jejunal epithelium,intestine
+jejunum,intestine
+vermiform appendix,intestine
+kidney,kidney
+renal medulla,kidney
+renal papilla,kidney
+renal pelvis,kidney
+cortex of kidney,kidney
+lacrimal gland,lacrimal gland
+caudate lobe of liver,liver
+liver,liver
+lingula of left lung,lung
+lower lobe of left lung,lung
+lung,lung
+lung epithelium,lung
+lung parenchyma,lung
+respiratory airway,lung
+respiratory tract epithelium,lung
+bronchoalveolar duct junction,lung
+bronchus,lung
+pleura,lung
+pleural effusion,lung
+bronchopulmonary lymph node,lymph node
+cervical lymph node,lymph node
+inguinal lymph node,lymph node
+lymph node,lymph node
+mesenteric lymph node,lymph node
+thoracic lymph node,lymph node
+esophagus muscularis mucosa,mucosa
+lamina propria,mucosa
+mucosa,mucosa
+muscle of abdomen,muscle
+muscle of pelvic diaphragm,muscle
+muscle organ,muscle
+muscle tissue,muscle
+rectus abdominis muscle,muscle
+gastrocnemius,muscle
+nose,nose
+ovary,ovary
+endocrine pancreas,pancreas
+pancreas,pancreas
+exocrine pancreas,pancreas
+islet of Langerhans,pancreas
+placenta,placenta
+chorionic villus,plcenta
+peripheral zone of prostate,prostate
+prostate gland,prostate
+transition zone of prostate,prostate
+rectum,rectum
+saliva,saliva
+parotid gland,salival gland
+submandibular gland,salival gland
+skeletal muscle tissue,skeletal_muscle
+skin of abdomen,skin
+skin of body,skin
+skin of chest,skin
+skin of leg,skin
+zone of skin,skin
+spleen,spleen
+stomach,stomach
+testis,testis
+thymus,thymus
+thyroid gland,thyroid gland
+anterior part of tongue,tngue
+posterior part of tongue,tongue
+tongue,tongue
+trachea,trachea
+ampulla of uterine tube,uterus
+fallopian tube,uterus
+fimbria of uterine tube,uterus
+myometrium,uterus
+ureter,uterus
+uterine cervix,uterus
+uterus,uterus
+isthmus of fallopian tube,uterus
+artery,vasculature
+kidney blood vessel,vasculature
+vasculature,vasculature
+mesenteric artery,vasculaturew
+bronchial epithelial cell (cell culture),
+cultured cell (cell culture),
+embryonic stem cell (cell culture),
+endothelial cell (cell culture),
+epithelial cell of alveolus of lung (cell culture),
+epithelial cell of lung (cell culture),
+mammary gland epithelial cell (cell culture),
+retina (organoid),
+uterus (organoid),

@@ -7,3 +7,5 @@ local_file.rds
 slurm.status.*
 HCAquery.Rproj
 split_files.makeflow
+._*
+.DS_Store

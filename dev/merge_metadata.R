@@ -53,6 +53,16 @@ input_file_paths  |>
 			 	mutate_if(is.factor, as.character)
 					) |>
 	bind_rows() |>
+
+		unite("file_id_db", c(.sample, cell_type), remove = FALSE) |>
+		mutate(file_id_db = file_id_db |> md5()) |>
+
+	# Curate tissue
+	left_join(
+		read_csv("dev/tissue_label_curated.csv"),
+		by="tissue"
+	) |>
+
 	#mutate_if(is.character, as.factor) |>
 	# Add files metadata
 	left_join(readRDS(files_metadata) |> select_if(function(x) !is.list(x)), by="file_id") |>
