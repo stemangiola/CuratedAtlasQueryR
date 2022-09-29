@@ -74,7 +74,8 @@ data =
 			unite("file_id_db", c(.sample, cell_type), remove = FALSE) |>
 			mutate(file_id_db = file_id_db |> md5()) |>
 			filter(file_id_db == !!file_id_db) |>
-			select(.cell)
+			select(.cell) |>
+			distinct()
 	)
 
 # Select just the X assay
