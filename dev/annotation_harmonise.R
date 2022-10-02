@@ -481,8 +481,8 @@ curated_annotation |>
 
 x = curated_annotation |>
 	left_join(
-		metadata_df |>
-			select(.cell, .sample, file_id, tissue) |>
+		metadata |>
+			select(.cell, .sample, file_id, file_id_db, tissue) |>
 			as_tibble()
 	)
 
@@ -517,3 +517,9 @@ x |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type_harmonised, ti
 metadata_df |>
 	distinct(tissue) |>
 	as_tibble()
+
+
+xx = x |>
+	filter(cell_type_harmonised=="monocytes") |>
+	mutate(file_id_db = as.character(file_id_db)) |>
+	get_SingleCellExperiment(repository = "/vast/scratch/users/mangiola.s/human_cell_atlas/splitted_DB_data/")
