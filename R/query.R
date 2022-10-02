@@ -29,14 +29,53 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 
 	message(glue("Reading {length(files_to_read)} files."))
 
+
+
+
+
 	sce =
 		files_to_read |>
 		map(~ {
 			cat(".")
-			x = loadHDF5SummarizedExperiment(glue("{repository}/{.x}")	)
-			x[,colnames(x) %in% (raw_data |> pull(.cell))]
+			x = loadHDF5SummarizedExperiment(glue("{repository}/{.x}")	) |>
+				inner_join(
+					raw_data |>
+						filter(file_id_db == .x) |>
+						mutate(.cell_original = .cell |> str_remove(.sample) |> str_remove("_$")),
+					by=c(".cell" = ".cell_original"))
+
 			}
-		) |>
+		)
+
+	# Harmonise genes
+	all_genes =
+		sce |>
+		map(rownames) |>
+		unlist() |>
+		unique()
+
+	sce =
+		sce |>
+		map(~ {
+			missing_genes = all_genes  |> setdiff(rownames(.x))
+
+			missing_matrix =
+				HDF5RealizationSink(c(length(missing_genes),ncol(.x)), as.sparse = TRUE) |>
+				as("DelayedArray")
+
+			rownames(missing_matrix) = missing_genes
+			colnames(missing_matrix) = colnames(.x)
+
+			missing_sce = SingleCellExperiment(list(X=missing_matrix),  colData=colData(.x))
+			missing_sce@int_colData = .x@int_colData
+
+			# Make cell name unique
+			.x |> rbind(missing_sce	)
+		})
+
+	cat("\n")
+
+	sce |>
 
 		# # Temporary
 		# map(~ {
@@ -46,14 +85,10 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 		# }) |>
 
 		# Combine
-		do.call(cbind, args=_) |>
+		do.call(cbind, args=_)
 
-		# Attach metadata
-		inner_join(raw_data, by=".cell")
 
-	cat("\n")
 
-	sce
 
 }
 
