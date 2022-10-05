@@ -12,6 +12,7 @@
 #' @importFrom glue glue
 #' @importFrom dplyr as_tibble
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment
+#' @importFrom stringr str_remove
 #'
 #' @export
 #'
