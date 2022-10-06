@@ -479,7 +479,7 @@ curated_annotation =
 curated_annotation |>
 	saveRDS("dev/curated_annotation.rds")
 
-x = curated_annotation |>
+cell_metadata_with_harmonised_annotation = curated_annotation |>
 	left_join(
 		metadata |>
 			select(.cell, .sample, file_id, file_id_db, tissue) |>
@@ -519,7 +519,34 @@ metadata_df |>
 	as_tibble()
 
 
-xx = x |>
-	filter(cell_type_harmonised=="monocytes") |>
-	mutate(file_id_db = as.character(file_id_db)) |>
-	get_SingleCellExperiment(repository = "/vast/scratch/users/mangiola.s/human_cell_atlas/splitted_DB_data/")
+x = metadata |>
+	filter(.cell %in% (
+		curated_annotation |>
+			filter(cell_type_harmonised=="monocytes") |>
+			pull(.cell)
+	)) |>
+	unite("file_id_db", c(file_id, cell_type), remove = FALSE) |>
+	mutate(file_id_db = file_id_db |> md5() |> as.character()) |>
+
+	get_SingleCellExperiment("/vast/projects/RCP/human_cell_atlas/splitted_DB2_data")
+
+
+library(scuttle)
+library(celldex)
+library(SingleR)
+library(BiocParallel)
+monocyte_reference =
+	MonacoImmuneData() |>
+
+
+
+annotation <-
+	x |>
+	slice(1:10000) |>
+	logNormCounts(assay.type = "X") |>
+	SingleR(
+		ref = MonacoImmuneData,
+		assay.type.test=1,
+		labels = MonacoImmuneData$label.fine,
+		BPPARAM=SnowParam(workers=10)
+		)

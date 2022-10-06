@@ -17,7 +17,7 @@
 #' @export
 #'
 #'
-get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/human_cell_atlas/splitted_light_data/"){
+get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data"){
 
   # We have to convert to an in-memory table here, or some of the dplyr operations will fail when passed a database connection
   raw_data = as_tibble(.data)
@@ -29,10 +29,6 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 		as.character()
 
 	message(glue("Reading {length(files_to_read)} files."))
-
-
-
-
 
 	sce =
 		files_to_read |>
@@ -77,13 +73,6 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 	cat("\n")
 
 	sce |>
-
-		# # Temporary
-		# map(~ {
-		# 	x = .x
-		# 	x@int_colData$colPairs = x@int_colData$colPairs[,0]
-		# 	x
-		# }) |>
 
 		# Combine
 		do.call(cbind, args=_)
