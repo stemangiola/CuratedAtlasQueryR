@@ -13,6 +13,8 @@
 #' @importFrom dplyr as_tibble
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment
 #' @importFrom stringr str_remove
+#' @importFrom HDF5Array HDF5RealizationSink
+#' @importFrom HDF5Array loadHDF5SummarizedExperiment
 #'
 #' @export
 #'
