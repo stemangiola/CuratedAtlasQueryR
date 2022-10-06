@@ -135,6 +135,11 @@ data@assays@data$X =
 if((data@assays@data$X |> as.matrix() |> min()) < 0)
 	data@assays@data$X[data@assays@data$X<0] <- 0
 
+# Select just the X assay
+sce = SingleCellExperiment(list(X = data@assays@data$X))
+rownames(sce) = rownames(data)
+colnames(sce) = colnames(data)
 
-data |>	saveHDF5SummarizedExperiment(output_file, replace=TRUE)
+sce |>	saveHDF5SummarizedExperiment(output_file, replace=TRUE)
+
 
