@@ -17,13 +17,13 @@ library(tidySingleCellExperiment)
 Load the data
 
 ```{r}
-hca_metadata = get_metadata()
+get_metadata()
 ```
 
 Explore the HCA content
 
 ```{r}
-hca_metadata |> 
+get_metadata() |> 
 	distinct(tissue, file_id) |> 
 	count(tissue) |> 
 	arrange(desc(n))
@@ -34,13 +34,14 @@ Query
 ```{r}
 options("restore_SingleCellExperiment_show" = TRUE)
 sce = 
-	hca_metadata |> 
-	filter(
-		ethnicity == "African" & 
-		assay %LIKE% "%10x%" & 
-		tissue == "lung parenchyma" & 
-		cell_type %LIKE% "%CD4%"
-	) |> 
+	get_metadata() |> 
+    filter(
+    	 ethnicity == "African" & 
+        assay %LIKE% "%10x%" & 
+        tissue == "lung parenchyma" & 
+        cell_type %LIKE% "%CD4%"
+    ) |> 
+	
 	get_SingleCellExperiment()
 	
 sce
