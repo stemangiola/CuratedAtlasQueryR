@@ -476,77 +476,123 @@ curated_annotation =
 	) |>
 	select(.cell, cell_type, cell_type_harmonised, confidence_class, cell_annotation_azimuth_l2 = predicted.celltype.l2, cell_annotation_blueprint_singler = blueprint_singler)
 
-curated_annotation |>
-	saveRDS("dev/curated_annotation.rds")
 
-cell_metadata_with_harmonised_annotation = curated_annotation |>
+
+# Reannotation of generic cell types
+reannotate_cd4 <-
+	readRDS("dev/reannotate_cd4.rds")$scores |>
+	as_tibble(rownames = ".cell") |>
+	select("Central memory CD8 T cells", "Effector memory CD8 T cells"  , "Naive CD8 T cells" ) |>
+	mutate(.cell = rownames(readRDS("dev/reannotate_cd4.rds"))) |>
+	pivot_longer(
+		c(`Central memory CD8 T cells`, `Effector memory CD8 T cells`  , `Naive CD8 T cells` ),
+		names_to = "cell_type_Monaco", values_to = "score"
+		) |>
+	mutate(cell_type_Monaco = cell_type_Monaco |> str_replace_all("CD8", "CD4")) |>
+	with_groups(.cell, ~ .x |> arrange(desc(score)) |> slice(1)) |>
+	mutate(cell_type_Monaco = case_when(
+		cell_type_Monaco == "Effector memory CD4 T cells" ~ "cd4 tem",
+		cell_type_Monaco == "Central memory CD4 T cells" ~ "cd4 tcm",
+		cell_type_Monaco == "Naive CD4 T cells" ~ "cd4 naive"
+	)) |>
+	mutate(cell_type_harmonised = "cd4 t")
+
+reannotate_cd8 <-
+	readRDS("dev/reannotate_cd8.rds")$scores |>
+	as_tibble(rownames = ".cell") |>
+	select("Central memory CD8 T cells", "Effector memory CD8 T cells"  , "Naive CD8 T cells" ) |>
+	mutate(.cell = rownames(readRDS("dev/reannotate_cd8.rds"))) |>
+	pivot_longer(
+		c(`Central memory CD8 T cells`, `Effector memory CD8 T cells`  , `Naive CD8 T cells` ),
+		names_to = "cell_type_Monaco", values_to = "score"
+	) |>
+	with_groups(.cell, ~ .x |> arrange(desc(score)) |> slice(1)) |>
+	mutate(cell_type_Monaco = case_when(
+		cell_type_Monaco == "Effector memory CD8 T cells" ~ "cd8 tem",
+		cell_type_Monaco == "Central memory CD8 T cells" ~ "cd8 tcm",
+		cell_type_Monaco == "Naive CD8 T cells" ~ "cd8 naive"
+	)) |>
+	mutate(cell_type_harmonised = "cd8 t")
+
+reannotate_monocytes <-
+	readRDS("dev/reannotate_monocytes.rds")$scores |>
+	as_tibble(rownames = ".cell") |>
+	select("Non classical monocytes", "Classical monocytes"   ) |>
+	mutate(.cell = rownames(readRDS("dev/reannotate_monocytes.rds"))) |>
+	pivot_longer(
+		c(`Non classical monocytes`, `Classical monocytes`   ),
+		names_to = "cell_type_Monaco", values_to = "score"
+	) |>
+	with_groups(.cell, ~ .x |> arrange(desc(score)) |> slice(1)) |>
+	mutate(cell_type_Monaco = case_when(
+		cell_type_Monaco == "Non classical monocytes" ~ "cd16 mono",
+		cell_type_Monaco == "Classical monocytes" ~ "cd14 mono"
+	)) |>
+	mutate(cell_type_harmonised = "monocytes")
+
+library(glue)
+
+
+curated_annotation =
+
+	# Fix cell ID
+	get_metadata() |>
+	select(.cell, .sample) |>
+	as_tibble() |>
+	mutate(.cell_combined = glue("{.cell}_{.sample}")) |>
+
+	# Add cell type
+	inner_join(
+		curated_annotation,
+		by=c(".cell_combined" = ".cell")
+	) |>
 	left_join(
-		metadata |>
+		reannotate_cd4 |>
+			bind_rows(reannotate_cd8) |>
+			bind_rows(reannotate_monocytes)
+	) |>
+	mutate(cell_type_harmonised = if_else(
+		!is.na(cell_type_Monaco),
+		cell_type_Monaco,
+		cell_type_harmonised
+	)) |>
+	select(-.cell_combined) |>
+	select(-cell_type_Monaco, -score)
+
+job::job({
+	curated_annotation |>
+	saveRDS("dev/curated_annotation.rds")
+})
+
+
+cell_metadata_with_harmonised_annotation =
+	curated_annotation |>
+	left_join(
+		get_metadata() |>
 			select(.cell, .sample, file_id, file_id_db, tissue) |>
 			as_tibble()
 	)
-
 # xx = x |>
 # 	filter(cell_type_harmonised == "monocytes") |>
 # 	get_SingleCellExperiment()
 
-data |>
-	logNormCounts(assay.type = "X") |>
-	SingleR(ref = MonacoImmuneData,
-					labels = MonacoImmuneData$label.fine)
 
 
 annotated_samples =
-	x |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type, .sample, file_id)
+	cell_metadata_with_harmonised_annotation |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type, .sample, file_id)
 
 # Cell types that most need attention
-x |> anti_join(annotated_samples) |> select(contains("cell_")) |> count(cell_type ,    cell_type_harmonised ,cell_annotation_azimuth_l2 ,cell_annotation_blueprint_singler) |> arrange(desc(n)) |> print(n=99)
+cell_metadata_with_harmonised_annotation |> anti_join(annotated_samples) |> select(contains("cell_")) |> count(cell_type ,    cell_type_harmonised ,cell_annotation_azimuth_l2 ,cell_annotation_blueprint_singler) |> arrange(desc(n)) |> print(n=99)
 
 # How many samples miss annotation
-x |> anti_join(annotated_samples)  |>  distinct(cell_type,  cell_type_harmonised, .sample) |>  distinct( cell_type, .sample) |> count(cell_type)  |> arrange(desc(n))
+cell_metadata_with_harmonised_annotation |> anti_join(annotated_samples)  |>  distinct(cell_type,  cell_type_harmonised, .sample) |>  distinct( cell_type, .sample) |> count(cell_type)  |> arrange(desc(n))
 
 # Histo of annotation
-x |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type_harmonised, .sample) |> count(.sample) |> pull(n) |> hist(breaks=30)
+cell_metadata_with_harmonised_annotation |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type_harmonised, .sample) |> count(.sample) |> pull(n) |> hist(breaks=30)
 
 # Tissue with no immune
-x |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type_harmonised, tissue_harmonised) |> count(cell_type_harmonised) |> arrange(n) |> print(n=99)
+cell_metadata_with_harmonised_annotation |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type_harmonised, tissue_harmonised) |> count(cell_type_harmonised) |> arrange(n) |> print(n=99)
 
-x |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type_harmonised, tissue_harmonised) |> count(tissue_harmonised) |> arrange(n) |> print(n=99)
-
-
-metadata_df |>
-	distinct(tissue) |>
-	as_tibble()
+cell_metadata_with_harmonised_annotation |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type_harmonised, tissue_harmonised) |> count(tissue_harmonised) |> arrange(n) |> print(n=99)
 
 
-x = metadata |>
-	filter(.cell %in% (
-		curated_annotation |>
-			filter(cell_type_harmonised=="monocytes") |>
-			pull(.cell)
-	)) |>
-	unite("file_id_db", c(file_id, cell_type), remove = FALSE) |>
-	mutate(file_id_db = file_id_db |> md5() |> as.character()) |>
-
-	get_SingleCellExperiment("/vast/projects/RCP/human_cell_atlas/splitted_DB2_data")
-
-
-library(scuttle)
-library(celldex)
-library(SingleR)
-library(BiocParallel)
-monocyte_reference =
-	MonacoImmuneData() |>
-
-
-
-annotation <-
-	x |>
-	slice(1:10000) |>
-	logNormCounts(assay.type = "X") |>
-	SingleR(
-		ref = MonacoImmuneData,
-		assay.type.test=1,
-		labels = MonacoImmuneData$label.fine,
-		BPPARAM=SnowParam(workers=10)
-		)
