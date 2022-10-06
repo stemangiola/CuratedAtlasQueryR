@@ -34,10 +34,15 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 		files_to_read |>
 		map(~ {
 			cat(".")
-			x = loadHDF5SummarizedExperiment(glue("{repository}/{.x}")	)
-			x[,colnames(x) %in% ( raw_data |> pull(.cell) )]
-			}
-		)
+			loadHDF5SummarizedExperiment(glue("{repository}/{.x}")	) |>
+				inner_join(
+					raw_data |>
+
+						# Needed because cell IDs are not unique outside the file_id or file_id_db
+						filter(file_id_db == .x),
+					by=".cell"
+				)
+			})
 
 	# Harmonise genes
 	all_genes =

@@ -6,7 +6,7 @@
 \usage{
 get_SingleCellExperiment(
   .data,
-  repository = "/vast/projects/RCP/human_cell_atlas/splitted_light_data/"
+  repository = "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data"
 )
 }
 \arguments{
