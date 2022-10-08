@@ -6,3 +6,4 @@ slurm.wrapper
 ERROR-1.output
 core.26183
 curated_annotation.rds
+metadata.sqlite
