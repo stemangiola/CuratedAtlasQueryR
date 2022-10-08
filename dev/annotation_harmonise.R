@@ -15,6 +15,9 @@ library(tidyseurat)
 library(celldex)
 library(SingleR)
 library(glmGamPoi)
+library(stringr)
+library(purrr)
+
 # source("utility.R")
 
 clean_cell_types = function(.x){
@@ -557,30 +560,66 @@ curated_annotation =
 		cell_type_harmonised
 	)) |>
 	select(-.cell_combined) |>
-	select(-cell_type_Monaco, -score)
+	select(-cell_type_Monaco, -score) |>
 
+  # Replace NA
+  mutate(cell_type_harmonised = if_else(is.na(cell_type_harmonised), "immune_unclassified", cell_type_harmonised)) |>
+
+  # Add non immune
+  select(-cell_type) |>
+  full_join(
+    get_metadata("dev/metadata.SQLite") |>
+      select(.cell, .sample) |>
+      as_tibble()
+  ) |>
+  mutate(cell_type_harmonised = if_else(is.na(cell_type_harmonised), "non_immune", cell_type_harmonised))
+
+# Save
 job::job({
 	curated_annotation |>
+    mutate(across(contains("cell_"), as.factor)) |>
 	saveRDS("dev/curated_annotation.rds")
 })
 
 
 cell_metadata_with_harmonised_annotation =
 	curated_annotation |>
+  mutate(.cell = .cell |> str_remove(.sample) |> str_remove("_$")) |>
 	left_join(
 		get_metadata() |>
-			select(.cell, .sample, file_id, file_id_db, tissue) |>
-			as_tibble()
+			select(.cell, .sample, file_id, file_id_db, tissue, disease, is_primary_data.x, is_primary_data.y, name) |>
+		  left_join(read_csv("dev/tissue_label_curated.csv"), copy=TRUE) |>
+		  as_tibble(),
+		by=c(".cell", ".sample")
 	) |>
+  distinct()  |>
 
-	left_join(
-		read_csv("dev/tissue_label_curated.csv"),
-		by="tissue"
-	)
-# xx = x |>
-# 	filter(cell_type_harmonised == "monocytes") |>
-# 	get_SingleCellExperiment()
+  # Drop secondary data often cell type subsets
+  filter(is_primary_data.x==TRUE)
 
+# Filter samples that do not have immune
+cell_metadata_with_harmonised_annotation =
+  cell_metadata_with_harmonised_annotation |>
+  nest(data = -c(.sample, tissue_harmonised)) |>
+  filter(map_int(data, ~ .x |> filter(cell_type_harmonised != "non_immune") |> nrow()) > 0) |>
+  unnest(data)
+
+# Tissue with no immune
+cell_metadata_with_harmonised_annotation =
+  cell_metadata_with_harmonised_annotation |>
+  filter(disease == "normal") |>
+
+  # Filter tissues
+  nest(data = -c(cell_type_harmonised, tissue_harmonised)) |>
+  add_count(tissue_harmonised, name = "n_cell_type_in_tissue") |>
+  filter(n_cell_type_in_tissue>=18) |>
+  add_count(cell_type_harmonised, name = "n_tissue_in_cell_type") |>
+  filter(n_tissue_in_cell_type>=26) |>
+  unnest(data)
+
+
+cell_metadata_with_harmonised_annotation |>
+  saveRDS("dev/cell_metadata_with_harmonised_annotation.rds")
 
 
 annotated_samples =
@@ -595,9 +634,24 @@ cell_metadata_with_harmonised_annotation |> anti_join(annotated_samples)  |>  di
 # Histo of annotation
 cell_metadata_with_harmonised_annotation |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type_harmonised, .sample) |> count(.sample) |> pull(n) |> hist(breaks=30)
 
-# Tissue with no immune
-cell_metadata_with_harmonised_annotation |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type_harmonised, tissue_harmonised) |> count(cell_type_harmonised) |> arrange(n) |> print(n=99)
+# NEEDED CHANGES - ANIMAL CELLS AND HEMATOPOIETIC SHOULD BE EVALUATED AS IMMUNE FOR REANNNOTATION?
 
-cell_metadata_with_harmonised_annotation |> filter(!is.na(cell_type_harmonised)) |>  distinct( cell_type_harmonised, tissue_harmonised) |> count(tissue_harmonised) |> arrange(n) |> print(n=99)
+# Tissue with no immune
+
+temp_tissue =
+  cell_metadata_with_harmonised_annotation |>
+  filter(cell_type_harmonised=="pdc") |>
+  pull(tissue_harmonised)
+
+cell_metadata_with_harmonised_annotation |>
+  filter(!tissue_harmonised %in% temp_tissue) |>
+  distinct(tissue_harmonised) |>
+
+
+cell_metadata_with_harmonised_annotation |>
+  filter(disease == "normal") |>
+  filter(!is.na(cell_type_harmonised)) |>
+  distinct( cell_type_harmonised, tissue_harmonised) |>
+  count(tissue_harmonised) |> arrange(n) |> print(n=99)
 
 
