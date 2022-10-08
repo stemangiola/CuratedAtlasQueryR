@@ -571,6 +571,11 @@ cell_metadata_with_harmonised_annotation =
 		get_metadata() |>
 			select(.cell, .sample, file_id, file_id_db, tissue) |>
 			as_tibble()
+	) |>
+
+	left_join(
+		read_csv("dev/tissue_label_curated.csv"),
+		by="tissue"
 	)
 # xx = x |>
 # 	filter(cell_type_harmonised == "monocytes") |>
