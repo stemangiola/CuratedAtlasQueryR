@@ -13,7 +13,7 @@ library(openssl)
 
 # # CREATE MAKEFILE
 # tab = "\t"
-# root_directory = "/vast/scratch/users/mangiola.s/human_cell_atlas"
+# root_directory = "/vast/projects/RCP/human_cell_atlas"
 # metadata_directory = glue("{root_directory}/metadata")
 # raw_data_directory = glue("{root_directory}/raw_data")
 # files_metadata = glue("{root_directory}/files_metadata.rds")
@@ -30,11 +30,11 @@ library(openssl)
 # 	glue("{metadata_path}:{paste(output_files_path, collapse = \" \")} {files_metadata}\n{tab}Rscript merge_metadata.R {paste(output_files_path, collapse = \" \")} {files_metadata} {metadata_path}")
 # )  |>
 # 	write_lines(glue("get_metadata.makeflow"))
-
-source("utility.R")
-
-root_directory = "/vast/scratch/users/mangiola.s/human_cell_atlas"
-splitted_light_data_directory = glue("{root_directory}/splitted_light_data")
+#
+# source("utility.R")
+#
+# root_directory = "/vast/projects/RCP/human_cell_atlas"
+# splitted_light_data_directory = glue("{root_directory}/splitted_light_data")
 
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
@@ -197,7 +197,8 @@ col_data |>
  		"Fetus_id",
  		"individual",
  		"tissue",
- 		"development_stage"
+ 		"development_stage",
+ 		"assay"
  	), na.rm = TRUE, sep = "___", remove = F) |>
 
  	# Add sample hash
