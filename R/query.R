@@ -15,6 +15,8 @@
 #' @importFrom stringr str_remove
 #' @importFrom HDF5Array HDF5RealizationSink
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment
+#' @importFrom SingleCellExperiment SingleCellExperiment
+#' @importFrom SummarizedExperiment colData
 #'
 #' @export
 #'
@@ -53,24 +55,9 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 		unlist() |>
 		unique()
 
-	sce =
-		sce |>
-		map(~ {
-			missing_genes = all_genes  |> setdiff(rownames(.x))
-
-			missing_matrix =
-				HDF5RealizationSink(c(length(missing_genes),ncol(.x)), as.sparse = TRUE) |>
-				as("DelayedArray")
-
-			rownames(missing_matrix) = missing_genes
-			colnames(missing_matrix) = colnames(.x)
-
-			missing_sce = SingleCellExperiment(list(X=missing_matrix),  colData=colData(.x))
-			missing_sce@int_colData = .x@int_colData
-
-			# Make cell name unique
-			.x |> rbind(missing_sce	)
-		})
+	# Drop files with one cell, which causes
+	# the DFrame objects to combine must have the same column names
+	sce = sce[map_int(sce, ncol)>1]
 
 	cat("\n")
 
