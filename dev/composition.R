@@ -9,12 +9,14 @@ library(patchwork)
 source("https://gist.githubusercontent.com/stemangiola/fc67b08101df7d550683a5100106561c/raw/a0853a1a4e8a46baf33bad6268b09001d49faf51/ggplot_theme_multipanel")
 
 ## from http://tr.im/hH5A
-logsumexp <- function (x) {
-	y = max(x)
-	y + log(sum(exp(x - y)))
-}
+
 
 softmax <- function (x) {
+	logsumexp <- function (x) {
+		y = max(x)
+		y + log(sum(exp(x - y)))
+	}
+
 	exp(x - logsumexp(x))
 }
 
@@ -128,38 +130,39 @@ data_for_immune_proportion_count =
 # - Confidence class per cell type
 # -
 
-# Study annotation
-job::job({
+# # Study annotation
+# job::job({
+#
+# 	res =
+# 		data_for_immune_proportion |>
+# 		mutate(is_immune = as.character(is_immune)) |>
+#
+# 		# Mutate days
+# 		mutate(age_days = age_days  |> scale(center = FALSE) |> as.numeric()) |>
+# 		filter(development_stage!="unknown") |>
+#
+# 		# Fix samples with multiple assays
+# 		unite(".sample", c(.sample , assay), remove = FALSE) |>
+#
+# 		# Fix groups
+# 		unite("group", c(tissue_harmonised , file_id), remove = FALSE) |>
+#
+# 		sccomp_glm(
+# 			formula_composition = ~ 0 + tissue_harmonised + sex + ethnicity  + age_days + assay + (tissue_harmonised | group),
+# 			formula_variability = ~ 0 + tissue_harmonised + sex + ethnicity ,
+# 			.sample, is_immune,
+# 			check_outliers = F,
+# 			approximate_posterior_inference = FALSE,
+# 			#contrasts = c("typecancer - typehealthy", "typehealthy - typecancer"),
+# 			cores = 20,
+# 			mcmc_seed = 42, verbose = T
+# 		)
+#
+# 	res |> saveRDS("dev/immune_non_immune_differential_composition.rds")
+#
+# })
 
-	res =
-		data_for_immune_proportion |>
-		mutate(is_immune = as.character(is_immune)) |>
-
-		# Mutate days
-		mutate(age_days = age_days |> log1p() |> scale(center = FALSE) |> as.numeric()) |>
-		filter(development_stage!="unknown") |>
-
-		# Fix samples with multiple assays
-		unite(".sample", c(.sample , assay), remove = FALSE) |>
-
-		# Fix groups
-		unite("group", c(tissue_harmonised , file_id), remove = FALSE) |>
-
-		sccomp_glm(
-			formula_composition = ~ 0 + tissue_harmonised + sex + ethnicity  + age_days + assay + (tissue_harmonised | group),
-			formula_variability = ~ 0 + tissue_harmonised + sex + ethnicity ,
-			.sample, is_immune,
-			check_outliers = F,
-			approximate_posterior_inference = FALSE,
-			#contrasts = c("typecancer - typehealthy", "typehealthy - typecancer"),
-			cores = 20,
-			mcmc_seed = 42, verbose = T
-		)
-
-	res |> saveRDS("dev/immune_non_immune_differential_composition.rds")
-
-})
-
+res = readRDS("dev/immune_non_immune_differential_composition.rds")
 
 res_generated_proportions =
 	res |>
@@ -293,38 +296,48 @@ cell_metadata_with_harmonised_annotation |>
   filter(tissue_harmonised=="heart" & proportion > 0.75)
 
 
-# Relative
-data_for_immune_proportion_relative =
-	cell_metadata_with_harmonised_annotation |>
+# # Relative
+# data_for_immune_proportion_relative =
+# 	cell_metadata_with_harmonised_annotation |>
+#
+# 	left_join(
+# 		#get_metadata() |>
+# 		metadata |>
+# 			dplyr::select(.cell, cell_type, file_id, assay, age_days, development_stage, sex, ethnicity) |>
+# 			as_tibble()
+# 	) |>
+#
+# 	# Fix hematopoietic misclassification
+# 	mutate(cell_type_harmonised = if_else(cell_type_harmonised=="non_immune" & cell_type |> str_detect("hematopoietic"), "stem", cell_type_harmonised)) |>
+#
+# 	# Filter out
+# 	filter(!cell_type |> str_detect("erythrocyte")) |>
+# 	filter(!cell_type |> str_detect("platelet")) |>
+#
+# 	mutate(is_immune = cell_type_harmonised!="non_immune") |>
+#
+# 	# Filter only immune
+# 	filter(is_immune ) |>
+#
+# 	# Frmat sme covatriates
+# 	mutate(assay = if_else(assay |> str_detect("10x|scRNA-seq"), "10x", assay)) |>
+# 	mutate(ethnicity = case_when(
+# 		ethnicity |> str_detect("Chinese|Asian") ~ "Chinese",
+# 		ethnicity |> str_detect("African") ~ "African",
+# 		TRUE ~ ethnicity
+# 	)) |>
+#
+# 	filter(development_stage!="unknown") |>
+#
+# 	# Fix samples with multiple assays
+# 	unite(".sample", c(.sample , assay), remove = FALSE) |>
+#
+# 	# Fix groups
+# 	unite("group", c(tissue_harmonised , file_id), remove = FALSE)
+#
+# data_for_immune_proportion_relative |> saveRDS("dev/data_for_immune_proportion_relative.rds")
 
-	left_join(
-		#get_metadata() |>
-		metadata |>
-			dplyr::select(.cell, cell_type, file_id, assay, age_days, development_stage, sex, ethnicity) |>
-			as_tibble()
-	) |>
-
-	# Fix hematopoietic misclassification
-	mutate(cell_type_harmonised = if_else(cell_type_harmonised=="non_immune" & cell_type |> str_detect("hematopoietic"), "stem", cell_type_harmonised)) |>
-
-	# Filter out
-	filter(!cell_type |> str_detect("erythrocyte")) |>
-	filter(!cell_type |> str_detect("platelet")) |>
-
-	mutate(is_immune = cell_type_harmonised!="non_immune") |>
-
-	# Filter only immune
-	filter(is_immune ) |>
-
-	# Frmat sme covatriates
-	mutate(assay = if_else(assay |> str_detect("10x|scRNA-seq"), "10x", assay)) |>
-	mutate(ethnicity = case_when(
-		ethnicity |> str_detect("Chinese|Asian") ~ "Chinese",
-		ethnicity |> str_detect("African") ~ "African",
-		TRUE ~ ethnicity
-	))
-
-
+data_for_immune_proportion_relative = readRDS("dev/data_for_immune_proportion_relative.rds")
 
 # Analysis of counts relative
 data_for_immune_proportion_relative |>
@@ -333,116 +346,131 @@ data_for_immune_proportion_relative |>
 	add_count(n) |>
 	arrange(n)
 
-data_for_immune_proportion_relative %>%
-	filter(.sample == "0016a680532149c5c4d3dfaa0e4fd826") |>
-	count(assay)
-
-job::job({
-	res_relative =
-		data_for_immune_proportion_relative |>
-
-		# Mutate days
-		mutate(age_days = age_days |> log1p() |> scale(center = FALSE) |> as.numeric()) |>
-		filter(development_stage!="unknown") |>
-
-		# Fix samples with multiple assays
-		unite(".sample", c(.sample , assay), remove = FALSE) |>
-
-		# Fix groups
-		unite("group", c(tissue_harmonised , file_id), remove = FALSE) |>
-
-		# Estimate
-		sccomp_glm(
-			formula_composition = ~ 0 + tissue_harmonised + sex + ethnicity  + age_days + assay + (tissue_harmonised | group),
-			formula_variability = ~ 0 + tissue_harmonised + sex + ethnicity,
-			.sample, cell_type_harmonised,
-			check_outliers = F,
-			approximate_posterior_inference = FALSE,
-			#contrasts = c("typecancer - typehealthy", "typehealthy - typecancer"),
-			cores = 20,
-			mcmc_seed = 42, verbose = T
-		)
-
-	res_relative |> saveRDS("dev/immune_non_immune_differential_composition_relative_4.rds")
-})
+# job::job({
+# 	res_relative =
+# 		data_for_immune_proportion_relative |>
+#
+# 		# Scale days
+# 		mutate(age_days = age_days  |> scale(center = FALSE) |> as.numeric()) |>
+#
+# 		# Estimate
+# 		sccomp_glm(
+# 			formula_composition = ~ 0 + tissue_harmonised + sex + ethnicity  + age_days + assay + (tissue_harmonised | group) + (age_days | tissue_harmonised),
+# 			formula_variability = ~ 0 + tissue_harmonised + sex + ethnicity,
+# 			.sample, cell_type_harmonised,
+# 			check_outliers = F,
+# 			approximate_posterior_inference = FALSE,
+# 			cores = 20,
+# 			mcmc_seed = 42, verbose = T
+# 		)
+#
+# 	res_relative |> saveRDS("dev/immune_non_immune_differential_composition_relative_5.rds")
+# })
 
 
-res_relative = readRDS("dev/immune_non_immune_differential_composition_relative.rds")
+res_relative = readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_relative_5.rds")
+
+job::job({ proportions_tissue_harmonised = readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_relative_5.rds") |> remove_unwanted_variation(~ 0 + tissue_harmonised) })
+job::job({ proportions_age4 =  readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_relative_4.rds") |> remove_unwanted_variation(~ age_days) })
+job::job({ proportions_age5 =  readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_relative_5.rds") |> remove_unwanted_variation(~ age_days) })
+
+
+
 
 library(ggforce)
 library(ggpubr)
 
-res_relative_for_plot =
-	res_relative |>
-	filter(!parameter |> str_detect("group___")) |>
+circle_plot = function(res){
+
+	logsumexp <- function (x) {
+		y = max(x)
+		y + log(sum(exp(x - y)))
+	}
+	softmax <- function (x) {
+
+		exp(x - logsumexp(x))
+	}
+
+	res_relative_for_plot =
+		res |>
+		filter(!parameter |> str_detect("group___")) |>
+
+		# Cell type abundance
+		with_groups(tissue_harmonised, ~ .x |>  mutate(proportion = softmax(c_effect))) |>
+		with_groups(cell_type_harmonised, ~ .x |>  mutate(cell_type_mean_abundance = mean(proportion))) |>
+
+		# Filter for visualisation
+		filter(!cell_type_harmonised %in% c("non_immune", "immune_unclassified")) |>
+
+		# Tissue diversity
+		with_groups(tissue_harmonised, ~ .x |>  mutate(inter_type_diversity = sd(c_effect))) |>
+
+		# First rank
+		with_groups(cell_type_harmonised, ~ .x |> arrange(desc(c_effect)) |>  mutate(rank = 1:n())) |>
+
+		# Cap
+		mutate(c_effect = c_effect |> pmax(-5) |> pmin(5))
+
+	inter_type_diversity_plot =
+		res_relative_for_plot |>
+		distinct(inter_type_diversity, tissue_harmonised) |>
+		ggplot(aes(inter_type_diversity, fct_reorder(tissue_harmonised, inter_type_diversity))) +
+		geom_bar(stat = "identity") +
+		scale_x_reverse() +
+		theme_multipanel
+
+	cell_type_mean_abundance_plot =
+		res_relative_for_plot |>
+		distinct(cell_type_mean_abundance, cell_type_harmonised) |>
+		ggplot(aes(fct_reorder(cell_type_harmonised, dplyr::desc(cell_type_mean_abundance)), cell_type_mean_abundance)) +
+		geom_bar(stat = "identity") +
+		scale_y_continuous(position = "right") +
+		theme_multipanel +
+		theme(
+			axis.text.x = element_blank(),
+			axis.title.x = element_blank(),
+			axis.ticks.x = element_blank(),
+			axis.title.y = element_blank(),
+		)
+
+	circle_plot =
+		res_relative_for_plot |>
+		arrange(rank==1) |>
+		ggplot() +
+		geom_point(aes(
+			fct_reorder(cell_type_harmonised, dplyr::desc(cell_type_mean_abundance)),
+			fct_reorder(tissue_harmonised, inter_type_diversity) ,
+			fill = rank, size = c_effect, stroke=rank==1), shape=21
+		) +
+		scale_fill_viridis_c(direction = -1) +
+		theme_multipanel +
+		theme(
+			axis.text.x = element_text(angle=90, hjust = 1, vjust = 0.5),
+			axis.text.y = element_blank(),
+			axis.title.y = element_blank(),
+			axis.ticks.y = element_blank()
+		)
+
+
+	plot_spacer() +
+		cell_type_mean_abundance_plot +
+		inter_type_diversity_plot +
+		circle_plot +
+		plot_layout(guides = 'collect', height = c(1,5), width = c(1, 5)) &
+		theme( plot.margin = margin(0, 0, 0, 0, "pt"), legend.position = "bottom")
+
+}
+
+res_relative |>
+	filter(covariate == "tissue_harmonised") |>
 	mutate(tissue_harmonised = parameter |> str_remove("tissue_harmonised")) |>
+	circle_plot()
 
-	# Cell type abundance
-	with_groups(tissue_harmonised, ~ .x |>  mutate(proportion = softmax(c_effect))) |>
-	with_groups(cell_type_harmonised, ~ .x |>  mutate(cell_type_mean_abundance = mean(proportion))) |>
-
-	# Filter for visualisation
-	filter(!cell_type_harmonised %in% c("non_immune", "immune_unclassified")) |>
-
-	# Tissue diversity
-	with_groups(tissue_harmonised, ~ .x |>  mutate(inter_type_diversity = sd(c_effect))) |>
-
-	# First rank
-	with_groups(cell_type_harmonised, ~ .x |> arrange(desc(c_effect)) |>  mutate(rank = 1:n())) |>
-
-	# Cap
-	mutate(c_effect = c_effect |> pmax(-5) |> pmin(5))
-
-inter_type_diversity_plot =
-	res_relative_for_plot |>
-	distinct(inter_type_diversity, tissue_harmonised) |>
-	ggplot(aes(inter_type_diversity, fct_reorder(tissue_harmonised, inter_type_diversity))) +
-	geom_bar(stat = "identity") +
-	scale_x_reverse() +
-	theme_multipanel
-
-cell_type_mean_abundance_plot =
-	res_relative_for_plot |>
-	distinct(cell_type_mean_abundance, cell_type_harmonised) |>
-	ggplot(aes(fct_reorder(cell_type_harmonised, desc(cell_type_mean_abundance)), cell_type_mean_abundance)) +
-	geom_bar(stat = "identity") +
-	scale_y_continuous(position = "right") +
-	theme_multipanel +
-	theme(
-		axis.text.x = element_blank(),
-		axis.title.x = element_blank(),
-		axis.ticks.x = element_blank(),
-		axis.title.y = element_blank(),
-	)
-
-circle_plot =
-	res_relative_for_plot |>
-	arrange(rank==1) |>
-	ggplot() +
-	geom_point(aes(
-		fct_reorder(cell_type_harmonised, desc(cell_type_mean_abundance)),
-		fct_reorder(tissue_harmonised, inter_type_diversity) ,
-		fill = rank, size = c_effect, stroke=rank==1), shape=21
-	) +
-	scale_fill_viridis_c(direction = -1) +
-	theme_multipanel +
-	theme(
-		axis.text.x = element_text(angle=90, hjust = 1, vjust = 0.5),
-		axis.text.y = element_blank(),
-		axis.title.y = element_blank(),
-		axis.ticks.y = element_blank()
-	)
-
-
-
-
-plot_spacer() +
-	cell_type_mean_abundance_plot +
-	inter_type_diversity_plot +
-	circle_plot +
-	plot_layout(guides = 'collect', height = c(1,5), width = c(1, 5)) &
-	theme( plot.margin = margin(0, 0, 0, 0, "pt"), legend.position = "bottom")
-
+res_relative |>
+	filter(covariate == "ethnicity") |>
+	filter(parameter != "ethnicityunknown") |>
+	mutate(tissue_harmonised = parameter |> str_remove("ethnicity")) |>
+	circle_plot()
 
 res_relative_plot = res_relative |> plot_summary()
 
@@ -453,3 +481,44 @@ res_relative_plot |> saveRDS("dev/immune_non_immune_differential_composition_rel
 
 
 # PCA of tissues
+
+# Track of immune system in life
+data_for_immune_proportion_relative |>
+
+	# Mutate days
+	mutate(age_days = age_days  |> as.numeric()) |>
+	filter(development_stage!="unknown") |>
+
+	# Fix samples with multiple assays
+	unite(".sample", c(.sample , assay), remove = FALSE) |>
+
+	# Fix groups
+	unite("group", c(tissue_harmonised , file_id), remove = FALSE)  |>
+	count(.sample, cell_type_harmonised, tissue_harmonised ,  sex,  ethnicity , age_days, assay ) |>
+	with_groups(.sample, ~ .x |> mutate(proportion = n/sum(n))) |>
+	ggplot(aes(age_days, proportion)) +
+	geom_point(aes(color = tissue_harmonised), shape = ".") +
+	geom_smooth(method="lm") +
+	facet_wrap(~ cell_type_harmonised) +
+	scale_y_continuous(trans=S_sqrt_trans(), labels = dropLeadingZero)
+
+proportions_tissue_harmonised |>
+	left_join(
+		data_for_immune_proportion_relative |>
+			tidybulk::pivot_sample(.sample)
+	) |>
+
+	filter(development_stage!="unknown") |>
+	filter(tissue_harmonised != "blood") |>
+	# Fix samples with multiple assays
+	unite(".sample", c(.sample , assay), remove = FALSE) |>
+
+	# Fix groups
+	unite("group", c(tissue_harmonised , file_id), remove = FALSE)  |>
+	ggplot(aes(age_days, adjusted_proportion)) +
+	geom_point(aes(color = tissue_harmonised), shape = ".") +
+	geom_smooth(method="lm") +
+	facet_wrap(~ cell_type_harmonised) +
+	scale_y_continuous(trans=S_sqrt_trans(), labels = dropLeadingZero)
+
+# Technology bias

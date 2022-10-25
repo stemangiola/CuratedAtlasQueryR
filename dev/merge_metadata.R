@@ -54,8 +54,11 @@ input_file_paths  |>
 					) |>
 	bind_rows() |>
 
-	unite("file_id_db", c(.sample, cell_type), remove = FALSE) |>
-	mutate(file_id_db = file_id_db |> md5()) |>
+	unite("file_id_db", c(file_id, cell_type), remove = FALSE) |>
+	mutate(file_id_db = file_id_db |> md5() |> as.character()) |>
+
+	unite("sample_id_db", c(.sample, cell_type), remove = FALSE) |>
+	mutate(sample_id_db = sample_id_db |> md5() |> as.character()) |>
 
 	# Curate tissue
 	left_join(

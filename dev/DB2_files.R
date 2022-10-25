@@ -17,14 +17,16 @@ library(HCAquery)
 options(scipen = 999)
 #
 
-# # CREATE MAKEFILE
-# tab = "\t"
-# root_directory = "/vast/projects/RCP/human_cell_atlas"
-# raw_data_directory = glue("{root_directory}/raw_data")
-# splitted_DB2_data_directory = glue("{root_directory}/splitted_DB2_data")
-# file_cell_types_directory = glue("{root_directory}/file_cell_types")
-# input_files_path = dir(file_cell_types_directory, full.names = TRUE)
-# #
+# CREATE MAKEFILE
+tab = "\t"
+root_directory = "/vast/projects/RCP/human_cell_atlas"
+raw_data_directory = glue("{root_directory}/raw_data")
+splitted_DB2_data_directory = glue("{root_directory}/splitted_DB2_data")
+file_cell_types_directory = glue("{root_directory}/file_cell_types")
+input_files_path = dir(file_cell_types_directory, full.names = TRUE)
+gene_names = glue("{root_directory}/gene_names.rds")
+#
+#
 # ## metadata = readRDS(metadata_path)
 #
 # get_metadata() |>
@@ -67,7 +69,7 @@ options(scipen = 999)
 # 			c(
 # 				glue("CATEGORY=split_data{..4}\nMEMORY={..3}\nCORES=1\nWALL_TIME=30000"),
 # 				glue(
-# 					"{..1}:{..2}\n{tab}Rscript DB2_files.R {..2} {..1}"
+# 					"{..1}:{..2}\n{tab}Rscript DB2_files.R {..2} {gene_names} {..1}"
 # 				)
 # 			)
 # 	))  |>
@@ -80,7 +82,8 @@ options(scipen = 999)
 # Read arguments
 args = commandArgs(trailingOnly = TRUE)
 input_file = args[[1]]
-output_file = args[[2]]
+all_gene_names = args[[2]]
+output_file = args[[3]]
 
 output_file |> dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
 file_id = basename(input_file) |> tools::file_path_sans_ext() |> str_split("___") %>% .[[1]] %>% .[1]
@@ -156,6 +159,21 @@ colnames(sce) = colnames(X)
 
 rm(X)
 gc()
+
+# Add missing genes
+missing_genes = readRDS(all_gene_names) |> setdiff(rownames(sce))
+missing_matrix =
+	HDF5RealizationSink(c(length(missing_genes),ncol(sce)), as.sparse = TRUE) |>
+	as("DelayedArray")
+
+rownames(missing_matrix) = missing_genes
+colnames(missing_matrix) = colnames(sce)
+
+missing_sce = SingleCellExperiment(list(X=missing_matrix),  colData=colData(sce))
+missing_sce@int_colData = sce@int_colData
+
+# Make cell name unique
+sce = sce |> rbind(missing_sce)
 
 sce |>	saveHDF5SummarizedExperiment(output_file, replace=TRUE)
 
