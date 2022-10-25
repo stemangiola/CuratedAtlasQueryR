@@ -11,6 +11,8 @@ Depends:
     R (>= 4.1.0)
 Imports:
 	dplyr,
+	SummarizedExperiment,
+	SingleCellExperiment,
 	tidySingleCellExperiment,
 	purrr,
 	zellkonverter,
