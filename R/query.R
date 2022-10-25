@@ -61,13 +61,17 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 
 	cat("\n")
 
-	sce |>
 
-		# Combine
+	# Combine
+	sce =
+		sce |>
 		do.call(cbind, args=_)
 
+	# Rename assay
+	names(sce@assays@data) = "counts"
 
-
+	# Return
+	sce
 
 }
 
