@@ -14,6 +14,7 @@ library(openssl)
 # # CREATE MAKEFILE
 # tab = "\t"
 # root_directory = "/vast/projects/RCP/human_cell_atlas"
+# my_root_directory = "/vast/scratch/users/mangiola.s/human_cell_atlas"
 # metadata_directory = glue("{root_directory}/metadata")
 # raw_data_directory = glue("{root_directory}/raw_data")
 # files_metadata = glue("{root_directory}/files_metadata.rds")
@@ -22,19 +23,19 @@ library(openssl)
 # input_files = input_files_path |> basename()
 # output_files = input_files |> str_replace("H5AD$", "rds")
 # output_files_path = glue("{metadata_directory}/{output_files}")
-# metadata_path = glue("{root_directory}/metadata.rds")
+# metadata_path = glue("metadata.rds")
 # c(
 # 	glue("CATEGORY=get_metadata\nMEMORY=80024\nCORES=1\nWALL_TIME=10000"),
 # 	glue("{output_files_path}:{input_files_path}\n{tab}Rscript get_metadata.R {input_files_path} {output_files_path}"),
 # 	glue("CATEGORY=merge_metadata\nMEMORY=80024\nCORES=1\nWALL_TIME=10000"),
 # 	glue("{metadata_path}:{paste(output_files_path, collapse = \" \")} {files_metadata}\n{tab}Rscript merge_metadata.R {paste(output_files_path, collapse = \" \")} {files_metadata} {metadata_path}")
 # )  |>
-# 	write_lines(glue("get_metadata.makeflow"))
-#
-# source("utility.R")
-#
-# root_directory = "/vast/projects/RCP/human_cell_atlas"
-# splitted_light_data_directory = glue("{root_directory}/splitted_light_data")
+# 	write_lines(glue("dev/get_metadata.makeflow"))
+
+source("utility.R")
+
+root_directory = "/vast/projects/RCP/human_cell_atlas"
+splitted_light_data_directory = glue("{root_directory}/splitted_light_data")
 
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
