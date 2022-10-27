@@ -3,26 +3,27 @@
 #' @param .data A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
 #' This can be obtained from the [get_metadata()] function.
 #' @param repository A character vector of length one, which is a file path to where the single cell data is stored
+#' @param genes An optional character vector of genes to return the counts for. By default counts for all genes will be returned.
 #'
-#' @importFrom dplyr pull
-#' @importFrom tidySingleCellExperiment inner_join
-#' @importFrom purrr reduce
-#' @importFrom purrr map
+#' @importFrom dplyr pull filter
+#' @importFrom tidySingleCellExperiment inner_join 
+#' @importFrom purrr reduce map map_int
 #' @importFrom BiocGenerics cbind
 #' @importFrom glue glue
 #' @importFrom dplyr as_tibble
-#' @importFrom HDF5Array loadHDF5SummarizedExperiment
+#' @importFrom HDF5Array loadHDF5SummarizedExperiment HDF5RealizationSink loadHDF5SummarizedExperiment
 #' @importFrom stringr str_remove
-#' @importFrom HDF5Array HDF5RealizationSink
-#' @importFrom HDF5Array loadHDF5SummarizedExperiment
 #' @importFrom SingleCellExperiment SingleCellExperiment
-#' @importFrom SummarizedExperiment colData
+#' @importFrom SummarizedExperiment colData assayNames<-
 #'
 #' @export
 #'
 #'
-get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data"){
-
+get_SingleCellExperiment = function(
+  .data,
+  repository = "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data",
+  genes = NULL
+){
   # We have to convert to an in-memory table here, or some of the dplyr operations will fail when passed a database connection
   raw_data = as_tibble(.data)
 
@@ -32,47 +33,49 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 		unique() |>
 		as.character()
 
-	message(glue("Reading {length(files_to_read)} files."))
+	glue("Reading {length(files_to_read)} files.") |>
+	  message()
 
-	sce =
+	# Load each file
+	sces =
 		files_to_read |>
 		map(~ {
 			cat(".")
-			loadHDF5SummarizedExperiment(glue("{repository}/{.x}")	) |>
-				inner_join(
-					raw_data |>
-
-						# Needed because cell IDs are not unique outside the file_id or file_id_db
-						filter(file_id_db == .x),
-					by=".cell"
-				)
-			})
-
-	# Harmonise genes
-	all_genes =
-		sce |>
-		map(rownames) |>
-		unlist() |>
-		unique()
+		  
+		  sce = glue("{repository}/{.x}") |>
+			  loadHDF5SummarizedExperiment()
+		  
+		  if (!is.null(genes)){
+		    # Optionally subset the genes
+		    sce = sce[
+		      intersect(genes, rownames(sce))  
+		    ]
+		  }
+		  
+		  sce |>
+			  inner_join(
+  				# Needed because cell IDs are not unique outside the file_id or file_id_db
+  				filter(raw_data, file_id_db == .x),
+  				by=".cell"
+  			)
+		})
 
 	# Drop files with one cell, which causes
 	# the DFrame objects to combine must have the same column names
-	sce = sce[map_int(sce, ncol)>1]
+	sces = sces[map_int(sces, ncol)>1]
 
 	cat("\n")
 
-
 	# Combine
 	sce =
-		sce |>
+		sces |>
 		do.call(cbind, args=_)
 
 	# Rename assay
-	names(sce@assays@data) = "counts"
+	assayNames(sce) = "counts"
 
 	# Return
 	sce
-
 }
 
 
@@ -85,12 +88,10 @@ get_SingleCellExperiment = function(.data, repository = "/vast/projects/RCP/huma
 #' @export
 #'
 #' @importFrom DBI dbConnect
-#' @importFrom RSQLite SQLite
-#' @importFrom RSQLite SQLITE_RO
+#' @importFrom RSQLite SQLite SQLITE_RO
 #' @importFrom dplyr tbl
 #'
 get_metadata = function(sqlite_path = "/vast/projects/RCP/human_cell_atlas/metadata.sqlite"){
-
   SQLite() |>
     dbConnect(drv=_, dbname=sqlite_path, flags=SQLITE_RO) |>
     tbl("metadata")

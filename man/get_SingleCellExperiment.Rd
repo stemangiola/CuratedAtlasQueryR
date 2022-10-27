@@ -6,7 +6,8 @@
 \usage{
 get_SingleCellExperiment(
   .data,
-  repository = "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data"
+  repository = "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data",
+  genes = NULL
 )
 }
 \arguments{
@@ -14,6 +15,8 @@ get_SingleCellExperiment(
 This can be obtained from the [get_metadata()] function.}
 
 \item{repository}{A character vector of length one, which is a file path to where the single cell data is stored}
+
+\item{genes}{An optional character vector of genes to return the counts for. By default counts for all genes will be returned.}
 }
 \description{
 Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame
