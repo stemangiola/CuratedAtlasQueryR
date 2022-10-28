@@ -78,6 +78,25 @@ get_SingleCellExperiment = function(
 	sce
 }
 
+#' @importFrom SeuratObject as.sparse
+#' @exportS3Method 
+as.sparse.DelayedMatrix = function(x){
+  # This is glue to ensure the SCE -> Seurat conversion works properly with
+  # DelayedArray types
+  as(x, "dgCMatrix")
+}
+
+#' Given a data frame of HCA metadata, returns a Seurat object corresponding to the samples in that data frame
+#'
+#' @inheritDotParams get_SingleCellExperiment
+#' @importFrom Seurat as.Seurat 
+#' @export
+get_seurat = function(
+  ...
+){
+  get_SingleCellExperiment(...) |> as.Seurat(data=NULL)
+}
+
 
 #' Returns a data frame of Human Cell Atlas metadata, which should be filtered
 #' and ultimately passed into get_SingleCellExperiment.

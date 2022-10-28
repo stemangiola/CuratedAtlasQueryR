@@ -13,3 +13,18 @@ test_that("The genes argument to get_SingleCellExperiment subsets genes", {
   
   expect_gt(sce_full, sce_subset)
 })
+
+test_that("get_seurat() returns the appropriate data in Seurat format", {
+  meta = get_metadata() |> head(2)
+  
+  sce = get_SingleCellExperiment(meta, genes = "PUM1")
+  seurat = get_seurat(meta, genes = "PUM1")
+  
+  # The output should be a Seurat object
+  expect_s4_class(seurat, "Seurat")
+  # Both methods should have appropriately subset genes
+  expect_equal(
+    rownames(sce),
+    rownames(seurat)
+  )
+})
