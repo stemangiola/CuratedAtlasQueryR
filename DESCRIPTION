@@ -23,19 +23,20 @@ Imports:
 	RSQLite,
 	dbplyr
 Suggests:
-	here,
-	stringr,
-	Seurat,
-	tidyseurat,
-	scMerge,
-	DelayedArray,
-	openssl,
-	cellxgenedp,
-	SingleCellExperiment,
-	celldex,
-	SingleR,
-	tools,
-	rmarkdown
+    here,
+    stringr,
+    Seurat,
+    tidyseurat,
+    scMerge,
+    DelayedArray,
+    openssl,
+    cellxgenedp,
+    SingleCellExperiment,
+    celldex,
+    SingleR,
+    tools,
+    rmarkdown,
+    SeuratObject
 VignetteBuilder:
     knitr
 RdMacros:

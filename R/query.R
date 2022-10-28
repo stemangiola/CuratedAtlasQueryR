@@ -78,7 +78,7 @@ get_SingleCellExperiment = function(
 	sce
 }
 
-#' @importFrom Seurat as.sparse
+#' @importFrom SeuratObject as.sparse
 #' @exportS3Method 
 as.sparse.DelayedMatrix = function(x){
   # This is glue to ensure the SCE -> Seurat conversion works properly with
