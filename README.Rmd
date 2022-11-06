@@ -12,6 +12,8 @@ library(dplyr)
 library(dbplyr)
 library(SingleCellExperiment)
 library(tidySingleCellExperiment)
+options("restore_SingleCellExperiment_show" = TRUE)
+
 ```
 
 Load the data
@@ -29,10 +31,9 @@ get_metadata() |>
 	arrange(desc(n))
 ```
 
-Query
+Query raw counts
 
 ```{r}
-options("restore_SingleCellExperiment_show" = TRUE)
 sce = 
 	get_metadata() |> 
     filter(
@@ -43,6 +44,23 @@ sce =
     ) |> 
 	
 	get_SingleCellExperiment()
+	
+sce
+```
+
+Query counts scaled per million. This is helpful if just few genes are of interest
+
+```{r}
+sce = 
+	get_metadata() |> 
+    filter(
+    	 ethnicity == "African" & 
+        assay %LIKE% "%10x%" & 
+        tissue == "lung parenchyma" & 
+        cell_type %LIKE% "%CD4%"
+    ) |> 
+	
+	get_SingleCellExperiment(assay = "counts_per_million")
 	
 sce
 ```

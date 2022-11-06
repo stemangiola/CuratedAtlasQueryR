@@ -6,7 +6,11 @@
 \usage{
 get_SingleCellExperiment(
   .data,
-  repository = "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data",
+  assay = "counts",
+  repository = when(assay, equals(., "counts") ~
+    "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data", equals(.,
+    "counts_per_million") ~
+    "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data_scaled"),
   genes = NULL
 )
 }

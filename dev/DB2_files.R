@@ -128,6 +128,17 @@ transformation =
 	pull(transformation) |>
 	unique()
 
+# Ad hoc transformations, not declared as log
+if(file_id %in% c(
+	"1e81a742-e457-4fc6-9c39-c55189ec9dc2",
+	"b51bfa2d-22b2-4c65-9803-d36d4de973fa",
+	"4e4bbb2d-f341-4523-a5a0-5407d8b03e0e",
+	"c48402e4-e7db-4c82-a9e9-51e285e5165c",
+	"82ad3285-e5d4-46d1-89c0-3acf91a9e33f",
+	"7addb561-c1bf-4fb5-ad10-16dd65b3643a",
+	"575513b2-6e53-41e2-85a9-bc08a6233ce4"
+)) transformation = "log"
+
 X =
 	X |>
 	when(
