@@ -6,7 +6,7 @@
 #' @param genes An optional character vector of genes to return the counts for. By default counts for all genes will be returned.
 #'
 #' @importFrom dplyr pull filter
-#' @importFrom tidySingleCellExperiment inner_join 
+#' @importFrom tidySingleCellExperiment inner_join
 #' @importFrom purrr reduce map map_int
 #' @importFrom BiocGenerics cbind
 #' @importFrom glue glue
@@ -15,13 +15,20 @@
 #' @importFrom stringr str_remove
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom SummarizedExperiment colData assayNames<-
+#' @importFrom purrr when
+#' @importFrom magrittr equals
 #'
 #' @export
 #'
 #'
 get_SingleCellExperiment = function(
   .data,
-  repository = "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data",
+  assay = "counts",
+  repository = when(
+  	assay,
+  	equals(., "counts") ~ "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data",
+  	equals(., "counts_per_million") ~ "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data_scaled"
+  ),
   genes = NULL
 ){
   # We have to convert to an in-memory table here, or some of the dplyr operations will fail when passed a database connection
@@ -41,17 +48,17 @@ get_SingleCellExperiment = function(
 		files_to_read |>
 		map(~ {
 			cat(".")
-		  
+
 		  sce = glue("{repository}/{.x}") |>
 			  loadHDF5SummarizedExperiment()
-		  
+
 		  if (!is.null(genes)){
 		    # Optionally subset the genes
 		    sce = sce[
-		      intersect(genes, rownames(sce))  
+		      intersect(genes, rownames(sce))
 		    ]
 		  }
-		  
+
 		  sce |>
 			  inner_join(
   				# Needed because cell IDs are not unique outside the file_id or file_id_db
@@ -71,15 +78,15 @@ get_SingleCellExperiment = function(
 		sces |>
 		do.call(cbind, args=_)
 
-	# Rename assay
-	assayNames(sce) = "counts"
+	# Rename assay THIS WILL NOT BE NEEDED EVENTUALLY
+	assayNames(sce) = assay
 
 	# Return
 	sce
 }
 
 #' @importFrom SeuratObject as.sparse
-#' @exportS3Method 
+#' @exportS3Method
 as.sparse.DelayedMatrix = function(x){
   # This is glue to ensure the SCE -> Seurat conversion works properly with
   # DelayedArray types
@@ -89,7 +96,7 @@ as.sparse.DelayedMatrix = function(x){
 #' Given a data frame of HCA metadata, returns a Seurat object corresponding to the samples in that data frame
 #'
 #' @inheritDotParams get_SingleCellExperiment
-#' @importFrom Seurat as.Seurat 
+#' @importFrom Seurat as.Seurat
 #' @export
 get_seurat = function(
   ...
