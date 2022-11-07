@@ -1,7 +1,7 @@
 HCAquery
 ================
 
-Load Metadata
+Load the package
 
 ``` r
 library(HCAquery)
@@ -12,33 +12,33 @@ library(tidySingleCellExperiment)
 options("restore_SingleCellExperiment_show" = TRUE)
 ```
 
-Load the data
+Load the metadata
 
 ``` r
 get_metadata()
 ```
 
-    ## # Source:   table<metadata> [?? x 52]
-    ## # Database: sqlite 3.39.2 [/vast/projects/RCP/human_cell_atlas/metadata.sqlite]
-    ##    .cell   .sample .samp…¹ assay assay…² cell_…³ cell_…⁴ devel…⁵ devel…⁶ disease
-    ##    <chr>   <chr>   <chr>   <chr> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
-    ##  1 AAACCT… 5f20d7… D17PrP… 10x … EFO:00… basal … CL:000… 31-yea… HsapDv… normal 
-    ##  2 AAACCT… 5f20d7… D17PrP… 10x … EFO:00… basal … CL:000… 31-yea… HsapDv… normal 
-    ##  3 AAACCT… 5f20d7… D17PrP… 10x … EFO:00… lumina… CL:000… 31-yea… HsapDv… normal 
-    ##  4 AAACCT… 5f20d7… D17PrP… 10x … EFO:00… lumina… CL:000… 31-yea… HsapDv… normal 
-    ##  5 AAACCT… 5f20d7… D17PrP… 10x … EFO:00… basal … CL:000… 31-yea… HsapDv… normal 
-    ##  6 AAACCT… 5f20d7… D17PrP… 10x … EFO:00… basal … CL:000… 31-yea… HsapDv… normal 
-    ##  7 AAACCT… 5f20d7… D17PrP… 10x … EFO:00… basal … CL:000… 31-yea… HsapDv… normal 
-    ##  8 AAACGG… 5f20d7… D17PrP… 10x … EFO:00… basal … CL:000… 31-yea… HsapDv… normal 
-    ##  9 AAACGG… 5f20d7… D17PrP… 10x … EFO:00… lumina… CL:000… 31-yea… HsapDv… normal 
-    ## 10 AAACGG… 5f20d7… D17PrP… 10x … EFO:00… basal … CL:000… 31-yea… HsapDv… normal 
-    ## # … with more rows, 42 more variables: disease_ontology_term_id <chr>,
-    ## #   ethnicity <chr>, ethnicity_ontology_term_id <chr>, file_id <chr>,
-    ## #   is_primary_data.x <chr>, organism <chr>, organism_ontology_term_id <chr>,
-    ## #   sample_placeholder <chr>, sex <chr>, sex_ontology_term_id <chr>,
-    ## #   tissue <chr>, tissue_ontology_term_id <chr>, dataset_id <chr>,
-    ## #   collection_id <chr>, cell_count <int>, dataset_deployments <chr>,
-    ## #   is_primary_data.y <chr>, is_valid <int>, linked_genesets <int>, …
+    ## # Source:   table<metadata> [?? x 56]
+    ## # Database: sqlite 3.39.3 [/vast/projects/RCP/human_cell_atlas/metadata.sqlite]
+    ##    .cell   sampl…¹ .sample .samp…² assay assay…³ file_…⁴ cell_…⁵ cell_…⁶ devel…⁷
+    ##    <chr>   <chr>   <chr>   <chr>   <chr> <chr>   <chr>   <chr>   <chr>   <chr>  
+    ##  1 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
+    ##  2 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
+    ##  3 AAACCT… 02eb2e… 5f20d7… D17PrP… 10x … EFO:00… 30f754… lumina… CL:000… 31-yea…
+    ##  4 AAACCT… 02eb2e… 5f20d7… D17PrP… 10x … EFO:00… 30f754… lumina… CL:000… 31-yea…
+    ##  5 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
+    ##  6 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
+    ##  7 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
+    ##  8 AAACGG… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
+    ##  9 AAACGG… 02eb2e… 5f20d7… D17PrP… 10x … EFO:00… 30f754… lumina… CL:000… 31-yea…
+    ## 10 AAACGG… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
+    ## # … with more rows, 46 more variables:
+    ## #   development_stage_ontology_term_id <chr>, disease <chr>,
+    ## #   disease_ontology_term_id <chr>, ethnicity <chr>,
+    ## #   ethnicity_ontology_term_id <chr>, file_id <chr>, is_primary_data.x <chr>,
+    ## #   organism <chr>, organism_ontology_term_id <chr>, sample_placeholder <chr>,
+    ## #   sex <chr>, sex_ontology_term_id <chr>, tissue <chr>,
+    ## #   tissue_ontology_term_id <chr>, tissue_harmonised <chr>, age_days <dbl>, …
 
 Explore the HCA content
 
@@ -50,7 +50,7 @@ get_metadata() |>
 ```
 
     ## # Source:     SQL [?? x 2]
-    ## # Database:   sqlite 3.39.2 [/vast/projects/RCP/human_cell_atlas/metadata.sqlite]
+    ## # Database:   sqlite 3.39.3 [/vast/projects/RCP/human_cell_atlas/metadata.sqlite]
     ## # Ordered by: desc(n)
     ##    tissue                    n
     ##    <chr>                 <int>
@@ -97,8 +97,8 @@ sce
     ## rowData names(0):
     ## colnames(1571): ACAGCCGGTCCGTTAA_F02526 GGGAATGAGCCCAGCT_F02526 ...
     ##   TACAACGTCAGCATTG_SC84 CATTCGCTCAATACCG_F02526
-    ## colData names(51): .sample .sample_name ... cell_annotation_azimuth_l2
-    ##   cell_annotation_blueprint_singler
+    ## colData names(55): sample_id_db .sample ... n_cell_type_in_tissue
+    ##   n_tissue_in_cell_type
     ## reducedDimNames(0):
     ## mainExpName: NULL
     ## altExpNames(0):
@@ -135,8 +135,63 @@ sce
     ## rowData names(0):
     ## colnames(1571): ACAGCCGGTCCGTTAA_F02526 GGGAATGAGCCCAGCT_F02526 ...
     ##   TACAACGTCAGCATTG_SC84 CATTCGCTCAATACCG_F02526
-    ## colData names(51): .sample .sample_name ... cell_annotation_azimuth_l2
-    ##   cell_annotation_blueprint_singler
+    ## colData names(55): sample_id_db .sample ... n_cell_type_in_tissue
+    ##   n_tissue_in_cell_type
     ## reducedDimNames(0):
     ## mainExpName: NULL
     ## altExpNames(0):
+
+Extract only a subset of genes:
+
+``` r
+get_metadata() |> 
+  filter(
+     ethnicity == "African" & 
+      assay %LIKE% "%10x%" & 
+      tissue == "lung parenchyma" & 
+      cell_type %LIKE% "%CD4%"
+  ) |> 
+get_SingleCellExperiment(genes = "PUM1")
+```
+
+    ## Reading 1 files.
+
+    ## .
+
+    ## class: SingleCellExperiment 
+    ## dim: 1 1571 
+    ## metadata(0):
+    ## assays(1): counts
+    ## rownames(1): PUM1
+    ## rowData names(0):
+    ## colnames(1571): ACAGCCGGTCCGTTAA_F02526 GGGAATGAGCCCAGCT_F02526 ...
+    ##   TACAACGTCAGCATTG_SC84 CATTCGCTCAATACCG_F02526
+    ## colData names(55): sample_id_db .sample ... n_cell_type_in_tissue
+    ##   n_tissue_in_cell_type
+    ## reducedDimNames(0):
+    ## mainExpName: NULL
+    ## altExpNames(0):
+
+Extract the counts as a Seurat object:
+
+``` r
+get_metadata() |> 
+  filter(
+     ethnicity == "African" & 
+      assay %LIKE% "%10x%" & 
+      tissue == "lung parenchyma" & 
+      cell_type %LIKE% "%CD4%"
+  ) |> 
+get_seurat()
+```
+
+    ## Reading 1 files.
+
+    ## .
+
+    ## Warning: Feature names cannot have underscores ('_'), replacing with dashes
+    ## ('-')
+
+    ## An object of class Seurat 
+    ## 60661 features across 1571 samples within 1 assay 
+    ## Active assay: originalexp (60661 features, 0 variable features)

@@ -4,7 +4,7 @@ output: github_document
 always_allow_html: true
 ---
 
-Load Metadata
+Load the package
 
 ```{r, message=FALSE, warning=FALSE}
 library(HCAquery)
@@ -16,7 +16,7 @@ options("restore_SingleCellExperiment_show" = TRUE)
 
 ```
 
-Load the data
+Load the metadata
 
 ```{r}
 get_metadata()
@@ -64,5 +64,32 @@ sce =
 	
 sce
 ```
+
+Extract only a subset of genes:
+
+```{r}
+get_metadata() |> 
+  filter(
+  	 ethnicity == "African" & 
+      assay %LIKE% "%10x%" & 
+      tissue == "lung parenchyma" & 
+      cell_type %LIKE% "%CD4%"
+  ) |> 
+get_SingleCellExperiment(genes = "PUM1")
+```
+
+Extract the counts as a Seurat object:
+
+```{r}
+get_metadata() |> 
+  filter(
+  	 ethnicity == "African" & 
+      assay %LIKE% "%10x%" & 
+      tissue == "lung parenchyma" & 
+      cell_type %LIKE% "%CD4%"
+  ) |> 
+get_seurat()
+```
+
 
 
