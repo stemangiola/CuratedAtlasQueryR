@@ -6,11 +6,8 @@
 \usage{
 get_SingleCellExperiment(
   .data,
-  assay = "counts",
-  repository = when(assay, equals(., "counts") ~
-    "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data", equals(.,
-    "counts_per_million") ~
-    "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data_scaled"),
+  repository,
+  cache_dir = get_default_cache_dir(),
   genes = NULL
 )
 }
@@ -18,7 +15,9 @@ get_SingleCellExperiment(
 \item{.data}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
 This can be obtained from the [get_metadata()] function.}
 
-\item{repository}{A character vector of length one, which is a file path to where the single cell data is stored}
+\item{repository}{A character vector of length one. It should be either a local file path or an HTTP URL pointing to the location where the single cell data is stored.}
+
+\item{cache_dir}{An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.}
 
 \item{genes}{An optional character vector of genes to return the counts for. By default counts for all genes will be returned.}
 }

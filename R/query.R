@@ -2,7 +2,8 @@
 #'
 #' @param .data A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
 #' This can be obtained from the [get_metadata()] function.
-#' @param repository A character vector of length one, which is a file path to where the single cell data is stored
+#' @param repository A character vector of length one. It should be either a local file path or an HTTP URL pointing to the location where the single cell data is stored.
+#' @param cache_dir An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.
 #' @param genes An optional character vector of genes to return the counts for. By default counts for all genes will be returned.
 #'
 #' @importFrom dplyr pull filter
@@ -17,20 +18,21 @@
 #' @importFrom SummarizedExperiment colData assayNames<-
 #' @importFrom purrr when
 #' @importFrom magrittr equals
+#' @importFrom httr parse_url
 #'
 #' @export
 #'
 #'
 get_SingleCellExperiment = function(
   .data,
-  assay = "counts",
-  repository = when(
-  	assay,
-  	equals(., "counts") ~ "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data",
-  	equals(., "counts_per_million") ~ "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data_scaled"
-  ),
+  repository,
+  cache_dir = get_default_cache_dir(),
   genes = NULL
 ){
+  cache_dir |> dir.create(showWarnings = FALSE)
+  
+  parsed_repo = parse_url(repository)
+  
   # We have to convert to an in-memory table here, or some of the dplyr operations will fail when passed a database connection
   raw_data = as_tibble(.data)
 
@@ -39,6 +41,17 @@ get_SingleCellExperiment = function(
 		pull(file_id_db) |>
 		unique() |>
 		as.character()
+	
+	if(!is.null(parsed_repo$scheme)){
+	  if (parsed_repo$scheme %in% c("http", "https")){
+	    sync_remote_files(parsed_repo, cache_dir, files_to_read)
+	    repository = cache_dir
+	  }
+	  else {
+	    glue('Unknown URL scheme "{parsed_repo$scheme}"') |>
+	      stop()
+	  }
+	}
 
 	glue("Reading {length(files_to_read)} files.") |>
 	  message()
@@ -49,7 +62,10 @@ get_SingleCellExperiment = function(
 		map(~ {
 			cat(".")
 
-		  sce = glue("{repository}/{.x}") |>
+		  sce = file.path(
+		    repository,
+		    .x
+		  ) |>
 			  loadHDF5SummarizedExperiment()
 
 		  if (!is.null(genes)){
@@ -79,10 +95,66 @@ get_SingleCellExperiment = function(
 		do.call(cbind, args=_)
 
 	# Rename assay THIS WILL NOT BE NEEDED EVENTUALLY
-	assayNames(sce) = assay
+	assayNames(sce) = "counts"
 
 	# Return
 	sce
+}
+
+#' Synchronises one or more remote files with a local copy
+#'
+#' @param url A character vector of length one. The base HTTP url from which to obtain the files.
+#' @param cache_dir A character vector of length one. The local filepath to synchronise files to.
+#' @param files A character vector containing one or more file_id_db entries
+#'
+#' @return Subject to change
+#' @importFrom purrr cross2 walk
+#' @importFrom httr modify_url GET write_disk
+#' @export
+#'
+sync_remote_files = function(
+  url,
+  cache_dir,
+  files
+){
+  c("assays.h5", "se.rds") |>
+    cross2(files) |>
+    walk(\(path_elements){
+      # Path to the file of interest from the root path. We use "/"
+      # since URLs must use these regardless of OS
+      url_path = paste0(url$path, "/", path_elements[[2]], "/", path_elements[[1]])
+      
+      # Path to save the file on local disk
+      # We use file.path since the file separator will differ on other OSs
+      output_dir = file.path(
+        cache_dir,
+        path_elements[[2]]
+      )
+      output_file = file.path(
+        output_dir,
+        path_elements[[1]]
+      )
+      
+      # Create the parent dirs
+      dir.create(output_dir, recursive=TRUE, showWarnings = FALSE)
+      
+      # Perform the download
+      modify_url(url, path=url_path) |>
+        GET(write_disk(output_file))
+    })
+}
+
+#' Returns the default cache directory
+#'
+#' @return A length one character vector.
+#' @export
+#' @importFrom rappdirs user_cache_dir
+#'
+get_default_cache_dir = function(){
+  file.path(
+    user_cache_dir(),
+    "hca_harmonised"
+  )
 }
 
 #' @importFrom SeuratObject as.sparse

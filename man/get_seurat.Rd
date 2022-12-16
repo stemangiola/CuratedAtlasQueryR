@@ -12,7 +12,8 @@ get_seurat(...)
   \describe{
     \item{\code{.data}}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
 This can be obtained from the [get_metadata()] function.}
-    \item{\code{repository}}{A character vector of length one, which is a file path to where the single cell data is stored}
+    \item{\code{repository}}{A character vector of length one. It should be either a local file path or an HTTP URL pointing to the location where the single cell data is stored.}
+    \item{\code{cache_dir}}{An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.}
     \item{\code{genes}}{An optional character vector of genes to return the counts for. By default counts for all genes will be returned.}
   }}
 }
