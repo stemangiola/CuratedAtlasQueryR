@@ -29,7 +29,7 @@ get_SingleCellExperiment = function(
   cache_dir = get_default_cache_dir(),
   genes = NULL
 ){
-  cache_dir |> dir.create(showWarnings = FALSE)
+  stopifnot(!is.null(repository), !is.null(.data))
   
   parsed_repo = parse_url(repository)
   
@@ -44,6 +44,7 @@ get_SingleCellExperiment = function(
 	
 	if(!is.null(parsed_repo$scheme)){
 	  if (parsed_repo$scheme %in% c("http", "https")){
+	    cache_dir |> dir.create(showWarnings = FALSE)
 	    sync_remote_files(parsed_repo, cache_dir, files_to_read)
 	    repository = cache_dir
 	  }
