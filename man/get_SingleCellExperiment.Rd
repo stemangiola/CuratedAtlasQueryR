@@ -5,19 +5,22 @@
 \title{Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame}
 \usage{
 get_SingleCellExperiment(
-  .data,
-  repository,
+  data,
+  assay = c("raw", "scaled"),
   cache_dir = get_default_cache_dir(),
+  repository = NULL,
   genes = NULL
 )
 }
 \arguments{
-\item{.data}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
+\item{data}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
 This can be obtained from the [get_metadata()] function.}
 
-\item{repository}{A character vector of length one. It should be either a local file path or an HTTP URL pointing to the location where the single cell data is stored.}
+\item{assay}{A character vector whose elements must be either "raw" or "scaled", representing the corresponding assay you want to request.}
 
 \item{cache_dir}{An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.}
+
+\item{repository}{A character vector of length one. If provided, it should be an HTTP URL pointing to the location where the single cell data is stored.}
 
 \item{genes}{An optional character vector of genes to return the counts for. By default counts for all genes will be returned.}
 }

@@ -23,7 +23,8 @@ Imports:
     RSQLite,
     dbplyr,
     rappdirs,
-    httr
+    httr,
+    assertthat
 Suggests:
     here,
     stringr,

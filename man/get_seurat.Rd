@@ -10,9 +10,10 @@ get_seurat(...)
 \item{...}{
   Arguments passed on to \code{\link[=get_SingleCellExperiment]{get_SingleCellExperiment}}
   \describe{
-    \item{\code{.data}}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
+    \item{\code{data}}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
 This can be obtained from the [get_metadata()] function.}
-    \item{\code{repository}}{A character vector of length one. It should be either a local file path or an HTTP URL pointing to the location where the single cell data is stored.}
+    \item{\code{assay}}{A character vector whose elements must be either "raw" or "scaled", representing the corresponding assay you want to request.}
+    \item{\code{repository}}{A character vector of length one. If provided, it should be an HTTP URL pointing to the location where the single cell data is stored.}
     \item{\code{cache_dir}}{An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.}
     \item{\code{genes}}{An optional character vector of genes to return the counts for. By default counts for all genes will be returned.}
   }}

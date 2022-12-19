@@ -1,8 +1,9 @@
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame
 #'
-#' @param .data A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
+#' @param data A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
 #' This can be obtained from the [get_metadata()] function.
-#' @param repository A character vector of length one. It should be either a local file path or an HTTP URL pointing to the location where the single cell data is stored.
+#' @param assay A character vector whose elements must be either "raw" or "scaled", representing the corresponding assay you want to request.
+#' @param repository A character vector of length one. If provided, it should be an HTTP URL pointing to the location where the single cell data is stored.
 #' @param cache_dir An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.
 #' @param genes An optional character vector of genes to return the counts for. By default counts for all genes will be returned.
 #'
@@ -19,22 +20,33 @@
 #' @importFrom purrr when
 #' @importFrom magrittr equals
 #' @importFrom httr parse_url
+#' @importFrom assertthat assert_that has_name
 #'
 #' @export
 #'
 #'
 get_SingleCellExperiment = function(
-  .data,
-  repository,
+  data,
+  assay = c("raw", "scaled"),
   cache_dir = get_default_cache_dir(),
+  repository = NULL,
   genes = NULL
 ){
-  stopifnot(!is.null(repository), !is.null(.data))
+  # Parameter validation
+  assay %in% c("raw", "scaled") |> all() |> assert_that(msg='assay must be a character vector containing "raw" and/or "scaled"')
+  inherits(cache_dir, "character") |> assert_that()
+  is.null(repository) || is.character(repository) |> assert_that()
+  is.null(genes) || is.character(genes) |> assert_that()
+  
+  # Data parameter validation (last, because it's slower)
+  ## Evaluate the promise now so that we get a sensible error message
+  data
+  ## We have to convert to an in-memory table here, or some of the dplyr operations will fail when passed a database connection
+  raw_data = as_tibble(data)
+  inherits(raw_data, "tbl") |> assert_that()
+  has_name(raw_data, c(".cell", "file_id_db")) |> assert_that()
   
   parsed_repo = parse_url(repository)
-  
-  # We have to convert to an in-memory table here, or some of the dplyr operations will fail when passed a database connection
-  raw_data = as_tibble(.data)
 
 	files_to_read =
 	  raw_data |>
