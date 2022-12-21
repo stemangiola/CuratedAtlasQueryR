@@ -4,17 +4,19 @@
 \alias{sync_remote_files}
 \title{Synchronises one or more remote files with a local copy}
 \usage{
-sync_remote_files(url, cache_dir, files)
+sync_remote_files(url, cache_dir, subdirs, files)
 }
 \arguments{
 \item{url}{A character vector of length one. The base HTTP url from which to obtain the files.}
 
 \item{cache_dir}{A character vector of length one. The local filepath to synchronise files to.}
 
+\item{subdirs}{A character vector of subdirectories within the root URL to sync. These correspond to assays.}
+
 \item{files}{A character vector containing one or more file_id_db entries}
 }
 \value{
-Subject to change
+A character vector of files that have been downloaded
 }
 \description{
 Synchronises one or more remote files with a local copy

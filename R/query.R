@@ -1,3 +1,9 @@
+# Maps user provided assay names to their corresponding paths in the repository
+assay_map = c(
+  raw = "original",
+  scaled = "cpm"
+)
+
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame
 #'
 #' @param data A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
@@ -15,9 +21,9 @@
 #' @importFrom dplyr as_tibble
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment HDF5RealizationSink loadHDF5SummarizedExperiment
 #' @importFrom stringr str_remove
-#' @importFrom SingleCellExperiment SingleCellExperiment
+#' @importFrom SingleCellExperiment SingleCellExperiment simplifyToSCE
 #' @importFrom SummarizedExperiment colData assayNames<-
-#' @importFrom purrr when
+#' @importFrom purrr when imap
 #' @importFrom magrittr equals
 #' @importFrom httr parse_url
 #' @importFrom assertthat assert_that has_name
@@ -33,7 +39,8 @@ get_SingleCellExperiment = function(
   genes = NULL
 ){
   # Parameter validation
-  assay %in% c("raw", "scaled") |> all() |> assert_that(msg='assay must be a character vector containing "raw" and/or "scaled"')
+  assay %in% names(assay_map) |> all() |> assert_that(msg='assay must be a character vector containing "raw" and/or "scaled"')
+  (!anyDuplicated(assay)) |> assert_that()
   inherits(cache_dir, "character") |> assert_that()
   is.null(repository) || is.character(repository) |> assert_that()
   is.null(genes) || is.character(genes) |> assert_that()
@@ -45,70 +52,83 @@ get_SingleCellExperiment = function(
   raw_data = as_tibble(data)
   inherits(raw_data, "tbl") |> assert_that()
   has_name(raw_data, c(".cell", "file_id_db")) |> assert_that()
+
+  cache_dir |> dir.create(showWarnings = FALSE)
   
-  parsed_repo = parse_url(repository)
-
-	files_to_read =
-	  raw_data |>
-		pull(file_id_db) |>
-		unique() |>
-		as.character()
-	
-	if(!is.null(parsed_repo$scheme)){
-	  if (parsed_repo$scheme %in% c("http", "https")){
-	    cache_dir |> dir.create(showWarnings = FALSE)
-	    sync_remote_files(parsed_repo, cache_dir, files_to_read)
-	    repository = cache_dir
-	  }
-	  else {
-	    glue('Unknown URL scheme "{parsed_repo$scheme}"') |>
-	      stop()
-	  }
-	}
-
-	glue("Reading {length(files_to_read)} files.") |>
-	  message()
-
-	# Load each file
-	sces =
-		files_to_read |>
-		map(~ {
-			cat(".")
-
-		  sce = file.path(
-		    repository,
-		    .x
-		  ) |>
-			  loadHDF5SummarizedExperiment()
-
-		  if (!is.null(genes)){
-		    # Optionally subset the genes
-		    sce = sce[
-		      intersect(genes, rownames(sce))
-		    ]
-		  }
-
-		  sce |>
-			  inner_join(
-  				# Needed because cell IDs are not unique outside the file_id or file_id_db
-  				filter(raw_data, file_id_db == .x),
-  				by=".cell"
-  			)
-		})
-
-	# Drop files with one cell, which causes
-	# the DFrame objects to combine must have the same column names
-	sces = sces[map_int(sces, ncol)>1]
-
-	cat("\n")
-
-	# Combine
-	sce =
-		sces |>
-		do.call(cbind, args=_)
-
-	# Rename assay THIS WILL NOT BE NEEDED EVENTUALLY
-	assayNames(sce) = "counts"
+  files_to_read =
+    raw_data |>
+    pull(file_id_db) |>
+    unique() |>
+    as.character()
+  
+  subdirs = assay_map[assay]
+  
+  # The repository is optional. If not provided we load only from the cache
+  if (!is.null(repository)){
+    parsed_repo = parse_url(repository)
+    (parsed_repo$scheme %in% c("http", "https")) |> assert_that()
+    sync_remote_files(url = parsed_repo, cache_dir = cache_dir, files = files_to_read, subdirs = subdirs)
+  }
+  
+  subdirs |>
+    imap(function(current_subdir, current_assay){
+    glue("Reading {length(files_to_read)} files.") |>
+      message()
+    
+    # Load each file
+    sces =
+      files_to_read |>
+      map(function(.x){
+        cat(".")
+        
+        sce_path = file.path(
+          cache_dir,
+          current_subdir,
+          .x
+        )
+        
+        file.exists(sce_path) |>
+          assert_that(
+            msg="Your cache does not contain a file you attempted to 
+            query. Please provide the repository parameter so that
+            files can be synchronised from the internet"
+          )
+        
+        sce = loadHDF5SummarizedExperiment(sce_path)
+        
+        if (!is.null(genes)){
+          # Optionally subset the genes
+          sce = sce[
+            intersect(genes, rownames(sce))
+          ]
+        }
+        
+        sce |>
+          inner_join(
+            # Needed because cell IDs are not unique outside the file_id or file_id_db
+            filter(raw_data, file_id_db == .x),
+            by=".cell"
+          )
+      })
+    
+    # Drop files with one cell, which causes
+    # the DFrame objects to combine must have the same column names
+    sces = sces[map_int(sces, ncol)>1]
+    
+    cat("\n")
+    
+    # Combine
+    sce =
+      sces |>
+      do.call(cbind, args=_)
+    
+    # Rename assay THIS WILL NOT BE NEEDED EVENTUALLY
+    assayNames(sce) = current_assay
+    
+    sce
+  }) |>
+    simplifyToSCE()
+  
 
 	# Return
 	sce
@@ -118,43 +138,70 @@ get_SingleCellExperiment = function(
 #'
 #' @param url A character vector of length one. The base HTTP url from which to obtain the files.
 #' @param cache_dir A character vector of length one. The local filepath to synchronise files to.
+#' @param subdirs A character vector of subdirectories within the root URL to sync. These correspond to assays.
 #' @param files A character vector containing one or more file_id_db entries
 #'
-#' @return Subject to change
-#' @importFrom purrr cross2 walk
-#' @importFrom httr modify_url GET write_disk
+#' @return A character vector of files that have been downloaded
+#' @importFrom purrr pmap_chr transpose
+#' @importFrom httr modify_url GET write_disk stop_for_status
+#' @importFrom dplyr tibble transmute filter full_join
+#' @importFrom glue glue
+#' @importFrom assertthat assert_that
 #' @export
 #'
 sync_remote_files = function(
   url,
   cache_dir,
+  subdirs,
   files
 ){
-  c("assays.h5", "se.rds") |>
-    cross2(files) |>
-    walk(\(path_elements){
+  # Find every combination of file name, sample id, and assay, since each
+  # will be a separate file we need to download
+  expand.grid(
+    filename = c("assays.h5", "se.rds"),
+    sample_id = files,
+    subdir = subdirs,
+    stringsAsFactors = FALSE
+  ) |>
+    transmute(
       # Path to the file of interest from the root path. We use "/"
       # since URLs must use these regardless of OS
-      url_path = paste0(url$path, "/", path_elements[[2]], "/", path_elements[[1]])
+      full_url = paste0(url$path, "/",  subdir, "/", sample_id, "/", filename) |> map(~modify_url(url, path=.)),
       
-      # Path to save the file on local disk
+      # Path to save the file on local disk (and its parent directory)
       # We use file.path since the file separator will differ on other OSs
       output_dir = file.path(
         cache_dir,
-        path_elements[[2]]
-      )
+        subdir,
+        sample_id
+      ),
       output_file = file.path(
         output_dir,
-        path_elements[[1]]
+        filename
       )
-      
-      # Create the parent dirs
-      dir.create(output_dir, recursive=TRUE, showWarnings = FALSE)
-      
-      # Perform the download
-      modify_url(url, path=url_path) |>
-        GET(write_disk(output_file))
-    })
+    ) |>
+    filter(
+      # Don't bother downloading files that don't exist
+      # TODO: use some kind of hashing to check if the remote file has changed,
+      # and proceed with the download if it has. However this is low importance
+      # as the repository is not likely to change often
+      !file.exists(output_file)
+    ) |>
+      pmap_chr(function(full_url, output_dir, output_file){
+        dir.create(output_dir, recursive=TRUE, showWarnings = FALSE)
+        glue("Downloading {full_url} to {output_file}") |> message()
+        
+        tryCatch(
+          GET(full_url, write_disk(output_file)) |> stop_for_status(),
+          error = function(e){
+            # Clean up if we had an error
+            file.remove(output_file)
+            glue("File {full_url} could not be downloaded. {e}") |> stop()
+          }
+        )
+        
+        output_file
+      })
 }
 
 #' Returns the default cache directory
