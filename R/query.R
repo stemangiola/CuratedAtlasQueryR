@@ -1,7 +1,7 @@
 # Maps user provided assay names to their corresponding paths in the repository
 assay_map = c(
-  raw = "original",
-  scaled = "cpm"
+  counts = "original",
+  cpm = "cpm"
 )
 
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame
@@ -32,7 +32,7 @@ assay_map = c(
 #'
 get_SingleCellExperiment = function(
   data,
-  assay = c("raw", "scaled"),
+  assay = c("counts", "cpm"),
   cache_dir = get_default_cache_dir(),
   repository = NULL,
   genes = NULL
