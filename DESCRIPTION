@@ -14,7 +14,7 @@ Imports:
     SummarizedExperiment,
     SingleCellExperiment,
     tidySingleCellExperiment,
-    purrr,
+    purrr (>= 1.0.0),
     zellkonverter,
     BiocGenerics,
     glue,
@@ -24,7 +24,8 @@ Imports:
     dbplyr,
     rappdirs,
     httr,
-    assertthat
+    assertthat,
+    cli
 Suggests:
     here,
     stringr,

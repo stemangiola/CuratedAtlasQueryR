@@ -13,20 +13,19 @@ assay_map = c(
 #' @param cache_dir An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.
 #' @param genes An optional character vector of genes to return the counts for. By default counts for all genes will be returned.
 #'
-#' @importFrom dplyr pull filter
+#' @importFrom dplyr pull filter as_tibble
 #' @importFrom tidySingleCellExperiment inner_join
-#' @importFrom purrr reduce map map_int
+#' @importFrom purrr reduce map map_int imap keep
 #' @importFrom BiocGenerics cbind
 #' @importFrom glue glue
-#' @importFrom dplyr as_tibble
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment HDF5RealizationSink loadHDF5SummarizedExperiment
 #' @importFrom stringr str_remove
 #' @importFrom SingleCellExperiment SingleCellExperiment simplifyToSCE
-#' @importFrom SummarizedExperiment colData assayNames<-
-#' @importFrom purrr when imap
+#' @importFrom SummarizedExperiment colData assays
 #' @importFrom magrittr equals
 #' @importFrom httr parse_url
 #' @importFrom assertthat assert_that has_name
+#' @importFrom cli cli_alert_success cli_alert_info
 #'
 #' @export
 #'
@@ -49,6 +48,7 @@ get_SingleCellExperiment = function(
   ## Evaluate the promise now so that we get a sensible error message
   data
   ## We have to convert to an in-memory table here, or some of the dplyr operations will fail when passed a database connection
+  cli_alert_info("Realising metadata.")
   raw_data = as_tibble(data)
   inherits(raw_data, "tbl") |> assert_that()
   has_name(raw_data, c(".cell", "file_id_db")) |> assert_that()
@@ -65,22 +65,20 @@ get_SingleCellExperiment = function(
   
   # The repository is optional. If not provided we load only from the cache
   if (!is.null(repository)){
+    cli_alert_info("Synchronising files")
     parsed_repo = parse_url(repository)
     (parsed_repo$scheme %in% c("http", "https")) |> assert_that()
     sync_remote_files(url = parsed_repo, cache_dir = cache_dir, files = files_to_read, subdirs = subdirs)
   }
-  
+
   subdirs |>
     imap(function(current_subdir, current_assay){
-    glue("Reading {length(files_to_read)} files.") |>
-      message()
     
     # Load each file
     sces =
       files_to_read |>
       map(function(.x){
-        cat(".")
-        
+
         sce_path = file.path(
           cache_dir,
           current_subdir,
@@ -99,39 +97,41 @@ get_SingleCellExperiment = function(
         if (!is.null(genes)){
           # Optionally subset the genes
           sce = sce[
-            intersect(genes, rownames(sce))
+            rownames(sce) |> intersect(genes)
           ]
         }
         
-        sce |>
-          inner_join(
-            # Needed because cell IDs are not unique outside the file_id or file_id_db
-            filter(raw_data, file_id_db == .x),
-            by=".cell"
-          )
-      })
+        sce
+      }, .progress=list(name="Reading files")
+      ) |>
+      # Drop files with one cell, which causes
+      # the DFrame objects to combine must have the same column names
+      keep(~ncol(.) > 1) |>
     
-    # Drop files with one cell, which causes
-    # the DFrame objects to combine must have the same column names
-    sces = sces[map_int(sces, ncol)>1]
-    
-    cat("\n")
-    
-    # Combine
-    sce =
-      sces |>
-      do.call(cbind, args=_)
-    
-    # Rename assay THIS WILL NOT BE NEEDED EVENTUALLY
-    assayNames(sce) = current_assay
-    
-    sce
-  }) |>
-    simplifyToSCE()
-  
-
-	# Return
-	sce
+      # Combine each sce by column, since each sce has a different set of cells
+      do.call(cbind, args=_) |>
+      
+      # We only need the assay, since we ultimately need to combine them
+      assays() |>
+      setNames(current_assay)
+    }) |>
+    { \(sce){ 
+      cli_alert_info("Compiling Single Cell Experiment.")
+      sce
+    } }() |>
+    # Combine the assays into one list
+    reduce(c) |>
+    SingleCellExperiment(assays=_) |>
+    { \(sce){ 
+      cli_alert_info("Attaching metadata.")
+      sce
+    } }() |>
+    # Join back to metadata, which will become coldata annotations
+    inner_join(
+      # Needed because cell IDs are not unique outside the file_id or file_id_db
+      filter(raw_data, file_id_db %in% files_to_read),
+      by=".cell"
+    )
 }
 
 #' Synchronises one or more remote files with a local copy
@@ -147,6 +147,7 @@ get_SingleCellExperiment = function(
 #' @importFrom dplyr tibble transmute filter full_join
 #' @importFrom glue glue
 #' @importFrom assertthat assert_that
+#' @importFrom cli cli_alert_success cli_alert_info cli_abort
 #' @export
 #'
 sync_remote_files = function(
@@ -189,19 +190,19 @@ sync_remote_files = function(
     ) |>
       pmap_chr(function(full_url, output_dir, output_file){
         dir.create(output_dir, recursive=TRUE, showWarnings = FALSE)
-        glue("Downloading {full_url} to {output_file}") |> message()
+        cli_alert_info("Downloading {full_url} to {output_file}")
         
         tryCatch(
           GET(full_url, write_disk(output_file)) |> stop_for_status(),
           error = function(e){
             # Clean up if we had an error
             file.remove(output_file)
-            glue("File {full_url} could not be downloaded. {e}") |> stop()
+            cli_abort("File {full_url} could not be downloaded. {e}")
           }
         )
         
         output_file
-      })
+      }, .progress=list(name="Downloading files"))
 }
 
 #' Returns the default cache directory
