@@ -75,8 +75,8 @@ test_that("get_seurat() returns the appropriate data in Seurat format", {
   
   meta = get_metadata() |> head(2)
   
-  sce = get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA, genes = "PUM1")
-  seurat = get_seurat(meta, cache_directory = LOCAL_HCA, genes = "PUM1")
+  sce = get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA, feature = "PUM1")
+  seurat = get_seurat(meta, cache_directory = LOCAL_HCA, feature = "PUM1")
   
   # The output should be a Seurat object
   expect_s4_class(seurat, "Seurat")
