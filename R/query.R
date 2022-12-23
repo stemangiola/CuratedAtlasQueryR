@@ -8,10 +8,10 @@ assay_map = c(
 #'
 #' @param data A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
 #' This can be obtained from the [get_metadata()] function.
-#' @param assay A character vector whose elements must be either "raw" or "scaled", representing the corresponding assay you want to request.
+#' @param assays A character vector whose elements must be either "raw" or "scaled", representing the corresponding assay you want to request.
 #' @param repository A character vector of length one. If provided, it should be an HTTP URL pointing to the location where the single cell data is stored.
 #' @param cache_directory An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.
-#' @param feature An optional character vector of features (ie genes) to return the counts for. By default counts for all features will be returned.
+#' @param features An optional character vector of features (ie genes) to return the counts for. By default counts for all features will be returned.
 #'
 #' @importFrom dplyr pull filter as_tibble
 #' @importFrom tidySingleCellExperiment inner_join
@@ -32,17 +32,17 @@ assay_map = c(
 #'
 get_SingleCellExperiment = function(
   data,
-  assay = c("counts", "cpm"),
+  assays = c("counts", "cpm"),
   cache_directory = get_default_cache_dir(),
   repository = NULL,
-  feature = NULL
+  features = NULL
 ){
   # Parameter validation
-  assay %in% names(assay_map) |> all() |> assert_that(msg='assay must be a character vector containing "raw" and/or "scaled"')
-  (!anyDuplicated(assay)) |> assert_that()
+  assays %in% names(assay_map) |> all() |> assert_that(msg='assay must be a character vector containing "raw" and/or "scaled"')
+  (!anyDuplicated(assays)) |> assert_that()
   inherits(cache_directory, "character") |> assert_that()
   is.null(repository) || is.character(repository) |> assert_that()
-  is.null(feature) || is.character(feature) |> assert_that()
+  is.null(features) || is.character(features) |> assert_that()
   
   # Data parameter validation (last, because it's slower)
   ## Evaluate the promise now so that we get a sensible error message
@@ -61,7 +61,7 @@ get_SingleCellExperiment = function(
     unique() |>
     as.character()
   
-  subdirs = assay_map[assay]
+  subdirs = assay_map[assays]
   
   # The repository is optional. If not provided we load only from the cache
   if (!is.null(repository)){
@@ -94,10 +94,10 @@ get_SingleCellExperiment = function(
           
         sce = loadHDF5SummarizedExperiment(sce_path)
         
-        if (!is.null(feature)){
+        if (!is.null(features)){
           # Optionally subset the genes
           sce = sce[
-            rownames(sce) |> intersect(feature)
+            rownames(sce) |> intersect(features)
           ]
         }
         
