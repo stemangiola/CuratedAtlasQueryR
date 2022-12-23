@@ -62,11 +62,11 @@ test_that("The assays argument to get_SingleCellExperiment controls the number o
   meta = get_metadata() |> head(2)
 
   # If we request both assays, we get both assays  
-  get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA, assays = "counts", "cpm") |> assays() |> names() |> expect_mapequal(c("counts", "cpm"))
+  get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA, assays = c("counts", "cpm")) |> assays() |> names() |> expect_setequal(c("counts", "cpm"))
   
   # If we request one assay, we get one assays  
-  get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA, assays = "counts") |> assays() |> names() |> expect_mapequal("counts")
-  get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA, assays = "cpm") |> assays() |> names() |> expect_mapequal("cpm")
+  get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA, assays = "counts") |> assays() |> names() |> expect_setequal("counts")
+  get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA, assays = "cpm") |> assays() |> names() |> expect_setequal("cpm")
 })
 
 test_that("The features argument to get_SingleCellExperiment subsets genes", {
