@@ -24,7 +24,8 @@ Imports:
     assertthat,
     SeuratObject,
     Seurat,
-    methods
+    methods,
+    rlang
 Suggests:
     here,
     stringr,
@@ -38,7 +39,9 @@ Suggests:
     tools,
     rmarkdown,
     zellkonverter,
-    dbplyr
+    dbplyr,
+    knitr,
+    testthat
 Biarch: true
 biocViews: AssayDomain, Infrastructure, RNASeq, DifferentialExpression, GeneExpression, Normalization, Clustering, QualityControl, Sequencing, Transcription, Transcriptomics
 Encoding: UTF-8
@@ -47,3 +50,4 @@ RoxygenNote: 7.2.1
 LazyDataCompression: xz
 URL: https://github.com/stemangiola/HCAquery
 BugReports: https://github.com/stemangiola/HCAquery/issues
+VignetteBuilder: knitr
