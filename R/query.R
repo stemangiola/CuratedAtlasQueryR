@@ -4,6 +4,7 @@
 #' This can be obtained from the [get_metadata()] function.
 #' @param repository A character vector of length one, which is a file path to where the single cell data is stored
 #' @param genes An optional character vector of genes to return the counts for. By default counts for all genes will be returned.
+#' @param assay TODO
 #'
 #' @importFrom dplyr pull filter
 #' @importFrom tidySingleCellExperiment inner_join
@@ -12,11 +13,11 @@
 #' @importFrom glue glue
 #' @importFrom dplyr as_tibble
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment HDF5RealizationSink loadHDF5SummarizedExperiment
-#' @importFrom stringr str_remove
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom SummarizedExperiment colData assayNames<-
 #' @importFrom purrr when
 #' @importFrom magrittr equals
+#' @importFrom rlang .data
 #'
 #' @export
 #'
@@ -36,7 +37,7 @@ get_SingleCellExperiment = function(
 
 	files_to_read =
 	  raw_data |>
-		pull(file_id_db) |>
+		pull(.data$file_id_db) |>
 		unique() |>
 		as.character()
 
@@ -62,7 +63,7 @@ get_SingleCellExperiment = function(
 		  sce |>
 			  inner_join(
   				# Needed because cell IDs are not unique outside the file_id or file_id_db
-  				filter(raw_data, file_id_db == .x),
+  				filter(raw_data, .data$file_id_db == .x),
   				by=".cell"
   			)
 		})
@@ -86,6 +87,8 @@ get_SingleCellExperiment = function(
 }
 
 #' @importFrom SeuratObject as.sparse
+#' @importFrom assertthat assert_that
+#' @importFrom methods as
 #' @exportS3Method
 as.sparse.DelayedMatrix = function(x){
   # This is glue to ensure the SCE -> Seurat conversion works properly with

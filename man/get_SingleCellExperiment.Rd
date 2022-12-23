@@ -18,6 +18,8 @@ get_SingleCellExperiment(
 \item{.data}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
 This can be obtained from the [get_metadata()] function.}
 
+\item{assay}{TODO}
+
 \item{repository}{A character vector of length one, which is a file path to where the single cell data is stored}
 
 \item{genes}{An optional character vector of genes to return the counts for. By default counts for all genes will be returned.}

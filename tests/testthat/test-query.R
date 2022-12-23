@@ -1,5 +1,3 @@
-library(HCAquery)
-
 test_that("The genes argument to get_SingleCellExperiment subsets genes", {
   meta = get_metadata() |> head(2)
   

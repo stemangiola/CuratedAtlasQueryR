@@ -14,6 +14,7 @@ get_seurat(...)
 This can be obtained from the [get_metadata()] function.}
     \item{\code{repository}}{A character vector of length one, which is a file path to where the single cell data is stored}
     \item{\code{genes}}{An optional character vector of genes to return the counts for. By default counts for all genes will be returned.}
+    \item{\code{assay}}{TODO}
   }}
 }
 \description{
