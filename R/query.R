@@ -12,7 +12,6 @@
 #' @importFrom glue glue
 #' @importFrom dplyr as_tibble
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment HDF5RealizationSink loadHDF5SummarizedExperiment
-#' @importFrom stringr str_remove
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom SummarizedExperiment colData assayNames<-
 #' @importFrom purrr when
@@ -86,6 +85,8 @@ get_SingleCellExperiment = function(
 }
 
 #' @importFrom SeuratObject as.sparse
+#' @importFrom assertthat assert_that
+#' @importFrom methods as
 #' @exportS3Method
 as.sparse.DelayedMatrix = function(x){
   # This is glue to ensure the SCE -> Seurat conversion works properly with
