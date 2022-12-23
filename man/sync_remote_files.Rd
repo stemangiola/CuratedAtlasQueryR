@@ -7,7 +7,7 @@
 sync_remote_files(url, cache_dir, subdirs, files)
 }
 \arguments{
-\item{url}{A character vector of length one. The base HTTP url from which to obtain the files.}
+\item{url}{A character vector of length one. The base HTTP URL from which to obtain the files.}
 
 \item{cache_dir}{A character vector of length one. The local filepath to synchronise files to.}
 

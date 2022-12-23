@@ -10,8 +10,8 @@ assay_map = c(
 #' This can be obtained from the [get_metadata()] function.
 #' @param assay A character vector whose elements must be either "raw" or "scaled", representing the corresponding assay you want to request.
 #' @param repository A character vector of length one. If provided, it should be an HTTP URL pointing to the location where the single cell data is stored.
-#' @param cache_dir An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.
-#' @param genes An optional character vector of genes to return the counts for. By default counts for all genes will be returned.
+#' @param cache_directory An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.
+#' @param feature An optional character vector of features (ie genes) to return the counts for. By default counts for all features will be returned.
 #'
 #' @importFrom dplyr pull filter as_tibble
 #' @importFrom tidySingleCellExperiment inner_join
@@ -33,16 +33,16 @@ assay_map = c(
 get_SingleCellExperiment = function(
   data,
   assay = c("counts", "cpm"),
-  cache_dir = get_default_cache_dir(),
+  cache_directory = get_default_cache_dir(),
   repository = NULL,
-  genes = NULL
+  feature = NULL
 ){
   # Parameter validation
   assay %in% names(assay_map) |> all() |> assert_that(msg='assay must be a character vector containing "raw" and/or "scaled"')
   (!anyDuplicated(assay)) |> assert_that()
-  inherits(cache_dir, "character") |> assert_that()
+  inherits(cache_directory, "character") |> assert_that()
   is.null(repository) || is.character(repository) |> assert_that()
-  is.null(genes) || is.character(genes) |> assert_that()
+  is.null(feature) || is.character(feature) |> assert_that()
   
   # Data parameter validation (last, because it's slower)
   ## Evaluate the promise now so that we get a sensible error message
@@ -53,7 +53,7 @@ get_SingleCellExperiment = function(
   inherits(raw_data, "tbl") |> assert_that()
   has_name(raw_data, c(".cell", "file_id_db")) |> assert_that()
 
-  cache_dir |> dir.create(showWarnings = FALSE)
+  cache_directory |> dir.create(showWarnings = FALSE)
   
   files_to_read =
     raw_data |>
@@ -68,7 +68,7 @@ get_SingleCellExperiment = function(
     cli_alert_info("Synchronising files")
     parsed_repo = parse_url(repository)
     (parsed_repo$scheme %in% c("http", "https")) |> assert_that()
-    sync_remote_files(url = parsed_repo, cache_dir = cache_dir, files = files_to_read, subdirs = subdirs)
+    sync_remote_files(url = parsed_repo, cache_dir = cache_directory, files = files_to_read, subdirs = subdirs)
   }
 
   subdirs |>
@@ -80,7 +80,7 @@ get_SingleCellExperiment = function(
       map(function(.x){
 
         sce_path = file.path(
-          cache_dir,
+          cache_directory,
           current_subdir,
           .x
         )
@@ -91,13 +91,13 @@ get_SingleCellExperiment = function(
             query. Please provide the repository parameter so that
             files can be synchronised from the internet"
           )
-        
+          
         sce = loadHDF5SummarizedExperiment(sce_path)
         
-        if (!is.null(genes)){
+        if (!is.null(feature)){
           # Optionally subset the genes
           sce = sce[
-            rownames(sce) |> intersect(genes)
+            rownames(sce) |> intersect(feature)
           ]
         }
         
@@ -136,7 +136,7 @@ get_SingleCellExperiment = function(
 
 #' Synchronises one or more remote files with a local copy
 #'
-#' @param url A character vector of length one. The base HTTP url from which to obtain the files.
+#' @param url A character vector of length one. The base HTTP URL from which to obtain the files.
 #' @param cache_dir A character vector of length one. The local filepath to synchronise files to.
 #' @param subdirs A character vector of subdirectories within the root URL to sync. These correspond to assays.
 #' @param files A character vector containing one or more file_id_db entries

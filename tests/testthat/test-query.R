@@ -48,22 +48,22 @@ test_that("get_SingleCellExperiment() syncs appropriate files", {
   meta = get_metadata() |> head(2)
   
   # The remote dataset should have many genes
-  sce = get_SingleCellExperiment(meta, repository = REMOTE_HCA, cache_dir = temp)
+  sce = get_SingleCellExperiment(meta, repository = REMOTE_HCA, cache_directory = temp)
   sce |> row.names() |> length() |> expect_gt(1)
 })
 
-test_that("The genes argument to get_SingleCellExperiment subsets genes", {
+test_that("The feature argument to get_SingleCellExperiment subsets genes", {
   # We need a local copy to run this test
   skip_if(LOCAL_HCA == "")
   
   meta = get_metadata() |> head(2)
   
   # The un-subset dataset should have many genes
-  sce_full = get_SingleCellExperiment(meta, cache_dir = LOCAL_HCA) |> row.names() |> length()
+  sce_full = get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA) |> row.names() |> length()
   expect_gt(sce_full, 1)
   
   # The subset dataset should only have one gene
-  sce_subset = get_SingleCellExperiment(meta, cache_dir = LOCAL_HCA, genes = "PUM1") |> row.names() |> length()
+  sce_subset = get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA, feature = "PUM1") |> row.names() |> length()
   expect_equal(sce_subset, 1)
   
   expect_gt(sce_full, sce_subset)
@@ -75,8 +75,8 @@ test_that("get_seurat() returns the appropriate data in Seurat format", {
   
   meta = get_metadata() |> head(2)
   
-  sce = get_SingleCellExperiment(meta, cache_dir = LOCAL_HCA, genes = "PUM1")
-  seurat = get_seurat(meta, cache_dir = LOCAL_HCA, genes = "PUM1")
+  sce = get_SingleCellExperiment(meta, cache_directory = LOCAL_HCA, genes = "PUM1")
+  seurat = get_seurat(meta, cache_directory = LOCAL_HCA, genes = "PUM1")
   
   # The output should be a Seurat object
   expect_s4_class(seurat, "Seurat")
