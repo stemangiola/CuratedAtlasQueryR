@@ -1,12 +1,12 @@
 # Maps user provided assay names to their corresponding paths in the repository
-assay_map = c(
+assay_map <- c(
   counts = "original",
   cpm = "cpm"
 )
 
-# ' Used in a pipeline to run one or more expressions with side effects, but 
+# ' Used in a pipeline to run one or more expressions with side effects, but
 # ' return the input value as the output value unaffected
-aside = function(x, ...) {
+aside <- function(x, ...) {
   # Courtesy of Hadley: https://fosstodon.org/@hadleywickham/109558265769090930
   list(...)
   x
@@ -21,9 +21,9 @@ aside = function(x, ...) {
 #' @param cache_directory An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.
 #' @param features An optional character vector of features (ie genes) to return the counts for. By default counts for all features will be returned.
 #' @returns A SingleCellExperiment object, with one assay for each value in the assays argument
-#' @examples 
-#' meta = get_metadata() |> head(2)
-#' sce = get_SingleCellExperiment(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+#' @examples
+#' meta <- get_metadata() |> head(2)
+#' sce <- get_SingleCellExperiment(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
 #'
 #' @importFrom dplyr pull filter as_tibble
 #' @importFrom tidySingleCellExperiment inner_join
@@ -42,106 +42,101 @@ aside = function(x, ...) {
 #' @export
 #'
 #'
-get_SingleCellExperiment = function(
-  data,
-  assays = c("counts", "cpm"),
-  cache_directory = get_default_cache_dir(),
-  repository = NULL,
-  features = NULL
-){
+get_SingleCellExperiment <- function(data,
+                                     assays = c("counts", "cpm"),
+                                     cache_directory = get_default_cache_dir(),
+                                     repository = NULL,
+                                     features = NULL) {
   # Parameter validation
-  assays %in% names(assay_map) |> all() |> assert_that(msg='assay must be a character vector containing "raw" and/or "scaled"')
+  assays %in% names(assay_map) |>
+    all() |>
+    assert_that(msg = 'assay must be a character vector containing "raw" and/or "scaled"')
   (!anyDuplicated(assays)) |> assert_that()
   inherits(cache_directory, "character") |> assert_that()
   is.null(repository) || is.character(repository) |> assert_that()
   is.null(features) || is.character(features) |> assert_that()
-  
+
   # Data parameter validation (last, because it's slower)
   ## Evaluate the promise now so that we get a sensible error message
   data
   ## We have to convert to an in-memory table here, or some of the dplyr operations will fail when passed a database connection
   cli_alert_info("Realising metadata.")
-  raw_data = as_tibble(data)
+  raw_data <- as_tibble(data)
   inherits(raw_data, "tbl") |> assert_that()
   has_name(raw_data, c(".cell", "file_id_db")) |> assert_that()
 
   cache_directory |> dir.create(showWarnings = FALSE)
-  
-  files_to_read =
+
+  files_to_read <-
     raw_data |>
     pull(.data$file_id_db) |>
     unique() |>
     as.character()
-  
-  subdirs = assay_map[assays]
-  
+
+  subdirs <- assay_map[assays]
+
   # The repository is optional. If not provided we load only from the cache
-  if (!is.null(repository)){
+  if (!is.null(repository)) {
     cli_alert_info("Synchronising files")
-    parsed_repo = parse_url(repository)
+    parsed_repo <- parse_url(repository)
     (parsed_repo$scheme %in% c("http", "https")) |> assert_that()
     sync_remote_files(url = parsed_repo, cache_dir = cache_directory, files = files_to_read, subdirs = subdirs)
   }
-	files_to_read =
-	  raw_data |>
-		pull(.data$file_id_db) |>
-		unique() |>
-		as.character()
+  files_to_read <-
+    raw_data |>
+    pull(.data$file_id_db) |>
+    unique() |>
+    as.character()
 
   subdirs |>
-    imap(function(current_subdir, current_assay){
-    
-    # Load each file
-    sces =
-      files_to_read |>
-      map(function(.x){
+    imap(function(current_subdir, current_assay) {
+      # Load each file
+      sces <-
+        files_to_read |>
+        map(function(.x) {
+          sce_path <- file.path(
+            cache_directory,
+            current_subdir,
+            .x
+          )
 
-        sce_path = file.path(
-          cache_directory,
-          current_subdir,
-          .x
-        )
-        
-        file.exists(sce_path) |>
-          assert_that(
-            msg="Your cache does not contain a file you attempted to 
+          file.exists(sce_path) |>
+            assert_that(
+              msg = "Your cache does not contain a file you attempted to
             query. Please provide the repository parameter so that
             files can be synchronised from the internet"
-          )
-          
-        sce = loadHDF5SummarizedExperiment(sce_path)
-        
-        if (!is.null(features)){
-          # Optionally subset the genes
-          sce = sce[
-            rownames(sce) |> intersect(features)
-          ]
-        }
-        
-        sce
-      }, .progress=list(name="Reading files")
-      ) |>
-      # Drop files with one cell, which causes
-      # the DFrame objects to combine must have the same column names
-      keep(~ncol(.) > 1) |>
-    
-      # Combine each sce by column, since each sce has a different set of cells
-      do.call(cbind, args=_) |>
-      
-      # We only need the assay, since we ultimately need to combine them
-      assays() |>
-      setNames(current_assay)
+            )
+
+          sce <- loadHDF5SummarizedExperiment(sce_path)
+
+          if (!is.null(features)) {
+            # Optionally subset the genes
+            sce <- sce[
+              rownames(sce) |> intersect(features)
+            ]
+          }
+
+          sce
+        }, .progress = list(name = "Reading files")) |>
+        # Drop files with one cell, which causes
+        # the DFrame objects to combine must have the same column names
+        keep(~ ncol(.) > 1) |>
+        # Combine each sce by column, since each sce has a different set of cells
+        do.call(cbind, args = _) |>
+        # We only need the assay, since we ultimately need to combine them
+        assays() |>
+        setNames(current_assay)
     }) |>
     aside(cli_alert_info("Compiling Single Cell Experiment.")) |>
     # Combine the assays into one list
     reduce(c) |>
-    SingleCellExperiment(assays=_) |>
+    SingleCellExperiment(assays = _) |>
     aside(cli_alert_info("Attaching metadata.")) |>
     # Join back to metadata, which will become coldata annotations
     inner_join(
       # Needed because cell IDs are not unique outside the file_id or file_id_db
       filter(raw_data, .data$file_id_db %in% files_to_read),
-      by=".cell"
+      by = ".cell"
     )
 }
 
@@ -163,12 +158,10 @@ get_SingleCellExperiment = function(
 #' @importFrom cli cli_alert_success cli_alert_info cli_abort
 #' @noRd
 #'
-sync_remote_files = function(
-  url,
-  cache_dir,
-  subdirs,
-  files
-){
+sync_remote_files <- function(url,
+                              cache_dir,
+                              subdirs,
+                              files) {
   # Find every combination of file name, sample id, and assay, since each
   # will be a separate file we need to download
   expand.grid(
@@ -180,8 +173,8 @@ sync_remote_files = function(
     transmute(
       # Path to the file of interest from the root path. We use "/"
       # since URLs must use these regardless of OS
-      full_url = paste0(url$path, "/",  .data$subdir, "/", .data$sample_id, "/", .data$filename) |> map(~modify_url(url, path=.)),
-      
+      full_url = paste0(url$path, "/", .data$subdir, "/", .data$sample_id, "/", .data$filename) |> map(~ modify_url(url, path = .)),
+
       # Path to save the file on local disk (and its parent directory)
       # We use file.path since the file separator will differ on other OSs
       output_dir = file.path(
@@ -201,21 +194,21 @@ sync_remote_files = function(
       # as the repository is not likely to change often
       !file.exists(.data$output_file)
     ) |>
-      pmap_chr(function(full_url, output_dir, output_file){
-        dir.create(output_dir, recursive=TRUE, showWarnings = FALSE)
-        cli_alert_info("Downloading {full_url} to {output_file}")
-        
-        tryCatch(
-          GET(full_url, write_disk(output_file)) |> stop_for_status(),
-          error = function(e){
-            # Clean up if we had an error
-            file.remove(output_file)
-            cli_abort("File {full_url} could not be downloaded. {e}")
-          }
-        )
-        
-        output_file
-      }, .progress=list(name="Downloading files"))
+    pmap_chr(function(full_url, output_dir, output_file) {
+      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+      cli_alert_info("Downloading {full_url} to {output_file}")
+
+      tryCatch(
+        GET(full_url, write_disk(output_file)) |> stop_for_status(),
+        error = function(e) {
+          # Clean up if we had an error
+          file.remove(output_file)
+          cli_abort("File {full_url} could not be downloaded. {e}")
+        }
+      )
+
+      output_file
+    }, .progress = list(name = "Downloading files"))
 }
 
 #' Returns the default cache directory
@@ -224,7 +217,7 @@ sync_remote_files = function(
 #' @export
 #' @importFrom rappdirs user_cache_dir
 #'
-get_default_cache_dir = function(){
+get_default_cache_dir <- function() {
   file.path(
     user_cache_dir(),
     "hca_harmonised"
@@ -235,7 +228,7 @@ get_default_cache_dir = function(){
 #' @importFrom assertthat assert_that
 #' @importFrom methods as
 #' @exportS3Method
-as.sparse.DelayedMatrix = function(x){
+as.sparse.DelayedMatrix <- function(x) {
   # This is glue to ensure the SCE -> Seurat conversion works properly with
   # DelayedArray types
   as(x, "dgCMatrix")
@@ -248,13 +241,11 @@ as.sparse.DelayedMatrix = function(x){
 #' @export
 #' @return A Seurat object containing the same data as a call to get_SingleCellExperiment.
 #' @examples
-#' meta = get_metadata() |> head(2)
-#' seurat = get_seurat(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+#' meta <- get_metadata() |> head(2)
+#' seurat <- get_seurat(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
 #'
-get_seurat = function(
-  ...
-){
-  get_SingleCellExperiment(...) |> as.Seurat(data=NULL)
+get_seurat <- function(...) {
+  get_SingleCellExperiment(...) |> as.Seurat(data = NULL)
 }
 
 
@@ -264,25 +255,25 @@ get_seurat = function(
 #' @param sqlite_path Path to the sqlite database where the metadata can be found.
 #' Currently this defaults to an internal location within WEHI's milton system.
 #' @return A lazy data.frame subclass containing the metadata. You can interact
-#' with this object using most standard dplyr functions. However, it is recommended 
+#' with this object using most standard dplyr functions. However, it is recommended
 #' that you use the %LIKE% operator for string matching, as most stringr functions
 #' will not work
 #' @export
 #' @examples
-#' filtered_metadata = get_metadata() |> 
+#' filtered_metadata <- get_metadata() |>
 #'   filter(
-#'     ethnicity == "African" & 
-#'     assay %LIKE% "%10x%" & 
-#'     tissue == "lung parenchyma" &
-#'     cell_type %LIKE% "%CD4%"
+#'     ethnicity == "African" &
+#'       assay %LIKE% "%10x%" &
+#'       tissue == "lung parenchyma" &
+#'       cell_type %LIKE% "%CD4%"
 #'   )
 #'
 #' @importFrom DBI dbConnect
 #' @importFrom RSQLite SQLite SQLITE_RO
 #' @importFrom dplyr tbl
 #'
-get_metadata = function(sqlite_path = "/vast/projects/RCP/human_cell_atlas/metadata.sqlite"){
+get_metadata <- function(sqlite_path = "/vast/projects/RCP/human_cell_atlas/metadata.sqlite") {
   SQLite() |>
-    dbConnect(drv=_, dbname=sqlite_path, flags=SQLITE_RO) |>
+    dbConnect(drv = _, dbname = sqlite_path, flags = SQLITE_RO) |>
     tbl("metadata")
 }

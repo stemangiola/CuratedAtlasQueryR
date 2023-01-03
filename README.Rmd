@@ -13,7 +13,6 @@ library(dbplyr)
 library(SingleCellExperiment)
 library(tidySingleCellExperiment)
 options("restore_SingleCellExperiment_show" = TRUE)
-
 ```
 
 Load the metadata
@@ -25,70 +24,68 @@ get_metadata()
 Explore the HCA content
 
 ```{r}
-get_metadata() |> 
-	distinct(tissue, file_id) |> 
-	count(tissue) |> 
-	arrange(desc(n))
+get_metadata() |>
+  distinct(tissue, file_id) |>
+  count(tissue) |>
+  arrange(desc(n))
 ```
 
 Query raw counts
 
 ```{r}
-sce = 
-	get_metadata() |> 
-    filter(
-    	 ethnicity == "African" & 
-        assay %LIKE% "%10x%" & 
-        tissue == "lung parenchyma" & 
-        cell_type %LIKE% "%CD4%"
-    ) |> 
-	
-	get_SingleCellExperiment()
-	
+sce <-
+  get_metadata() |>
+  filter(
+    ethnicity == "African" &
+      assay %LIKE% "%10x%" &
+      tissue == "lung parenchyma" &
+      cell_type %LIKE% "%CD4%"
+  ) |>
+  get_SingleCellExperiment()
+
 sce
 ```
 
 Query counts scaled per million. This is helpful if just few genes are of interest
 
 ```{r}
-sce = 
-	get_metadata() |> 
-    filter(
-    	 ethnicity == "African" & 
-        assay %LIKE% "%10x%" & 
-        tissue == "lung parenchyma" & 
-        cell_type %LIKE% "%CD4%"
-    ) |> 
-	
-	get_SingleCellExperiment(assay = "counts_per_million")
-	
+sce <-
+  get_metadata() |>
+  filter(
+    ethnicity == "African" &
+      assay %LIKE% "%10x%" &
+      tissue == "lung parenchyma" &
+      cell_type %LIKE% "%CD4%"
+  ) |>
+  get_SingleCellExperiment(assay = "counts_per_million")
+
 sce
 ```
 
 Extract only a subset of genes:
 
 ```{r}
-get_metadata() |> 
+get_metadata() |>
   filter(
-  	 ethnicity == "African" & 
-      assay %LIKE% "%10x%" & 
-      tissue == "lung parenchyma" & 
+    ethnicity == "African" &
+      assay %LIKE% "%10x%" &
+      tissue == "lung parenchyma" &
       cell_type %LIKE% "%CD4%"
-  ) |> 
-get_SingleCellExperiment(genes = "PUM1")
+  ) |>
+  get_SingleCellExperiment(genes = "PUM1")
 ```
 
 Extract the counts as a Seurat object:
 
 ```{r}
-get_metadata() |> 
+get_metadata() |>
   filter(
-  	 ethnicity == "African" & 
-      assay %LIKE% "%10x%" & 
-      tissue == "lung parenchyma" & 
+    ethnicity == "African" &
+      assay %LIKE% "%10x%" &
+      tissue == "lung parenchyma" &
       cell_type %LIKE% "%CD4%"
-  ) |> 
-get_seurat()
+  ) |>
+  get_seurat()
 ```
 
 
