@@ -24,6 +24,14 @@ This can be obtained from the [get_metadata()] function.}
 
 \item{features}{An optional character vector of features (ie genes) to return the counts for. By default counts for all features will be returned.}
 }
+\value{
+A SingleCellExperiment object, with one assay for each value in the assays argument
+}
 \description{
 Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame
+}
+\examples{
+meta = get_metadata() |> head(2)
+sce = get_SingleCellExperiment(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+
 }

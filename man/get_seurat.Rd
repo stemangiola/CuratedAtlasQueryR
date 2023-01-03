@@ -18,6 +18,14 @@ This can be obtained from the [get_metadata()] function.}
     \item{\code{features}}{An optional character vector of features (ie genes) to return the counts for. By default counts for all features will be returned.}
   }}
 }
+\value{
+A Seurat object containing the same data as a call to get_SingleCellExperiment.
+}
 \description{
 Given a data frame of HCA metadata, returns a Seurat object corresponding to the samples in that data frame
+}
+\examples{
+meta = get_metadata() |> head(2)
+seurat = get_seurat(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+
 }

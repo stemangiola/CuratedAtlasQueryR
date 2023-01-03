@@ -4,8 +4,10 @@ assay_map = c(
   cpm = "cpm"
 )
 
-# Courtesy of Hadley: https://fosstodon.org/@hadleywickham/109558265769090930
+# ' Used in a pipeline to run one or more expressions with side effects, but 
+# ' return the input value as the output value unaffected
 aside = function(x, ...) {
+  # Courtesy of Hadley: https://fosstodon.org/@hadleywickham/109558265769090930
   list(...)
   x
 }
@@ -18,6 +20,10 @@ aside = function(x, ...) {
 #' @param repository A character vector of length one. If provided, it should be an HTTP URL pointing to the location where the single cell data is stored.
 #' @param cache_directory An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.
 #' @param features An optional character vector of features (ie genes) to return the counts for. By default counts for all features will be returned.
+#' @returns A SingleCellExperiment object, with one assay for each value in the assays argument
+#' @examples 
+#' meta = get_metadata() |> head(2)
+#' sce = get_SingleCellExperiment(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
 #'
 #' @importFrom dplyr pull filter as_tibble
 #' @importFrom tidySingleCellExperiment inner_join
@@ -145,6 +151,8 @@ get_SingleCellExperiment = function(
 #' @param cache_dir A character vector of length one. The local filepath to synchronise files to.
 #' @param subdirs A character vector of subdirectories within the root URL to sync. These correspond to assays.
 #' @param files A character vector containing one or more file_id_db entries
+#' @returns A character vector consisting of file paths to all the newly
+#' downloaded files
 #'
 #' @return A character vector of files that have been downloaded
 #' @importFrom purrr pmap_chr transpose
@@ -153,7 +161,7 @@ get_SingleCellExperiment = function(
 #' @importFrom glue glue
 #' @importFrom assertthat assert_that
 #' @importFrom cli cli_alert_success cli_alert_info cli_abort
-#' @export
+#' @noRd
 #'
 sync_remote_files = function(
   url,
@@ -238,6 +246,11 @@ as.sparse.DelayedMatrix = function(x){
 #' @inheritDotParams get_SingleCellExperiment
 #' @importFrom Seurat as.Seurat
 #' @export
+#' @return A Seurat object containing the same data as a call to get_SingleCellExperiment.
+#' @examples
+#' meta = get_metadata() |> head(2)
+#' seurat = get_seurat(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+#'
 get_seurat = function(
   ...
 ){
@@ -250,8 +263,19 @@ get_seurat = function(
 #'
 #' @param sqlite_path Path to the sqlite database where the metadata can be found.
 #' Currently this defaults to an internal location within WEHI's milton system.
-#'
+#' @return A lazy data.frame subclass containing the metadata. You can interact
+#' with this object using most standard dplyr functions. However, it is recommended 
+#' that you use the %LIKE% operator for string matching, as most stringr functions
+#' will not work
 #' @export
+#' @examples
+#' filtered_metadata = get_metadata() |> 
+#'   filter(
+#'     ethnicity == "African" & 
+#'     assay %LIKE% "%10x%" & 
+#'     tissue == "lung parenchyma" &
+#'     cell_type %LIKE% "%CD4%"
+#'   )
 #'
 #' @importFrom DBI dbConnect
 #' @importFrom RSQLite SQLite SQLITE_RO
