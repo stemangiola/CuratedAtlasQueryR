@@ -4,6 +4,12 @@ assay_map = c(
   cpm = "cpm"
 )
 
+# Courtesy of Hadley: https://fosstodon.org/@hadleywickham/109558265769090930
+aside = function(x, ...) {
+  list(...)
+  x
+}
+
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame
 #'
 #' @param data A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
@@ -19,13 +25,13 @@ assay_map = c(
 #' @importFrom BiocGenerics cbind
 #' @importFrom glue glue
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment HDF5RealizationSink loadHDF5SummarizedExperiment
-#' @importFrom stringr str_remove
 #' @importFrom SingleCellExperiment SingleCellExperiment simplifyToSCE
-#' @importFrom SummarizedExperiment colData assays
-#' @importFrom magrittr equals
+#' @importFrom SummarizedExperiment colData assays assayNames<-
 #' @importFrom httr parse_url
 #' @importFrom assertthat assert_that has_name
 #' @importFrom cli cli_alert_success cli_alert_info
+#' @importFrom rlang .data
+#' @importFrom stats setNames
 #'
 #' @export
 #'
@@ -57,7 +63,7 @@ get_SingleCellExperiment = function(
   
   files_to_read =
     raw_data |>
-    pull(file_id_db) |>
+    pull(.data$file_id_db) |>
     unique() |>
     as.character()
   
@@ -70,6 +76,11 @@ get_SingleCellExperiment = function(
     (parsed_repo$scheme %in% c("http", "https")) |> assert_that()
     sync_remote_files(url = parsed_repo, cache_dir = cache_directory, files = files_to_read, subdirs = subdirs)
   }
+	files_to_read =
+	  raw_data |>
+		pull(.data$file_id_db) |>
+		unique() |>
+		as.character()
 
   subdirs |>
     imap(function(current_subdir, current_assay){
@@ -115,21 +126,15 @@ get_SingleCellExperiment = function(
       assays() |>
       setNames(current_assay)
     }) |>
-    { \(sce){ 
-      cli_alert_info("Compiling Single Cell Experiment.")
-      sce
-    } }() |>
+    aside(cli_alert_info("Compiling Single Cell Experiment.")) |>
     # Combine the assays into one list
     reduce(c) |>
     SingleCellExperiment(assays=_) |>
-    { \(sce){ 
-      cli_alert_info("Attaching metadata.")
-      sce
-    } }() |>
+    aside(cli_alert_info("Attaching metadata.")) |>
     # Join back to metadata, which will become coldata annotations
     inner_join(
       # Needed because cell IDs are not unique outside the file_id or file_id_db
-      filter(raw_data, file_id_db %in% files_to_read),
+      filter(raw_data, .data$file_id_db %in% files_to_read),
       by=".cell"
     )
 }
@@ -167,18 +172,18 @@ sync_remote_files = function(
     transmute(
       # Path to the file of interest from the root path. We use "/"
       # since URLs must use these regardless of OS
-      full_url = paste0(url$path, "/",  subdir, "/", sample_id, "/", filename) |> map(~modify_url(url, path=.)),
+      full_url = paste0(url$path, "/",  .data$subdir, "/", .data$sample_id, "/", .data$filename) |> map(~modify_url(url, path=.)),
       
       # Path to save the file on local disk (and its parent directory)
       # We use file.path since the file separator will differ on other OSs
       output_dir = file.path(
         cache_dir,
-        subdir,
-        sample_id
+        .data$subdir,
+        .data$sample_id
       ),
       output_file = file.path(
-        output_dir,
-        filename
+        .data$output_dir,
+        .data$filename
       )
     ) |>
     filter(
@@ -186,7 +191,7 @@ sync_remote_files = function(
       # TODO: use some kind of hashing to check if the remote file has changed,
       # and proceed with the download if it has. However this is low importance
       # as the repository is not likely to change often
-      !file.exists(output_file)
+      !file.exists(.data$output_file)
     ) |>
       pmap_chr(function(full_url, output_dir, output_file){
         dir.create(output_dir, recursive=TRUE, showWarnings = FALSE)
@@ -219,6 +224,8 @@ get_default_cache_dir = function(){
 }
 
 #' @importFrom SeuratObject as.sparse
+#' @importFrom assertthat assert_that
+#' @importFrom methods as
 #' @exportS3Method
 as.sparse.DelayedMatrix = function(x){
   # This is glue to ensure the SCE -> Seurat conversion works properly with

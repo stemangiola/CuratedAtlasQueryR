@@ -6,7 +6,7 @@ Authors@R: c(person("Stefano", "Mangiola", email = "mangiolastefano@gmail.com",
                   role = c("aut", "cre"))
                   )
 Description: Queries the Human Cell Atlas.
-License: GPL-3
+License: GPL (>= 3)
 Depends:
     R (>= 4.1.0)
 Imports:
@@ -15,36 +15,35 @@ Imports:
     SingleCellExperiment,
     tidySingleCellExperiment,
     purrr (>= 1.0.0),
-    zellkonverter,
     BiocGenerics,
     glue,
     HDF5Array,
     DBI,
     RSQLite,
-    dbplyr,
     rappdirs,
     httr,
+    cli,
     assertthat,
-    cli
+    SeuratObject,
+    Seurat,
+    methods,
+    rlang
 Suggests:
     here,
     stringr,
-    Seurat,
     tidyseurat,
+    zellkonverter,
     scMerge,
     DelayedArray,
     openssl,
     cellxgenedp,
-    SingleCellExperiment,
     celldex,
     SingleR,
     tools,
     rmarkdown,
-    SeuratObject
-VignetteBuilder:
-    knitr
-RdMacros:
-    lifecycle
+    dbplyr,
+    knitr,
+    testthat
 Biarch: true
 biocViews: AssayDomain, Infrastructure, RNASeq, DifferentialExpression, GeneExpression, Normalization, Clustering, QualityControl, Sequencing, Transcription, Transcriptomics
 Encoding: UTF-8
@@ -53,3 +52,4 @@ RoxygenNote: 7.2.1
 LazyDataCompression: xz
 URL: https://github.com/stemangiola/HCAquery
 BugReports: https://github.com/stemangiola/HCAquery/issues
+VignetteBuilder: knitr

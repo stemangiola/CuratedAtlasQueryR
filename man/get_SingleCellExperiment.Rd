@@ -6,23 +6,23 @@
 \usage{
 get_SingleCellExperiment(
   data,
-  assay = c("counts", "cpm"),
+  assays = c("counts", "cpm"),
   cache_directory = get_default_cache_dir(),
   repository = NULL,
-  feature = NULL
+  features = NULL
 )
 }
 \arguments{
 \item{data}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
 This can be obtained from the [get_metadata()] function.}
 
-\item{assay}{A character vector whose elements must be either "raw" or "scaled", representing the corresponding assay you want to request.}
+\item{assays}{A character vector whose elements must be either "raw" or "scaled", representing the corresponding assay you want to request.}
 
 \item{cache_directory}{An optional character vector of length one. If provided, it should indicate a local file path where any remotely accessed files should be copied.}
 
 \item{repository}{A character vector of length one. If provided, it should be an HTTP URL pointing to the location where the single cell data is stored.}
 
-\item{feature}{An optional character vector of features (ie genes) to return the counts for. By default counts for all features will be returned.}
+\item{features}{An optional character vector of features (ie genes) to return the counts for. By default counts for all features will be returned.}
 }
 \description{
 Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame

@@ -1,4 +1,4 @@
 library(testthat)
-library(tidySummarizedExperiment)
+library(HCAquery)
 
-test_check("tidySummarizedExperiment")
+test_check("HCAquery")
