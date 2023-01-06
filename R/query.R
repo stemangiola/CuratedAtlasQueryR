@@ -256,7 +256,7 @@ as.sparse.DelayedMatrix <- function(x) {
 #' @return A Seurat object containing the same data as a call to get_SingleCellExperiment.
 #' @examples
 #' meta <- get_metadata() |> head(2)
-#' seurat <- get_seurat(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+#' seurat <- get_seurat(meta)
 #'
 get_seurat <- function(...) {
   get_SingleCellExperiment(...) |> as.Seurat(data = NULL)

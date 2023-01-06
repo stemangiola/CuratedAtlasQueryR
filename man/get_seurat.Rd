@@ -26,6 +26,6 @@ Given a data frame of HCA metadata, returns a Seurat object corresponding to the
 }
 \examples{
 meta <- get_metadata() |> head(2)
-seurat <- get_seurat(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+seurat <- get_seurat(meta)
 
 }
