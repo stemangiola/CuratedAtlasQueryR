@@ -29,6 +29,7 @@ Returns a data frame of Human Cell Atlas metadata, which should be filtered
 and ultimately passed into get_SingleCellExperiment.
 }
 \examples{
+library(dplyr)
 filtered_metadata <- get_metadata() |>
   filter(
     ethnicity == "African" &

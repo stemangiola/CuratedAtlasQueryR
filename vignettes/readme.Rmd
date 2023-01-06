@@ -1,8 +1,21 @@
 ---
-title: "HCAquery"
-output: github_document
-always_allow_html: true
+title: "HCA Harmonised"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{readme}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
+```{r, include = FALSE}
+# Note: knit this to the repo readme file using:
+# rmarkdown::render("vignettes/readme.Rmd", output_format = "github_document", output_dir = getwd())
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
 
 Load the package
 
@@ -57,7 +70,7 @@ sce <-
       tissue == "lung parenchyma" &
       cell_type %LIKE% "%CD4%"
   ) |>
-  get_SingleCellExperiment(assay = "counts_per_million")
+  get_SingleCellExperiment(assays = "cpm")
 
 sce
 ```
@@ -72,7 +85,7 @@ get_metadata() |>
       tissue == "lung parenchyma" &
       cell_type %LIKE% "%CD4%"
   ) |>
-  get_SingleCellExperiment(genes = "PUM1")
+  get_SingleCellExperiment(features = "PUM1")
 ```
 
 Extract the counts as a Seurat object:
@@ -87,6 +100,3 @@ get_metadata() |>
   ) |>
   get_seurat()
 ```
-
-
-
