@@ -32,6 +32,6 @@ Given a data frame of HCA metadata, returns a SingleCellExperiment object corres
 }
 \examples{
 meta <- get_metadata() |> head(2)
-sce <- get_SingleCellExperiment(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+sce <- get_SingleCellExperiment(meta)
 
 }

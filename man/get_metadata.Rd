@@ -11,7 +11,7 @@ get_metadata(
 )
 }
 \arguments{
-\item{repository}{Optional character vector of length 1. An HTTP URL pointing to the 
+\item{repository}{Optional character vector of length 1. An HTTP URL pointing to the
 location of the sqlite database.}
 
 \item{cache_directory}{Optional character vector of length 1. A file path on

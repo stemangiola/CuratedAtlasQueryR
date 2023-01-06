@@ -25,7 +25,7 @@ REMOTE_URL <- "https://harmonised-human-atlas.s3.amazonaws.com/"
 #' @returns A SingleCellExperiment object, with one assay for each value in the assays argument
 #' @examples
 #' meta <- get_metadata() |> head(2)
-#' sce <- get_SingleCellExperiment(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+#' sce <- get_SingleCellExperiment(meta)
 #'
 #' @importFrom dplyr pull filter as_tibble
 #' @importFrom tidySingleCellExperiment inner_join
@@ -52,7 +52,7 @@ get_SingleCellExperiment <- function(data,
   # Parameter validation
   assays %in% names(assay_map) |>
     all() |>
-    assert_that(msg = 'assay must be a character vector containing "raw" and/or "scaled"')
+    assert_that(msg = 'assays must be a character vector containing "counts" and/or "cpm"')
   (!anyDuplicated(assays)) |> assert_that()
   inherits(cache_directory, "character") |> assert_that()
   is.null(repository) || is.character(repository) |> assert_that()
