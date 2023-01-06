@@ -25,7 +25,7 @@ A Seurat object containing the same data as a call to get_SingleCellExperiment.
 Given a data frame of HCA metadata, returns a Seurat object corresponding to the samples in that data frame
 }
 \examples{
-meta = get_metadata() |> head(2)
-seurat = get_seurat(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+meta <- get_metadata() |> head(2)
+seurat <- get_seurat(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
 
 }

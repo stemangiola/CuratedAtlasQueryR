@@ -95,6 +95,11 @@ jobs:
           install.packages('remotes')
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
         shell: Rscript {0}
+      
+      - name: Cache assay data
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/hca_harmonised
 
       - name: Cache R packages
         if: "!contains(github.event.head_commit.message, '/nocache') && runner.os != 'Linux'"

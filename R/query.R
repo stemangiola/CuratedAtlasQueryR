@@ -12,6 +12,8 @@ aside <- function(x, ...) {
   x
 }
 
+REMOTE_URL <- "https://harmonised-human-atlas.s3.amazonaws.com/"
+
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame
 #'
 #' @param data A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
@@ -32,7 +34,7 @@ aside <- function(x, ...) {
 #' @importFrom glue glue
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment HDF5RealizationSink loadHDF5SummarizedExperiment
 #' @importFrom SingleCellExperiment SingleCellExperiment simplifyToSCE
-#' @importFrom SummarizedExperiment colData assays assayNames<-
+#' @importFrom SummarizedExperiment colData assayNames<-
 #' @importFrom httr parse_url
 #' @importFrom assertthat assert_that has_name
 #' @importFrom cli cli_alert_success cli_alert_info
@@ -45,7 +47,7 @@ aside <- function(x, ...) {
 get_SingleCellExperiment <- function(data,
                                      assays = c("counts", "cpm"),
                                      cache_directory = get_default_cache_dir(),
-                                     repository = NULL,
+                                     repository = REMOTE_URL,
                                      features = NULL) {
   # Parameter validation
   assays %in% names(assay_map) |>
@@ -80,7 +82,7 @@ get_SingleCellExperiment <- function(data,
     cli_alert_info("Synchronising files")
     parsed_repo <- parse_url(repository)
     (parsed_repo$scheme %in% c("http", "https")) |> assert_that()
-    sync_remote_files(url = parsed_repo, cache_dir = cache_directory, files = files_to_read, subdirs = subdirs)
+    sync_assay_files(url = parsed_repo, cache_dir = cache_directory, files = files_to_read, subdirs = subdirs)
   }
   files_to_read <-
     raw_data |>
@@ -124,7 +126,8 @@ get_SingleCellExperiment <- function(data,
         # Combine each sce by column, since each sce has a different set of cells
         do.call(cbind, args = _) |>
         # We only need the assay, since we ultimately need to combine them
-        assays() |>
+        # We need to use :: here since we already have an assays argument
+        SummarizedExperiment::assays() |>
         setNames(current_assay)
     }) |>
     aside(cli_alert_info("Compiling Single Cell Experiment.")) |>
@@ -140,7 +143,7 @@ get_SingleCellExperiment <- function(data,
     )
 }
 
-#' Synchronises one or more remote files with a local copy
+#' Synchronises one or more remote assays with a local copy
 #'
 #' @param url A character vector of length one. The base HTTP URL from which to obtain the files.
 #' @param cache_dir A character vector of length one. The local filepath to synchronise files to.
@@ -158,10 +161,10 @@ get_SingleCellExperiment <- function(data,
 #' @importFrom cli cli_alert_success cli_alert_info cli_abort
 #' @noRd
 #'
-sync_remote_files <- function(url,
-                              cache_dir,
-                              subdirs,
-                              files) {
+sync_assay_files <- function(url = httr::parse_url(REMOTE_URL),
+                             cache_dir,
+                             subdirs,
+                             files) {
   # Find every combination of file name, sample id, and assay, since each
   # will be a separate file we need to download
   expand.grid(
@@ -195,20 +198,31 @@ sync_remote_files <- function(url,
       !file.exists(.data$output_file)
     ) |>
     pmap_chr(function(full_url, output_dir, output_file) {
-      dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-      cli_alert_info("Downloading {full_url} to {output_file}")
-
-      tryCatch(
-        GET(full_url, write_disk(output_file)) |> stop_for_status(),
-        error = function(e) {
-          # Clean up if we had an error
-          file.remove(output_file)
-          cli_abort("File {full_url} could not be downloaded. {e}")
-        }
-      )
-
+      sync_remote_file(full_url, output_file)
       output_file
     }, .progress = list(name = "Downloading files"))
+}
+
+#' Synchronises a single remote file with a local path
+#' @noRd
+sync_remote_file <- function(full_url, output_file, ...) {
+  if (!file.exists(output_file)) {
+    output_dir <- dirname(output_file)
+    dir.create(output_dir,
+      recursive = TRUE,
+      showWarnings = FALSE
+    )
+    cli_alert_info("Downloading {full_url} to {output_file}")
+
+    tryCatch(
+      GET(full_url, write_disk(output_file), ...) |> stop_for_status(),
+      error = function(e) {
+        # Clean up if we had an error
+        file.remove(output_file)
+        cli_abort("File {full_url} could not be downloaded. {e}")
+      }
+    )
+  }
 }
 
 #' Returns the default cache directory
@@ -252,12 +266,15 @@ get_seurat <- function(...) {
 #' Returns a data frame of Human Cell Atlas metadata, which should be filtered
 #' and ultimately passed into get_SingleCellExperiment.
 #'
-#' @param sqlite_path Path to the sqlite database where the metadata can be found.
-#' Currently this defaults to an internal location within WEHI's milton system.
+#' @param repository Optional character vector of length 1. An HTTP URL pointing to the
+#' location of the sqlite database.
+#' @param cache_directory Optional character vector of length 1. A file path on
+#' your local system to a directory (not a file) that will be used to store
+#' metadata.sqlite
 #' @return A lazy data.frame subclass containing the metadata. You can interact
 #' with this object using most standard dplyr functions. However, it is recommended
 #' that you use the %LIKE% operator for string matching, as most stringr functions
-#' will not work
+#' will not work.
 #' @export
 #' @examples
 #' filtered_metadata <- get_metadata() |>
@@ -271,8 +288,12 @@ get_seurat <- function(...) {
 #' @importFrom DBI dbConnect
 #' @importFrom RSQLite SQLite SQLITE_RO
 #' @importFrom dplyr tbl
+#' @importFrom httr progress
 #'
-get_metadata <- function(sqlite_path = "/vast/projects/RCP/human_cell_atlas/metadata.sqlite") {
+get_metadata <- function(repository = "https://harmonised-human-atlas.s3.amazonaws.com/metadata.sqlite",
+                         cache_directory = get_default_cache_dir()) {
+  sqlite_path <- file.path(cache_directory, "metadata.sqlite")
+  sync_remote_file(repository, sqlite_path, progress(type = "down", con = stderr()))
   SQLite() |>
     dbConnect(drv = _, dbname = sqlite_path, flags = SQLITE_RO) |>
     tbl("metadata")

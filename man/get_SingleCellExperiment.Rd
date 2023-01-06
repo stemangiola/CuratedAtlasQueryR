@@ -8,7 +8,7 @@ get_SingleCellExperiment(
   data,
   assays = c("counts", "cpm"),
   cache_directory = get_default_cache_dir(),
-  repository = NULL,
+  repository = REMOTE_URL,
   features = NULL
 )
 }
@@ -31,7 +31,7 @@ A SingleCellExperiment object, with one assay for each value in the assays argum
 Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame
 }
 \examples{
-meta = get_metadata() |> head(2)
-sce = get_SingleCellExperiment(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
+meta <- get_metadata() |> head(2)
+sce <- get_SingleCellExperiment(meta, repository = Sys.getenv("REMOTE_HCA"), cache_directory)
 
 }
