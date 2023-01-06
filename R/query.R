@@ -277,6 +277,7 @@ get_seurat <- function(...) {
 #' will not work.
 #' @export
 #' @examples
+#' library(dplyr)
 #' filtered_metadata <- get_metadata() |>
 #'   filter(
 #'     ethnicity == "African" &
