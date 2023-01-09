@@ -8,9 +8,9 @@ Authors@R: c(person("Stefano", "Mangiola", email = "mangiolastefano@gmail.com",
 Description: Provides access to a copy of the Human Cell Atlas, but with 
     harmonised metadata. This allows for uniform querying across numerous 
     datasets within the Atlas using common fields such as cell type, tissue 
-    type, and patient ethnicity. Usage involves first querying the metadata table 
-    for cells of interest, and then downloading the corresponding cells into a 
-    SingleCellExperiment object. 
+    type, and patient ethnicity. Usage involves first querying the metadata
+    table for cells of interest, and then downloading the corresponding cells 
+    into a SingleCellExperiment object. 
 License: GPL-3
 Depends:
     R (>= 4.2.0)
@@ -51,7 +51,18 @@ Suggests:
     knitr,
     testthat
 Biarch: true
-biocViews: AssayDomain, Infrastructure, RNASeq, DifferentialExpression, GeneExpression, Normalization, Clustering, QualityControl, Sequencing, Transcription, Transcriptomics
+biocViews: 
+    AssayDomain,
+    Infrastructure,
+    RNASeq,
+    DifferentialExpression,
+    GeneExpression,
+    Normalization,
+    Clustering,
+    QualityControl,
+    Sequencing,
+    Transcription,
+    Transcriptomics
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 LazyDataCompression: xz

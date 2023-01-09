@@ -2,7 +2,6 @@
 
 S3method(as.sparse,DelayedMatrix)
 export(get_SingleCellExperiment)
-export(get_default_cache_dir)
 export(get_metadata)
 export(get_seurat)
 importFrom(BiocGenerics,cbind)
