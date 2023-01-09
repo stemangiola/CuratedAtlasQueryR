@@ -2,28 +2,45 @@
 % Please edit documentation in R/query.R
 \name{get_SingleCellExperiment}
 \alias{get_SingleCellExperiment}
-\title{Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame}
+\title{Given a data frame of HCA metadata, returns a SingleCellExperiment object
+corresponding to the samples in that data frame}
 \usage{
 get_SingleCellExperiment(
-  .data,
-  assay = "counts",
-  repository = when(assay, equals(., "counts") ~
-    "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data", equals(.,
-    "counts_per_million") ~
-    "/vast/projects/RCP/human_cell_atlas/splitted_DB2_data_scaled"),
-  genes = NULL
+  data,
+  assays = c("counts", "cpm"),
+  cache_directory = get_default_cache_dir(),
+  repository = REMOTE_URL,
+  features = NULL
 )
 }
 \arguments{
-\item{.data}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
-This can be obtained from the [get_metadata()] function.}
+\item{data}{A data frame containing, at minimum, a `.sample` column, which
+corresponds to a single cell sample ID. This can be obtained from the
+[get_metadata()] function.}
 
-\item{assay}{TODO}
+\item{assays}{A character vector whose elements must be either "raw" or
+"scaled", representing the corresponding assay you want to request.}
 
-\item{repository}{A character vector of length one, which is a file path to where the single cell data is stored}
+\item{cache_directory}{An optional character vector of length one. If
+provided, it should indicate a local file path where any remotely accessed
+files should be copied.}
 
-\item{genes}{An optional character vector of genes to return the counts for. By default counts for all genes will be returned.}
+\item{repository}{A character vector of length one. If provided, it should be
+an HTTP URL pointing to the location where the single cell data is stored.}
+
+\item{features}{An optional character vector of features (ie genes) to return
+the counts for. By default counts for all features will be returned.}
+}
+\value{
+A SingleCellExperiment object, with one assay for each value in the
+  assays argument
 }
 \description{
-Given a data frame of HCA metadata, returns a SingleCellExperiment object corresponding to the samples in that data frame
+Given a data frame of HCA metadata, returns a SingleCellExperiment object
+corresponding to the samples in that data frame
+}
+\examples{
+meta <- get_metadata() |> head(2)
+sce <- get_SingleCellExperiment(meta)
+
 }

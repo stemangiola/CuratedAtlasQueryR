@@ -5,31 +5,40 @@ Version: 0.1.0
 Authors@R: c(person("Stefano", "Mangiola", email = "mangiolastefano@gmail.com",
                   role = c("aut", "cre"))
                   )
-Description: Queries the Human Cell Atlas.
-License: GPL (>= 3)
+Description: Provides access to a copy of the Human Cell Atlas, but with 
+    harmonised metadata. This allows for uniform querying across numerous 
+    datasets within the Atlas using common fields such as cell type, tissue 
+    type, and patient ethnicity. Usage involves first querying the metadata
+    table for cells of interest, and then downloading the corresponding cells 
+    into a SingleCellExperiment object. 
+License: GPL-3
 Depends:
-    R (>= 4.1.0)
+    R (>= 4.2.0)
 Imports:
     dplyr,
     SummarizedExperiment,
     SingleCellExperiment,
     tidySingleCellExperiment,
-    purrr,
+    purrr (>= 1.0.0),
     BiocGenerics,
     glue,
     HDF5Array,
     DBI,
     RSQLite,
-    magrittr,
+    rappdirs,
+    httr,
+    cli,
     assertthat,
     SeuratObject,
     Seurat,
     methods,
-    rlang
+    rlang,
+    stats
 Suggests:
     here,
     stringr,
     tidyseurat,
+    zellkonverter,
     scMerge,
     DelayedArray,
     openssl,
@@ -38,15 +47,24 @@ Suggests:
     SingleR,
     tools,
     rmarkdown,
-    zellkonverter,
     dbplyr,
     knitr,
     testthat
 Biarch: true
-biocViews: AssayDomain, Infrastructure, RNASeq, DifferentialExpression, GeneExpression, Normalization, Clustering, QualityControl, Sequencing, Transcription, Transcriptomics
+biocViews: 
+    AssayDomain,
+    Infrastructure,
+    RNASeq,
+    DifferentialExpression,
+    GeneExpression,
+    Normalization,
+    Clustering,
+    QualityControl,
+    Sequencing,
+    Transcription,
+    Transcriptomics
 Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 LazyDataCompression: xz
 URL: https://github.com/stemangiola/HCAquery
 BugReports: https://github.com/stemangiola/HCAquery/issues

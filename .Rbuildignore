@@ -3,3 +3,4 @@
 ^dev
 ^\.github$
 ^LICENSE\.md$
+^README\.Rmd$

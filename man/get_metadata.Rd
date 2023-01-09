@@ -6,14 +6,36 @@
 and ultimately passed into get_SingleCellExperiment.}
 \usage{
 get_metadata(
-  sqlite_path = "/vast/projects/RCP/human_cell_atlas/metadata.sqlite"
+  repository = "https://harmonised-human-atlas.s3.amazonaws.com/metadata.sqlite",
+  cache_directory = get_default_cache_dir()
 )
 }
 \arguments{
-\item{sqlite_path}{Path to the sqlite database where the metadata can be found.
-Currently this defaults to an internal location within WEHI's milton system.}
+\item{repository}{Optional character vector of length 1. An HTTP URL pointing
+to the location of the sqlite database.}
+
+\item{cache_directory}{Optional character vector of length 1. A file path on
+your local system to a directory (not a file) that will be used to store
+metadata.sqlite}
+}
+\value{
+A lazy data.frame subclass containing the metadata. You can interact
+  with this object using most standard dplyr functions. However, it is
+  recommended that you use the %LIKE% operator for string matching, as most
+  stringr functions will not work.
 }
 \description{
 Returns a data frame of Human Cell Atlas metadata, which should be filtered
 and ultimately passed into get_SingleCellExperiment.
+}
+\examples{
+library(dplyr)
+filtered_metadata <- get_metadata() |>
+    filter(
+        ethnicity == "African" &
+            assay \%LIKE\% "\%10x\%" &
+            tissue == "lung parenchyma" &
+            cell_type \%LIKE\% "\%CD4\%"
+    )
+
 }
