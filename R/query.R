@@ -12,7 +12,7 @@ aside <- function(x, ...) {
     x
 }
 
-REMOTE_URL <- "https://harmonised-human-atlas.s3.amazonaws.com/"
+REMOTE_URL <- "https://cloudstor.aarnet.edu.au/plus/s/nrQ8q1OBS0sjtxv/download" #?path=%2Foriginal%2F000ae9ae99f825c20ccd93a4b1548719&files=se.rds"
 
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object
 #' corresponding to the samples in that data frame
@@ -206,14 +206,13 @@ sync_assay_files <- function(
             # Path to the file of interest from the root path. We use "/"
             # since URLs must use these regardless of OS
             full_url = paste0(
-                url$path,
-                "/",
+                "path=",
                 .data$subdir,
                 "/",
                 .data$sample_id,
-                "/",
+                "&files=",
                 .data$filename
-            ) |> map(~ modify_url(url, path = .)),
+            ) |> map(~ modify_url(url, query = .)),
 
             # Path to save the file on local disk (and its parent directory)
             # We use file.path since the file separator will differ on other OSs
