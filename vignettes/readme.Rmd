@@ -50,9 +50,9 @@ sce <-
     get_metadata() |>
     filter(
         ethnicity == "African" &
-            assay %LIKE% "%10x%" &
-            tissue == "lung parenchyma" &
-            cell_type %LIKE% "%CD4%"
+        assay %LIKE% "%10x%" &
+        tissue == "lung parenchyma" &
+        cell_type %LIKE% "%CD4%"
     ) |>
     get_SingleCellExperiment()
 

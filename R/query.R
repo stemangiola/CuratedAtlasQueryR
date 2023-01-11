@@ -188,12 +188,10 @@ get_SingleCellExperiment <- function(
 #' @importFrom cli cli_alert_success cli_alert_info cli_abort
 #' @noRd
 #'
-sync_assay_files <- function(
-    url = httr::parse_url(REMOTE_URL),
-    cache_dir,
-    subdirs,
-    files
-) {
+sync_assay_files <- function(url = httr::parse_url(REMOTE_URL),
+                             cache_dir,
+                             subdirs,
+                             files) {
     # Find every combination of file name, sample id, and assay, since each
     # will be a separate file we need to download
     expand.grid(
