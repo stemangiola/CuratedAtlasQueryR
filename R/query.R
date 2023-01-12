@@ -78,7 +78,9 @@ get_SingleCellExperiment <- function(
     ## We have to convert to an in-memory table here, or some of the dplyr
     ## operations will fail when passed a database connection
     cli_alert_info("Realising metadata.")
-    raw_data <- as_tibble(data)
+    raw_data <- data |> 
+        filter(!(.data$file_id_db %LIKE% "0%")) |>
+        as_tibble()
     inherits(raw_data, "tbl") |> assert_that()
     has_name(raw_data, c(".cell", "file_id_db")) |> assert_that()
 
@@ -330,7 +332,7 @@ get_seurat <- function(...) {
 #' @importFrom httr progress
 #'
 get_metadata <- function(
-    repository = "https://harmonised-human-atlas.s3.amazonaws.com/metadata.sqlite",
+    repository = "https://cloudstor.aarnet.edu.au/plus/s/Z90ONLlUWjdt5M5/download?path=%2F&files=metadata.sqlite",
     cache_directory = get_default_cache_dir()
 ) {
     sqlite_path <- file.path(cache_directory, "metadata.sqlite")

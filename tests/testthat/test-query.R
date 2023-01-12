@@ -12,7 +12,7 @@ test_that("get_default_cache_dir() returns the correct directory on Linux", {
 
 test_that("sync_assay_files() syncs appropriate files", {
     temp <- tempfile()
-    test_file <- "00095cb0de0dc9528316b636fc9b3446"
+    test_file <- "ffd2891329f66921dbe361af85b07c51"
 
     sync_assay_files(
         subdirs = "cpm",
