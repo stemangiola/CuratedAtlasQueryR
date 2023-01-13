@@ -24,8 +24,6 @@ library(HCAquery)
 library(dplyr)
 library(dbplyr)
 library(SingleCellExperiment)
-library(tidySingleCellExperiment)
-options("restore_SingleCellExperiment_show" = TRUE)
 ```
 
 Load the metadata

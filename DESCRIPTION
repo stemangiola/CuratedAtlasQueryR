@@ -18,7 +18,6 @@ Imports:
     dplyr,
     SummarizedExperiment,
     SingleCellExperiment,
-    tidySingleCellExperiment,
     purrr (>= 1.0.0),
     BiocGenerics,
     glue,
