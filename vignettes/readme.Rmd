@@ -11,8 +11,8 @@ vignette: >
 # Note: knit this to the repo readme file using:
 # rmarkdown::render("vignettes/readme.Rmd", output_format = "github_document", output_dir = getwd())
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+    collapse = TRUE,
+    comment = "#>"
 )
 ```
 
@@ -34,23 +34,23 @@ Explore the HCA content
 
 ```{r}
 get_metadata() |>
-  distinct(tissue, file_id) |>
-  count(tissue) |>
-  arrange(desc(n))
+    distinct(tissue, file_id) |>
+    count(tissue) |>
+    arrange(desc(n))
 ```
 
 Query raw counts
 
 ```{r}
 sce <-
-  get_metadata() |>
-  filter(
-    ethnicity == "African" &
-      assay %LIKE% "%10x%" &
-      tissue == "lung parenchyma" &
-      cell_type %LIKE% "%CD4%"
-  ) |>
-  get_SingleCellExperiment()
+    get_metadata() |>
+    filter(
+        ethnicity == "African" &
+            assay %LIKE% "%10x%" &
+            tissue == "lung parenchyma" &
+            cell_type %LIKE% "%CD4%"
+    ) |>
+    get_SingleCellExperiment()
 
 sce
 ```
@@ -59,14 +59,14 @@ Query counts scaled per million. This is helpful if just few genes are of intere
 
 ```{r}
 sce <-
-  get_metadata() |>
-  filter(
-    ethnicity == "African" &
-      assay %LIKE% "%10x%" &
-      tissue == "lung parenchyma" &
-      cell_type %LIKE% "%CD4%"
-  ) |>
-  get_SingleCellExperiment(assays = "cpm")
+    get_metadata() |>
+    filter(
+        ethnicity == "African" &
+            assay %LIKE% "%10x%" &
+            tissue == "lung parenchyma" &
+            cell_type %LIKE% "%CD4%"
+    ) |>
+    get_SingleCellExperiment(assays = "cpm")
 
 sce
 ```
@@ -75,26 +75,26 @@ Extract only a subset of genes:
 
 ```{r}
 get_metadata() |>
-  filter(
-    ethnicity == "African" &
-      assay %LIKE% "%10x%" &
-      tissue == "lung parenchyma" &
-      cell_type %LIKE% "%CD4%"
-  ) |>
-  get_SingleCellExperiment(features = "PUM1")
+    filter(
+        ethnicity == "African" &
+            assay %LIKE% "%10x%" &
+            tissue == "lung parenchyma" &
+            cell_type %LIKE% "%CD4%"
+    ) |>
+    get_SingleCellExperiment(features = "PUM1")
 ```
 
 Extract the counts as a Seurat object:
 
 ```{r}
 get_metadata() |>
-  filter(
-    ethnicity == "African" &
-      assay %LIKE% "%10x%" &
-      tissue == "lung parenchyma" &
-      cell_type %LIKE% "%CD4%"
-  ) |>
-  get_seurat()
+    filter(
+        ethnicity == "African" &
+            assay %LIKE% "%10x%" &
+            tissue == "lung parenchyma" &
+            cell_type %LIKE% "%CD4%"
+    ) |>
+    get_seurat()
 ```
 ```{r}
 sessionInfo()
