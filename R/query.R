@@ -111,16 +111,17 @@ get_SingleCellExperiment <- function(
     }
 
     cli_alert_info("Reading files.")
-    sce <- subdirs |>
+    sces <- subdirs |>
         imap(function(current_subdir, current_assay) {
+            # Build up an SCE for each assay
             dir_prefix = file.path(
                 cache_directory,
                 current_subdir
             )
             
-            # Load each file
-            sces <- raw_data |>
+            raw_data |>
                 dplyr::group_by(file_id_db) |>
+                # Load each file and attach metadata
                 dplyr::summarise(sces = list(group_to_sce(
                     dplyr::cur_group_id(),
                     dplyr::cur_data_all(),
@@ -128,36 +129,18 @@ get_SingleCellExperiment <- function(
                     features
                 ))) |>
                 dplyr::pull(sces) |>
-                # Drop files with one cell, which causes the DFrame objects to
-                # combine must have the same column names
-                # keep(~ ncol(.) > 1) |>
                 # Combine each sce by column, since each sce has a different set
                 # of cells
-                do.call(cbind, args = _) |>
-                # We only need the assay, since we ultimately need to combine
-                # them We need to use :: here since we already have an assays
-                # argument
-                SummarizedExperiment::assays() |>
-                setNames(current_assay)
-        }) |>
-        aside(cli_alert_info("Compiling Single Cell Experiment.")) |>
-        # Combine the assays into one list
-        reduce(c) |>
-        SingleCellExperiment(assays = _)
+                do.call(cbind, args = _)
+        })
     
-        cli_alert_info("Attaching metadata.")
+        cli_alert_info("Compiling Single Cell Experiment.")
+        # Combine all the assays
+        sce = sces[[1]]
+        SummarizedExperiment::assays(sce) <- map(sces, function(sce){
+            SummarizedExperiment::assays(sce)[[1]]
+        })
 
-        colData(sce) <- raw_data |>
-            # Needed because cell IDs are not unique outside the file_id or
-            # file_id_db
-            filter(.data$file_id_db %in% files_to_read) |>
-            inner_join(
-                colData(sce) |> as_tibble(rownames = ".cell"),
-                by = ".cell" 
-            ) |>
-            column_to_rownames(".cell") |>
-            as("DataFrame")
-        
         sce
 }
 
@@ -215,7 +198,7 @@ group_to_sce = function(i, df, dir_prefix, features){
             }
         ) |>
         `colnames<-`(new_cellnames) |>
-        `colData<-`(new_coldata)
+        `colData<-`(value = new_coldata)
 }
 
 #' Synchronises one or more remote assays with a local copy
