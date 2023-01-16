@@ -1,12 +1,10 @@
 library(HCAquery)
 
 test_that("get_SingleCellExperiment() correctly handles duplicate cell IDs", {
-    meta <- get_metadata() |>
-        dplyr::filter(.cell == "868417_1") |>
-        dplyr::collect()
+    meta <- get_metadata() |> dplyr::filter(.cell == "868417_1")
     sce <- get_SingleCellExperiment(meta)
     # This query should return multiple cells, despite querying only 1 cell ID
-    nrow(meta) |> expect_gt(1)
+    meta |> dplyr::tally() |> dplyr::pull(n) |> expect_gt(1)
     # Each of the two ambiguous cell IDs should now be unique
     colnames(sce) |> expect_equal(c("868417_1_1", "868417_1_2"))
     # We should have lots of column data, derived from the metadata
