@@ -35,8 +35,8 @@ REMOTE_URL <- "https://cloudstor.aarnet.edu.au/plus/s/nrQ8q1OBS0sjtxv/download" 
 #' meta <- get_metadata() |> head(2)
 #' sce <- get_SingleCellExperiment(meta)
 #'
-#' @importFrom dplyr pull filter as_tibble
-#' @importFrom tidySingleCellExperiment inner_join
+#' @importFrom dplyr pull filter as_tibble inner_join collect
+#' @importFrom tibble column_to_rownames
 #' @importFrom purrr reduce map map_int imap keep
 #' @importFrom BiocGenerics cbind
 #' @importFrom glue glue
@@ -49,6 +49,7 @@ REMOTE_URL <- "https://cloudstor.aarnet.edu.au/plus/s/nrQ8q1OBS0sjtxv/download" 
 #' @importFrom cli cli_alert_success cli_alert_info
 #' @importFrom rlang .data
 #' @importFrom stats setNames
+#' @importFrom S4Vectors DataFrame
 #'
 #' @export
 #'
@@ -64,7 +65,7 @@ get_SingleCellExperiment <- function(
     assays %in% names(assay_map) |>
         all() |>
         assert_that(
-          msg = 'assays must be a character vector containing "counts" and/or
+            msg = 'assays must be a character vector containing "counts" and/or
           "cpm"'
         )
     (!anyDuplicated(assays)) |> assert_that()
@@ -80,15 +81,14 @@ get_SingleCellExperiment <- function(
     cli_alert_info("Realising metadata.")
     raw_data <- data |> 
         filter(!(.data$file_id_db %LIKE% "0%")) |>
-        as_tibble()
+        collect()
     inherits(raw_data, "tbl") |> assert_that()
     has_name(raw_data, c(".cell", "file_id_db")) |> assert_that()
 
     cache_directory |> dir.create(showWarnings = FALSE)
 
-    files_to_read <-
-        raw_data |>
-        pull(.data$file_id_db) |>
+    cells_of_interest <- raw_data |>
+        pull(.data$.cell) |>
         unique() |>
         as.character()
 
@@ -97,6 +97,11 @@ get_SingleCellExperiment <- function(
     # The repository is optional. If not provided we load only from the cache
     if (!is.null(repository)) {
         cli_alert_info("Synchronising files")
+        files_to_read <-
+            raw_data |>
+            pull(.data$file_id_db) |>
+            unique() |>
+            as.character()
         parsed_repo <- parse_url(repository)
         (parsed_repo$scheme %in% c("http", "https")) |> assert_that()
         sync_assay_files(
@@ -106,67 +111,96 @@ get_SingleCellExperiment <- function(
             subdirs = subdirs
         )
     }
-    files_to_read <-
-        raw_data |>
-        pull(.data$file_id_db) |>
-        unique() |>
-        as.character()
 
-    subdirs |>
+    cli_alert_info("Reading files.")
+    sces <- subdirs |>
         imap(function(current_subdir, current_assay) {
-            # Load each file
-            sces <-
-                files_to_read |>
-                map(function(.x) {
-                    sce_path <- file.path(
-                        cache_directory,
-                        current_subdir,
-                        .x
-                    )
+            # Build up an SCE for each assay
+            dir_prefix <- file.path(
+                cache_directory,
+                current_subdir
+            )
 
-                    file.exists(sce_path) |>
-                        assert_that(
-                            msg = "Your cache does not contain a file you
-                            attempted to query. Please provide the repository 
-                            parameter so that files can be synchronised from the
-                            internet"
-                        )
-
-                    sce <- loadHDF5SummarizedExperiment(sce_path)
-
-                    if (!is.null(features)) {
-                        # Optionally subset the genes
-                        sce <- sce[
-                            rownames(sce) |> intersect(features)
-                        ]
-                    }
-
-                    sce
-                }, .progress = list(name = "Reading files")) |>
-                # Drop files with one cell, which causes the DFrame objects to
-                # combine must have the same column names
-                keep(~ ncol(.) > 1) |>
+            raw_data |>
+                dplyr::group_by(file_id_db) |>
+                # Load each file and attach metadata
+                dplyr::summarise(sces = list(group_to_sce(
+                    dplyr::cur_group_id(),
+                    dplyr::cur_data_all(),
+                    dir_prefix,
+                    features
+                ))) |>
+                dplyr::pull(sces) |>
                 # Combine each sce by column, since each sce has a different set
                 # of cells
-                do.call(cbind, args = _) |>
-                # We only need the assay, since we ultimately need to combine
-                # them We need to use :: here since we already have an assays
-                # argument
-                SummarizedExperiment::assays() |>
-                setNames(current_assay)
-        }) |>
-        aside(cli_alert_info("Compiling Single Cell Experiment.")) |>
-        # Combine the assays into one list
-        reduce(c) |>
-        SingleCellExperiment(assays = _) |>
-        aside(cli_alert_info("Attaching metadata.")) |>
-        # Join back to metadata, which will become coldata annotations
-        inner_join(
-            # Needed because cell IDs are not unique outside the file_id or
-            # file_id_db
-            filter(raw_data, .data$file_id_db %in% files_to_read),
-            by = ".cell"
+                do.call(cbind, args = _)
+        })
+
+    cli_alert_info("Compiling Single Cell Experiment.")
+    # Combine all the assays
+    sce <- sces[[1]]
+    SummarizedExperiment::assays(sce) <- map(sces, function(sce) {
+        SummarizedExperiment::assays(sce)[[1]]
+    })
+
+    sce
+}
+
+#' Converts a data frame into a single SCE
+#'
+#' @param prefix Prefix to be added to the column names
+#' @param df The data frame to be converted
+#' @param dir_prefix The path to the single cell experiment, minus the final segment
+#' @param features The list of genes/rows of interest
+#'
+#' @return A SingleCellExperiment object
+#' @importFrom dplyr mutate
+#' @importFrom HDF5Array loadHDF5SummarizedExperiment
+#' @importFrom SummarizedExperiment colData<-
+#' @importFrom tibble column_to_rownames
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
+#'
+group_to_sce <- function(i, df, dir_prefix, features) {
+    sce_path <- df$file_id_db |>
+        head(1) |>
+        file.path(
+            dir_prefix,
+            suffix = _
         )
+
+    file.exists(sce_path) |>
+        assert_that(
+            msg = "Your cache does not contain a file you
+                            attempted to query. Please provide the repository
+                            parameter so that files can be synchronised from the
+                            internet"
+        )
+
+    sce <- loadHDF5SummarizedExperiment(sce_path)
+    # The cells we select here are those that are both available in the SCE
+    # object, and requested for this particular file
+    cells <- colnames(sce) |> intersect(df$.cell)
+    # We need to make the cell names globally unique, which we can guarantee
+    # by adding a suffix that is derived from file_id_db, which is the grouping
+    # variable
+    new_cellnames <- paste0(cells, "_", i)
+    new_coldata <- df |>
+        mutate(original_cell_id = .cell, .cell = new_cellnames) |>
+        column_to_rownames(".cell") |>
+        as("DataFrame")
+
+    features |>
+        is.null() |>
+        {
+            `if`
+        }(
+            sce[, cells], {
+                # Optionally subset the genes
+                genes <- rownames(sce) |> intersect(features)
+                sce[genes, cells]
+        }) |>
+        `colnames<-`(new_cellnames) |>
+        `colData<-`(value = new_coldata)
 }
 
 #' Synchronises one or more remote assays with a local copy
@@ -183,7 +217,7 @@ get_SingleCellExperiment <- function(
 #'
 #' @return A character vector of files that have been downloaded
 #' @importFrom purrr pmap_chr transpose
-#' @importFrom httr modify_url GET write_disk stop_for_status
+#' @importFrom httr modify_url GET write_disk stop_for_status parse_url
 #' @importFrom dplyr tibble transmute filter full_join
 #' @importFrom glue glue
 #' @importFrom assertthat assert_that
@@ -191,7 +225,7 @@ get_SingleCellExperiment <- function(
 #' @noRd
 #'
 sync_assay_files <- function(
-    url = httr::parse_url(REMOTE_URL),
+    url = parse_url(REMOTE_URL),
     cache_dir,
     subdirs,
     files

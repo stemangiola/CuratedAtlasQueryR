@@ -1,5 +1,20 @@
 library(HCAquery)
 
+test_that("get_SingleCellExperiment() correctly handles duplicate cell IDs", {
+    meta <- get_metadata() |>
+        dplyr::filter(.cell == "868417_1") |>
+        dplyr::collect()
+    sce <- get_SingleCellExperiment(meta)
+    # This query should return multiple cells, despite querying only 1 cell ID
+    nrow(meta) |> expect_gt(1)
+    # Each of the two ambiguous cell IDs should now be unique
+    colnames(sce) |> expect_equal(c("868417_1_1", "868417_1_2"))
+    # We should have lots of column data, derived from the metadata
+    SummarizedExperiment::colData(sce) |>
+        dim() |>
+        expect_equal(c(2, 56))
+})
+
 test_that("get_default_cache_dir() returns the correct directory on Linux", {
     grepl("linux", version$platform, fixed = TRUE) |>
         skip_if_not()
@@ -46,30 +61,30 @@ test_that("get_SingleCellExperiment() syncs appropriate files", {
 })
 
 test_that(
-  "The assays argument to get_SingleCellExperiment controls the number
+    "The assays argument to get_SingleCellExperiment controls the number
   of returned assays",
-  {
-      # We need this for the assays() function
-      library(SummarizedExperiment)
+    {
+        # We need this for the assays() function
+        library(SummarizedExperiment)
 
-      meta <- get_metadata() |> head(2)
+        meta <- get_metadata() |> head(2)
 
-      # If we request both assays, we get both assays
-      get_SingleCellExperiment(meta, assays = c("counts", "cpm")) |>
-          assays() |>
-          names() |>
-          expect_setequal(c("counts", "cpm"))
+        # If we request both assays, we get both assays
+        get_SingleCellExperiment(meta, assays = c("counts", "cpm")) |>
+            assays() |>
+            names() |>
+            expect_setequal(c("counts", "cpm"))
 
-      # If we request one assay, we get one assays
-      get_SingleCellExperiment(meta, assays = "counts") |>
-          assays() |>
-          names() |>
-          expect_setequal("counts")
-      get_SingleCellExperiment(meta, assays = "cpm") |>
-          assays() |>
-          names() |>
-          expect_setequal("cpm")
-  }
+        # If we request one assay, we get one assays
+        get_SingleCellExperiment(meta, assays = "counts") |>
+            assays() |>
+            names() |>
+            expect_setequal("counts")
+        get_SingleCellExperiment(meta, assays = "cpm") |>
+            assays() |>
+            names() |>
+            expect_setequal("cpm")
+    }
 )
 
 test_that("The features argument to get_SingleCellExperiment subsets genes", {
