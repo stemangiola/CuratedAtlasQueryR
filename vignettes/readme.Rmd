@@ -22,8 +22,6 @@ Load the package
 ```{r, message=FALSE, warning=FALSE}
 library(HCAquery)
 library(dplyr)
-library(dbplyr)
-library(SingleCellExperiment)
 ```
 
 Load the metadata
