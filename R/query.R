@@ -12,7 +12,7 @@ aside <- function(x, ...) {
     x
 }
 
-REMOTE_URL <- "https://harmonised-human-atlas.s3.amazonaws.com/"
+REMOTE_URL <- "https://swift.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
 
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object
 #' corresponding to the samples in that data frame
@@ -339,11 +339,9 @@ get_seurat <- function(...) {
 #' Returns a data frame of Human Cell Atlas metadata, which should be filtered
 #' and ultimately passed into get_SingleCellExperiment.
 #'
-#' @param repository Optional character vector of length 1. An HTTP URL pointing
-#'   to the location of the sqlite database.
-#' @param cache_directory Optional character vector of length 1. A file path on
-#'   your local system to a directory (not a file) that will be used to store
-#'   metadata.sqlite
+#' @param connection Optional list of postgres connection parameters used to
+#'   connect to the metadata database. Possible parameters are described here:
+#'   https://rpostgres.r-dbi.org/reference/postgres.
 #' @return A lazy data.frame subclass containing the metadata. You can interact
 #'   with this object using most standard dplyr functions. However, it is
 #'   recommended that you use the %LIKE% operator for string matching, as most
@@ -360,21 +358,21 @@ get_seurat <- function(...) {
 #'     )
 #'
 #' @importFrom DBI dbConnect
-#' @importFrom RSQLite SQLite SQLITE_RO
+#' @importFrom RPostgres Postgres
 #' @importFrom dplyr tbl
-#' @importFrom httr progress
 #'
 get_metadata <- function(
-    repository = "https://harmonised-human-atlas.s3.amazonaws.com/metadata.sqlite",
-    cache_directory = get_default_cache_dir()
-) {
-    sqlite_path <- file.path(cache_directory, "metadata.sqlite")
-    sync_remote_file(
-        repository,
-        sqlite_path,
-        progress(type = "down", con = stderr())
+    connection = list(
+        dbname="metadata",
+        host="zki3lfhznsa.db.cloud.edu.au",
+        port="5432",
+        password="password",
+        user="public_access"
     )
-    SQLite() |>
-        dbConnect(drv = _, dbname = sqlite_path, flags = SQLITE_RO) |>
+) {
+    Postgres() |>
+        list(drv=_) |>
+        c(connection) |>
+        do.call(dbConnect, args=_) |>
         tbl("metadata")
 }

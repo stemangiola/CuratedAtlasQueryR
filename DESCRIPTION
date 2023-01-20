@@ -32,7 +32,8 @@ Imports:
     Seurat,
     methods,
     rlang,
-    stats
+    stats,
+    RPostgres
 Suggests:
     here,
     stringr,
@@ -46,9 +47,9 @@ Suggests:
     SingleR,
     tools,
     rmarkdown,
-    dbplyr,
     knitr,
-    testthat
+    testthat,
+    dbplyr (>= 2.3.0)
 Biarch: true
 biocViews: 
     AssayDomain,
