@@ -6,17 +6,14 @@
 and ultimately passed into get_SingleCellExperiment.}
 \usage{
 get_metadata(
-  repository = "https://harmonised-human-atlas.s3.amazonaws.com/metadata.sqlite",
-  cache_directory = get_default_cache_dir()
+  connection = list(dbname = "metadata", host = "zki3lfhznsa.db.cloud.edu.au", port =
+    "5432", password = "password", user = "public_access")
 )
 }
 \arguments{
-\item{repository}{Optional character vector of length 1. An HTTP URL pointing
-to the location of the sqlite database.}
-
-\item{cache_directory}{Optional character vector of length 1. A file path on
-your local system to a directory (not a file) that will be used to store
-metadata.sqlite}
+\item{connection}{Optional list of postgres connection parameters used to
+connect to the metadata database. Possible parameters are described here:
+https://rpostgres.r-dbi.org/reference/postgres.}
 }
 \value{
 A lazy data.frame subclass containing the metadata. You can interact
