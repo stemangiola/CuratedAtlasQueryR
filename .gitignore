@@ -9,3 +9,4 @@ HCAquery.Rproj
 split_files.makeflow
 ._*
 .DS_Store
+inst/doc

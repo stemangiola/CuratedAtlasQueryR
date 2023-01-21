@@ -2,7 +2,8 @@
 % Please edit documentation in R/query.R
 \name{get_seurat}
 \alias{get_seurat}
-\title{Given a data frame of HCA metadata, returns a Seurat object corresponding to the samples in that data frame}
+\title{Given a data frame of HCA metadata, returns a Seurat object corresponding to
+the samples in that data frame}
 \usage{
 get_seurat(...)
 }
@@ -10,12 +11,30 @@ get_seurat(...)
 \item{...}{
   Arguments passed on to \code{\link[=get_SingleCellExperiment]{get_SingleCellExperiment}}
   \describe{
-    \item{\code{.data}}{A data frame containing, at minimum, a `.sample` column, which corresponds to a single cell sample ID.
-This can be obtained from the [get_metadata()] function.}
-    \item{\code{repository}}{A character vector of length one, which is a file path to where the single cell data is stored}
-    \item{\code{genes}}{An optional character vector of genes to return the counts for. By default counts for all genes will be returned.}
+    \item{\code{data}}{A data frame containing, at minimum, a `.sample` column, which
+corresponds to a single cell sample ID. This can be obtained from the
+[get_metadata()] function.}
+    \item{\code{assays}}{A character vector whose elements must be either "raw" or
+"scaled", representing the corresponding assay you want to request.}
+    \item{\code{repository}}{A character vector of length one. If provided, it should be
+an HTTP URL pointing to the location where the single cell data is stored.}
+    \item{\code{cache_directory}}{An optional character vector of length one. If
+provided, it should indicate a local file path where any remotely accessed
+files should be copied.}
+    \item{\code{features}}{An optional character vector of features (ie genes) to return
+the counts for. By default counts for all features will be returned.}
   }}
 }
+\value{
+A Seurat object containing the same data as a call to
+  get_SingleCellExperiment.
+}
 \description{
-Given a data frame of HCA metadata, returns a Seurat object corresponding to the samples in that data frame
+Given a data frame of HCA metadata, returns a Seurat object corresponding to
+the samples in that data frame
+}
+\examples{
+meta <- get_metadata() |> head(2)
+seurat <- get_seurat(meta)
+
 }

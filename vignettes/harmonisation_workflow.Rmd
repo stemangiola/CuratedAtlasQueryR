@@ -2,7 +2,11 @@
 title: "harmonisation_workflow"
 author: "Stefano Mangiola"
 date: '2022-09-14'
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{harmonisation_workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
