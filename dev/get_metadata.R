@@ -14,23 +14,47 @@ library(openssl)
 # # CREATE MAKEFILE
 # tab = "\t"
 # root_directory = "/vast/projects/RCP/human_cell_atlas"
-# my_root_directory = "/vast/scratch/users/mangiola.s/human_cell_atlas"
-# metadata_directory = glue("{root_directory}/metadata")
+# # my_root_directory = "/vast/scratch/users/mangiola.s/human_cell_atlas"
+# metadata_directory = glue("{root_directory}/metadata_0.2")
 # raw_data_directory = glue("{root_directory}/raw_data")
 # files_metadata = glue("{root_directory}/files_metadata.rds")
 #
 # input_files_path = dir(raw_data_directory, full.names=TRUE)
 # input_files = input_files_path |> basename()
+#
+# files_thta_require_more_memory = c(
+# 	"5c64f247-5b7c-4842-b290-65c722a65952",
+# 	"56e0359f-ee8d-4ba5-a51d-159a183643e5",
+# 	"51f114ae-232a-4550-a910-934e175db814",
+# 	"21ca95b3-776b-4fa2-9956-09a07c0e5224"
+# )
+#
+#
 # output_files = input_files |> str_replace("H5AD$", "rds")
+#
+#
 # output_files_path = glue("{metadata_directory}/{output_files}")
-# metadata_path = glue("metadata.rds")
+# metadata_path = glue("{root_directory}/metadata_0.2.rds")
+#
+# # output_files_path = output_files_path |> str_replace(root_directory, my_root_directory)
+#
+# heavy_file_pattern = "5c64f247-5b7c-4842-b290-65c722a65952|56e0359f-ee8d-4ba5-a51d-159a183643e5|51f114ae-232a-4550-a910-934e175db814|21ca95b3-776b-4fa2-9956-09a07c0e5224"
+# input_files_path_heavy = input_files_path |> str_subset(heavy_file_pattern)
+# input_files_path_light = input_files_path |> str_subset(heavy_file_pattern, negate = TRUE)
+# output_files_path_heavy = output_files_path |> str_subset(heavy_file_pattern)
+# output_files_path_light = output_files_path |> str_subset(heavy_file_pattern, negate = TRUE)
+#
 # c(
-# 	glue("CATEGORY=get_metadata\nMEMORY=80024\nCORES=1\nWALL_TIME=10000"),
-# 	glue("{output_files_path}:{input_files_path}\n{tab}Rscript get_metadata.R {input_files_path} {output_files_path}"),
+# 	glue("CATEGORY=get_metadata_light\nMEMORY=80024\nCORES=1\nWALL_TIME=10000"),
+# 	glue("{output_files_path_light}:{input_files_path_light}\n{tab}Rscript get_metadata.R {input_files_path_light} {output_files_path_light}"),
+#
+# 	glue("CATEGORY=get_metadata_heavy\nMEMORY=200024\nCORES=1\nWALL_TIME=10000"),
+# 	glue("{output_files_path_heavy}:{input_files_path_heavy}\n{tab}Rscript get_metadata.R {input_files_path_heavy} {output_files_path_heavy}"),
+#
 # 	glue("CATEGORY=merge_metadata\nMEMORY=80024\nCORES=1\nWALL_TIME=10000"),
 # 	glue("{metadata_path}:{paste(output_files_path, collapse = \" \")} {files_metadata}\n{tab}Rscript merge_metadata.R {paste(output_files_path, collapse = \" \")} {files_metadata} {metadata_path}")
 # )  |>
-# 	write_lines(glue("dev/get_metadata.makeflow"))
+# 	write_lines(glue("~/PostDoc/HCAquery/dev/get_metadata.makeflow"))
 
 source("utility.R")
 
@@ -48,8 +72,7 @@ output_file |> dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
 # Read metadata
 data = readH5AD(input_file,	use_hdf5 = TRUE	)
 
-col_data = data |>
-	colData()
+col_data = data |> colData()
 
 rm(data)
 gc()
@@ -168,6 +191,10 @@ col_data |>
 	when(unique(.$file_id)=="e3a56e00-8417-4d82-9d35-3fab3aac12f2" ~ mutate(., SpecimenID =NA), ~ (.))  %>%
 	when(unique(.$file_id)=="17b34e42-bbd2-494b-bf32-b9229344a3f6" ~ mutate(., Sample =NA), ~ (.))  %>%
 
+	# Fix huge samples for plate experiments
+	extract(.cell, "experiment___", "(^expr?[0-9]+)", remove = F) |>
+	mutate(experiment___ = if_else(file_id=="3fe53a40-38ff-4f25-b33b-e4d60f2289ef", experiment___, "")) |>
+
  	# Empirically infer samples from many characteristics
  	unite(".sample_name", one_of(
  		"sample_placeholder",
@@ -199,14 +226,16 @@ col_data |>
  		"individual",
  		"tissue",
  		"development_stage",
- 		"assay"
+ 		"assay",
+ 		"experiment___"
  	), na.rm = TRUE, sep = "___", remove = F) |>
+
 
  	# Add sample hash
  	mutate(.sample = md5(glue("{.sample_name}{file_id}"))) |>
 
- 	# Make cell unique
- 	mutate(.cell = glue("{.cell}_{.sample}")) |>
+ 	# # Make cell unique
+ 	# mutate(.cell = glue("{.cell}_{.sample}")) |>
 
  	# make lighter
  	mutate_if(is.character, as.factor) |>

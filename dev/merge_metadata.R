@@ -43,6 +43,8 @@ common_colnames =
 print(common_colnames)
 
 # Get all metadata
+
+metadata =
 input_file_paths  |>
 
 	# Select core columns
@@ -148,8 +150,19 @@ input_file_paths  |>
 	# Make original cell
 	mutate(.cell = .cell |> str_remove(.sample) |> str_remove("_$")) |>
 
-	distinct() |>
+	distinct()
+
+metadata |>
 	saveRDS(output_file)
 
 
+library(RSQLite)
+library(DBI)
+library(dplyr)
+
+
+# #con <- dbConnect(SQLite(), dbname="/vast/projects/RCP/human_cell_atlas/metadata_annotated.sqlite")
+# con <- dbConnect(SQLite(), dbname="dev/metadata_annotated.sqlite")
+# dbWriteTable(con, "metadata", metadata)
+# dbDisconnect(con)
 

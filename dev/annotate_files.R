@@ -16,26 +16,28 @@ library(celldex)
 library(SingleR)
 library(glmGamPoi)
 source("utility.R")
-
+library(HCAquery)
 
 
 
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
 input_file = args[[1]]
-`metadata` = args[[2]]
+file_for_annotation_workflow = args[[2]]
 cell_type_df = args[[3]]
 output_file = args[[4]]
 
 # Create directory
 output_file |>  dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
+.sample = basename(input_file) |> tools::file_path_sans_ext()
 
 # Read file_cell_types
 data =
 	loadHDF5SummarizedExperiment(input_file	)  |>
+	mutate(.sample = !! .sample ) |>
 
 	# add lineage 1
-	left_join(readRDS(metadata) |> distinct(.cell, .sample, cell_type)) |>
+	left_join(readRDS(file_for_annotation_workflow) |> dplyr::select(-one_of("cell_type_harmonised"))) |>
 	left_join(read_csv(cell_type_df)) |>
 	filter(lineage_1 == "immune")
 
@@ -111,26 +113,44 @@ if(ncol(data) <= 30){
 
 
 	blueprint <- BlueprintEncodeData()
-	#MonacoImmuneData = MonacoImmuneData()
 
 	library(scuttle)
 
-	annotation <-
+	annotation_blueprint <-
 		data |>
 		logNormCounts(assay.type = "X") |>
 		SingleR(ref = blueprint, assay.type.test=1,
 						labels = blueprint$label.fine)
 
-	data |>
+	rm(blueprint)
+	gc()
+
+	MonacoImmuneData = MonacoImmuneData()
+
+	annotation_monaco <-
+		data |>
+		logNormCounts(assay.type = "X") |>
+		SingleR(ref = MonacoImmuneData, assay.type.test=1,
+						labels = MonacoImmuneData$label.fine)
+
+	rm(data)
+	gc()
+
+	data_seurat |>
 		left_join(
-			annotation  |>
+			annotation_blueprint  |>
 				as_tibble(rownames=".cell") |>
 				select(.cell, blueprint_singler = first.labels)
 		) |>
+		left_join(
+			annotation_monaco  |>
+				as_tibble(rownames=".cell") |>
+				select(.cell, monaco_singler = first.labels)
+		) |>
 
-	# Just select essential information
-	as_tibble() |>
-		select(.cell, one_of("predicted.celltype.l1", "predicted.celltype.l2"), blueprint_singler, contains("refUMAP")) |>
+		# Just select essential information
+		as_tibble() |>
+		select(.cell, one_of("predicted.celltype.l1", "predicted.celltype.l2"), blueprint_singler, monaco_singler, contains("refUMAP")) |>
 
 		# Save
 		saveRDS(output_file)

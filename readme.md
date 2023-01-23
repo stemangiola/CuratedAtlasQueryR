@@ -4,7 +4,7 @@ HCA Harmonised
 Load the package
 
 ``` r
-library(HCAquery)
+library(CuratedAtlasQuery)
 library(dplyr)
 ```
 
@@ -191,7 +191,7 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] stringr_1.5.0   dplyr_1.0.10    HCAquery_0.1.0  testthat_3.1.6  RPostgres_1.4.4
+#> [1] stringr_1.5.0   dplyr_1.0.10    CuratedAtlasQuery_0.1.0  testthat_3.1.6  RPostgres_1.4.4
 #> 
 #> loaded via a namespace (and not attached):
 #>   [1] plyr_1.8.8                  igraph_1.3.5                lazyeval_0.2.2              sp_1.5-1                    splines_4.2.1               listenv_0.9.0              

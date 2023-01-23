@@ -6,6 +6,7 @@ library(MASS)
 library(magrittr)
 library(stringr)
 library(purrr)
+library(tidybayes)
 source("https://gist.githubusercontent.com/stemangiola/fc67b08101df7d550683a5100106561c/raw/a0853a1a4e8a46baf33bad6268b09001d49faf51/ggplot_theme_multipanel")
 
 
@@ -316,9 +317,15 @@ draw_cellchat_circle_plot = function (net, color.use = NULL, title.name = NULL, 
 																																						 2]/coords_scale[igraph::V(g), 1]), pi - atan(coords_scale[igraph::V(g),
 																																						 																													2]/coords_scale[igraph::V(g), 1]))
 	igraph::V(g)$size <- vertex.weight
-	igraph::V(g)$color <- color.use[igraph::V(g)]
-	if (is.null(color.use))  igraph::V(g)$frame.color <- color.use[igraph::V(g)]
-	else igraph::V(g)$frame.color <- color.use[igraph::V(g) |> names()]
+
+	if (is.null(color.use)) {
+		igraph::V(g)$frame.color <- color.use[igraph::V(g)]
+		igraph::V(g)$color <- color.use[igraph::V(g)]
+	}
+	else{
+		igraph::V(g)$frame.color <- color.use[igraph::V(g) |> names()]
+		igraph::V(g)$color <- color.use[igraph::V(g) |> names()]
+	}
 	igraph::V(g)$label.color <- vertex.label.color
 	igraph::V(g)$label.cex <- vertex.label.cex
 	if (label.edge) {
@@ -376,8 +383,8 @@ cell_type_color =
 	color_array %>%
 	enframe(name="cell_from", value="color") |>
 	filter(cell_from != "") |>
-	tidyr::separate( cell_from, c("cell_from", "phenotype", sep=" "), remove = FALSE) |>
-	with_groups(cell_from, slice, 1) |>
+	#tidyr::separate( cell_from, c("cell_from", "phenotype", sep=" "), remove = FALSE) |>
+	#with_groups(cell_from, slice, 1) |>
 	dplyr::select(cell_from, color) |>
 	deframe()
 
@@ -429,105 +436,599 @@ cdc_weight_fit = readRDS("cdc_weight_fit_random_intercept_file_resolved_cells.rd
 
 
 
-# BIG model
-		cdc_weight_data |>
+# # BIG model
+# 		cdc_weight_data |>
+#
+#
+# 			tidyr::separate( cell_to, c("cell_to", "phenotype", sep=" "), remove = FALSE) |>
+# 			tidyr::separate( cell_from, c("cell_from", "phenotype", sep=" "), remove = FALSE) |>
+#
+# 			with_groups(c(DB, cell_to, cell_from, tissue_harmonised, sex , ethnicity , assay, sample, age_days, file_id), ~ .x |> summarise(weight = mean(weight))) |>
+#
+# 			# Filter
+# 			add_count(DB, cell_to, cell_from, tissue_harmonised, assay, name = "count_partitions") |>
+# 			filter(count_partitions>10) |>
+#
+# 			nest(data = -c(DB, cell_to, cell_from, tissue_harmonised, file_id)) |>
+# 			filter(map_int(data, ~ .x |> distinct(age_days) |> nrow())>1) |>
+#
+# 			# Interval > 10 years
+# 			filter(map_dbl(data, ~ max(.x$age_days, na.rm=T)-min(.x$age_days, na.rm=T)) > 3600*2) |>
+# 			unnest(data) |>
+#
+# 			# Scale age
+# 			mutate(age_days = scale(age_days) |> as.numeric()) |>
+#
+# 			nest(data = -c(DB, cell_from, tissue_harmonised)) |>
+# 			filter(map_int(data, ~ .x |> distinct(sample) |> nrow()) > 30) |>
+# 			filter(map_int(data, ~ .x |> distinct(weight) |> nrow()) > 1) |>
+#
+#
+#
+# 			# Filter out if no covariate have more than one value
+# 			filter(!map_lgl(data, ~
+# 												(
+# 													c("sex" , "ethnicity" , "assay" ) %in%
+# 														(unlist(lapply(.x, function(x) length(unique(x)))) |> equals(1) %>% .[which(.)] |> names())
+# 												) |> all()
+# 			)) |>
+#
+# 			#slice(1:2) |>
+# 			mutate(fit = future_imap(
+# 				data,
+# 				~ {
+# 					#browser()
+# 					print(.y)
+# 					one_value = .x  |>
+# 						lapply(function(x) table(x)) |>
+# 						lapply(function(x) x[x>1]) |>
+# 						lapply(function(x) length(unique(x))) |>
+# 						unlist() |>
+# 						equals(1) %>%
+# 						.[which(.)] |>
+# 						names()
+#
+# 					other_covariates =
+# 						#c("sex" , "ethnicity" , "assay" ) |>
+# 						c("ethnicity" , "sex", "assay" ) |>
+# 						setdiff(one_value) |>
+# 						str_c(collapse = " + ")
+#
+# 					f = "weight ~ 1 + age_days"
+# 					if(other_covariates!="") f =	glue("{f} + {other_covariates}")
+# 					if(!"file_id" %in% one_value) f =	glue("{f} + (1 + age_days | file_id)")
+# 					f = glue("{f} + (1 + age_days | cell_to)")
+#
+#
+#
+# 					# stan_glm(as.formula(f), family = Gamma(link="log"), data= .x, cores=2, chains = 2) |>
+# 					# 	spread_draws(age_days) %>%
+# 					# 	mean_qi()
+#
+# 					brm(
+# 						as.formula(f),
+# 						family = Gamma(link = "log"),
+# 						data = .x,
+# 						backend = "cmdstanr",
+# 						cores = 4,
+# 						prior = prior(normal(0,5), class = "b"),
+# 						warmup = 500, iter = 800
+# 					) |>
+# 						summary(prob=0.95) %$%
+# 						fixed %>%
+# 						.["age_days",, drop=F]
+#
+# 				}
+# 			)) |>
+#
+# 			# Parse
+# 			mutate(estimate = map(fit, ~ .x )) |>
+# 			dplyr::select(-fit) |>
+# 			unnest(estimate) |>
+# 			# filter(!cell_to %in% c("immune", "non")) |>
+# 			# filter(!cell_from %in% c("immune", "non")) |>
+#
+#
+# 			saveRDS("cdc_weight_fit_random_effect_file_broad_cells_cell_from.rds")
+#
+#
+# 		readRDS("cdc_weight_fit_random_effect_file_broad_cells_cell_from.rds")  |>
+# 			filter((`l-95% CI` * `u-95% CI`)>0) |>
+# 			print(n=99)
 
 
-			tidyr::separate( cell_to, c("cell_to", "phenotype", sep=" "), remove = FALSE) |>
-			tidyr::separate( cell_from, c("cell_from", "phenotype", sep=" "), remove = FALSE) |>
 
-			with_groups(c(DB, cell_to, cell_from, tissue_harmonised, sex , ethnicity , assay, sample, age_days, file_id), ~ .x |> summarise(weight = mean(weight))) |>
 
-			# Filter
-			add_count(DB, cell_to, cell_from, tissue_harmonised, assay, name = "count_partitions") |>
-			filter(count_partitions>10) |>
 
-			nest(data = -c(DB, cell_to, cell_from, tissue_harmonised, file_id)) |>
-			filter(map_int(data, ~ .x |> distinct(age_days) |> nrow())>1) |>
 
-			# Interval > 10 years
-			filter(map_dbl(data, ~ max(.x$age_days, na.rm=T)-min(.x$age_days, na.rm=T)) > 3600*2) |>
+
+
+# PER GENE ANALYSIS
+
+		compress_zero_one = function(y){
+			# https://stats.stackexchange.com/questions/48028/beta-regression-of-proportion-data-including-1-and-0
+
+
+
+			n = length(y)
+			(y * (n-1) + 0.5) / n
+		}
+
+		cdc_weight_data_per_gene =
+			x |>
+			dplyr::select(DB, sample, cell_vs_all_cells_per_pathway) |>
+			unnest(cell_vs_all_cells_per_pathway) |>
+
+			left_join(
+				metadata_df ,
+				by = c("sample" = ".sample")
+			) |>
+			filter(disease=="normal") |>
+
+			mutate(lymphoid_organ = tissue_harmonised %in% c("blood", "lymph node", "bone", "spleen", "thymus")) |>
+			filter(file_id |> str_detect("973fa", negate = TRUE)) |>
+
+			filter(lymphoid_organ) |>
+			filter(!is.na(age_days)) |>
+			filter(cell_type == "cdc") |>
+			mutate(value = compress_zero_one(value))
+
+
+
+		job::job({
+
+
+			library(future)
+			library("future.batchtools")
+			library(furrr)
+
+			slurm <- future::tweak(batchtools_slurm,
+														 template = glue("~/third_party_sofware/slurm_batchtools.tmpl"),
+														 resources=list(
+														 	ncpus = 4,
+														 	memory = 5000,
+														 	walltime = 6000
+														 )
+			)
+			plan(slurm)
+
+			cdc_weight_data_per_gene |>
+
+
+				# tidyr::separate( cell_to, c("cell_to", "phenotype", sep=" "), remove = FALSE) |>
+				# tidyr::separate( cell_from, c("cell_from", "phenotype", sep=" "), remove = FALSE) |>
+				# with_groups(c(DB, cell_to, cell_from, tissue_harmonised, sex , ethnicity , assay, sample, age_days, file_id), ~ .x |> summarise(weight = mean(weight))) |>
+				#
+				# Filter
+				add_count(DB, cell_type, tissue_harmonised, assay, gene, name = "count_partitions") |>
+				filter(count_partitions>10) |>
+
+				nest(data = -c(DB, cell_type, tissue_harmonised, file_id, gene)) |>
+				filter(map_int(data, ~ .x |> distinct(age_days) |> nrow())>1) |>
+
+				# Interval > 10 years
+				filter(map_dbl(data, ~ max(.x$age_days, na.rm=T)-min(.x$age_days, na.rm=T)) > 3600*2) |>
+				unnest(data) |>
+
+				# Scale age
+				mutate(age_days_scaled = scale(age_days) |> as.numeric()) |>
+
+				nest(data = -c(DB, cell_type, tissue_harmonised, gene)) |>
+				filter(map_int(data, ~ .x |> distinct(sample) |> nrow()) > 30) |>
+				filter(map_int(data, ~ .x |> distinct(value) |> nrow()) > 1) |>
+
+
+
+				# Filter out if no covariate have more than one value
+				filter(!map_lgl(data, ~
+													(
+														c("sex" , "ethnicity" , "assay" ) %in%
+															(unlist(lapply(.x, function(x) length(unique(x)))) |> equals(1) %>% .[which(.)] |> names())
+													) |> all()
+				)) |>
+
+				#slice(1:2) |>
+				mutate(fit = future_imap(
+					data,
+					~ {
+						print(.y)
+						one_value = .x  |>
+							lapply(function(x) table(x)) |>
+							lapply(function(x) x[x>1]) |>
+							lapply(function(x) length(unique(x))) |>
+							unlist() |>
+							equals(1) %>%
+							.[which(.)] |>
+							names()
+
+						other_covariates =
+							#c("sex" , "ethnicity" , "assay" ) |>
+							c("ethnicity" , "sex", "assay" ) |>
+							setdiff(one_value) |>
+							str_c(collapse = " + ")
+
+						f = "value ~ 1 + age_days_scaled"
+						if(other_covariates!="") f =	glue("{f} + {other_covariates}")
+						if(!"file_id" %in% one_value) f =	glue("{f} + (1 | file_id)")
+
+
+						# stan_glm(as.formula(f), family = Gamma(link="log"), data= .x, cores=2, chains = 2) |>
+						# 	spread_draws(age_days_scaled) %>%
+						# 	mean_qi()
+
+						brm(
+							as.formula(f),
+							family = Beta(),
+							data = .x,
+							backend = "cmdstanr",
+							cores = 4,
+							prior = prior(normal(0,2.5), class = "b")
+						)
+
+					}
+				)) |>
+
+				saveRDS("cdc_gene_fit_random_intercept_file_resolved_cells.rds")
+
+		})
+
+
+	ff = 	readRDS("cdc_gene_fit_random_intercept_file_resolved_cells.rds")  |>
+			mutate(estimate = map(fit,
+														~.x |>
+															summary(prob=0.95) %$%
+															fixed %>%
+															.["age_days_scaled",, drop=F]
+															)) |>
+			unnest(estimate)
+
+	# Volcano plot
+	volcano_plot =
+		ff |>
+		filter(tissue_harmonised=="blood") |>
+		mutate(posterior = map(fit, ~ .x |> spread_draws(b_age_days_scaled) |> pull(b_age_days_scaled))) |>
+		dplyr::select(DB, gene, cell_type, tissue_harmonised, posterior, Estimate) |>
+		unnest(posterior) |>
+		#tidyr::unite("condition", DB, gene, cell_type, tissue_harmonised, sep = "\n", remove = FALSE)  |>
+		count(DB, gene, cell_type, tissue_harmonised, Estimate, posterior>0) |>
+		complete(nesting(DB, gene, cell_type, tissue_harmonised), `posterior > 0`, fill = list(n=0)) |>
+		with_groups(c(DB, gene, cell_type, tissue_harmonised), ~ .x |> mutate(n_tot = sum(n))) |> mutate(prob = n/n_tot) |>
+		with_groups(c(DB, gene, cell_type, tissue_harmonised), ~ .x |> arrange(prob) |> slice(1)) |>
+		filter(DB!="ECM-Receptor") |>
+		mutate(significant = prob<0.05) |>
+		mutate(DB = case_when(significant~DB)) |>
+		mutate(gene = case_when(significant~gene)) |>
+		ggplot(aes(Estimate, prob, label=gene)) +
+		geom_point(aes(color=DB, size=significant)) +
+		ggrepel::geom_text_repel(size = 1.5 ) +
+		geom_hline(yintercept = 0.05, linetype="dashed", color="darkgrey", size = 0.2) +
+		geom_vline(xintercept = 0, linetype="dashed", color="darkgrey", size = 0.2) +
+		scale_size_discrete(range = c(0, 0.5)) +
+		scale_color_manual(values = c("#F1A340", "#998FC3"), na.value = "black") +
+		scale_y_continuous(trans = tidybulk::log10_reverse_trans()) +
+		xlab("Association communication strenght/age") +
+		ylab("Probability") +
+		theme_multipanel
+
+
+	ggsave(
+		"volcano_communication.pdf",
+		plot = volcano_plot,
+		units = c("mm"),
+		width = 40 ,
+		height = 53 ,
+		limitsize = FALSE
+	)
+
+	ff |>
+		filter((`l-95% CI` * `u-95% CI`)>0) |>
+
+			print(n=99)
+
+
+		plot_trends =
+			readRDS("cdc_gene_fit_random_intercept_file_resolved_cells.rds") |>
+			filter((`l-95% CI` * `u-95% CI`)>0) |>
+			#filter(cell_from == "cdc") |>
+			#filter(cell_to |> str_detect("cd8|cd4|b |ilc")) |>
+			#filter(!(DB=="ECM-Receptor" & tissue_harmonised=="blood")) |>
+			filter(tissue_harmonised=="blood") |>
+			#filter(cell_to  |> str_detect("cd8|cd4|ilc|mait|tgd")) |>
+			#filter(DB=="Cell-Cell Contact") |>
 			unnest(data) |>
 
-			# Scale age
-			mutate(age_days = scale(age_days) |> as.numeric()) |>
+			ggplot(aes(age_days, value)) +
+			geom_point(aes(color = assay), size=0.3) +
+			stat_smooth(aes(color = assay), method = "glm", method.args = list(family = "binomial"), se = F, level = 0.8) +
+			facet_wrap(gene~DB, scales = "free_y") +
+			scale_y_sqrt(lim = c(0, NA)) +
+			theme_multipanel +
+			theme(axis.text.x = element_text(angle = 30))
 
-			nest(data = -c(DB, cell_from, tissue_harmonised)) |>
-			filter(map_int(data, ~ .x |> distinct(sample) |> nrow()) > 30) |>
-			filter(map_int(data, ~ .x |> distinct(weight) |> nrow()) > 1) |>
+
+	# GENE-CELL ANALYSIS
 
 
+		cdc_weight_data_per_gene_AND_cell =
+			x |>
+			dplyr::select(DB, sample, cell_vs_cell_per_pathway) |>
+			unnest(cell_vs_cell_per_pathway) |>
+			filter(map_int(result, length)>0) |>
 
-			# Filter out if no covariate have more than one value
-			filter(!map_lgl(data, ~
-												(
-													c("sex" , "ethnicity" , "assay" ) %in%
-														(unlist(lapply(.x, function(x) length(unique(x)))) |> equals(1) %>% .[which(.)] |> names())
-												) |> all()
+			filter(gene %in% c("GALECTIN", "ANNEXIN",  "BAFF" ,    "MHC-I" ,
+												 "SELPLG",   "ITGB2",    "ICAM"   ,  "ADGRE5"  , "CD23" ,
+												 "ADGRE5"   )
+			) |>
+
+
+			left_join(
+				metadata_df ,
+				by = c("sample" = ".sample")
+			) |>
+			filter(disease=="normal") |>
+
+			mutate(lymphoid_organ = tissue_harmonised %in% c("blood", "lymph node", "bone", "spleen", "thymus")) |>
+			filter(file_id |> str_detect("973fa", negate = TRUE)) |>
+
+			#filter(DB=="Cell-Cell Contact") |>
+			#mutate(value = value + 0.0001) |>
+			filter(lymphoid_organ) |>
+			filter(!is.na(age_days)) |>
+
+			mutate(result = map(
+				result,
+				~ .x |>
+					as_tibble(rownames = "cell_from") |>
+					pivot_longer(-cell_from, names_to = "cell_to", values_to = "value")
+
 			)) |>
+			unnest(result) |>
 
-			#slice(1:2) |>
-			mutate(fit = future_imap(
-				data,
-				~ {
-					#browser()
-					print(.y)
-					one_value = .x  |>
-						lapply(function(x) table(x)) |>
-						lapply(function(x) x[x>1]) |>
-						lapply(function(x) length(unique(x))) |>
-						unlist() |>
-						equals(1) %>%
-						.[which(.)] |>
-						names()
+			#with_groups(c(sample, DB), ~ .x |> summarise(weight = mean(weight))) |>
+			#filter(cell_from |> str_detect("cdc")) |>
+			#filter(cell_to |> str_detect("cd8|cd4")) |>
 
-					other_covariates =
-						#c("sex" , "ethnicity" , "assay" ) |>
-						c("ethnicity" , "sex", "assay" ) |>
-						setdiff(one_value) |>
-						str_c(collapse = " + ")
-
-					f = "weight ~ 1 + age_days"
-					if(other_covariates!="") f =	glue("{f} + {other_covariates}")
-					if(!"file_id" %in% one_value) f =	glue("{f} + (1 + age_days | file_id)")
-					f = glue("{f} + (1 + age_days | cell_to)")
+			filter(cell_from == "cdc" | cell_to == "cdc") |>
+			mutate(value = compress_zero_one(value))
 
 
 
-					# stan_glm(as.formula(f), family = Gamma(link="log"), data= .x, cores=2, chains = 2) |>
-					# 	spread_draws(age_days) %>%
-					# 	mean_qi()
-
-					brm(
-						as.formula(f),
-						family = Gamma(link = "log"),
-						data = .x,
-						backend = "cmdstanr",
-						cores = 4,
-						prior = prior(normal(0,5), class = "b"),
-						warmup = 500, iter = 800
-					) |>
-						summary(prob=0.95) %$%
-						fixed %>%
-						.["age_days",, drop=F]
-
-				}
-			)) |>
-
-			# Parse
-			mutate(estimate = map(fit, ~ .x )) |>
-			dplyr::select(-fit) |>
-			unnest(estimate) |>
-			# filter(!cell_to %in% c("immune", "non")) |>
-			# filter(!cell_from %in% c("immune", "non")) |>
+		job::job({
 
 
-			saveRDS("cdc_weight_fit_random_effect_file_broad_cells_cell_from.rds")
+			library(future)
+			library("future.batchtools")
+			library(furrr)
+
+			slurm <- future::tweak(batchtools_slurm,
+														 template = glue("~/third_party_sofware/slurm_batchtools.tmpl"),
+														 resources=list(
+														 	ncpus = 4,
+														 	memory = 5000,
+														 	walltime = 6000
+														 )
+			)
+			plan(slurm)
+
+			cdc_weight_data_per_gene_AND_cell |>
 
 
-		readRDS("cdc_weight_fit_random_effect_file_broad_cells_cell_from.rds")  |>
+				# tidyr::separate( cell_to, c("cell_to", "phenotype", sep=" "), remove = FALSE) |>
+				# tidyr::separate( cell_from, c("cell_from", "phenotype", sep=" "), remove = FALSE) |>
+				# with_groups(c(DB, cell_to, cell_from, tissue_harmonised, sex , ethnicity , assay, sample, age_days, file_id), ~ .x |> summarise(weight = mean(weight))) |>
+				#
+				# Filter
+				mutate(log_n = log(n)) |>
+
+				add_count(DB, cell_from, cell_to, tissue_harmonised, assay, gene, name = "count_partitions") |>
+				filter(count_partitions>10) |>
+
+				nest(data = -c(DB, cell_from, cell_to, tissue_harmonised, file_id, gene)) |>
+				filter(map_int(data, ~ .x |> distinct(age_days) |> nrow())>1) |>
+
+				# Interval > 10 years
+				filter(map_dbl(data, ~ max(.x$age_days, na.rm=T)-min(.x$age_days, na.rm=T)) > 3600*2) |>
+				unnest(data) |>
+
+				# Scale age
+				mutate(age_days = scale(age_days) |> as.numeric()) |>
+				mutate(value = scale(value, center=F) |> as.numeric()) |>
+
+				nest(data = -c(DB, cell_from,  cell_to, tissue_harmonised, gene)) |>
+				filter(map_int(data, ~ .x |> distinct(sample) |> nrow()) > 30) |>
+				filter(map_int(data, ~ .x |> distinct(value) |> nrow()) > 1) |>
+
+
+
+				# Filter out if no covariate have more than one value
+				filter(!map_lgl(data, ~
+													(
+														c("sex" , "ethnicity" , "assay" ) %in%
+															(unlist(lapply(.x, function(x) length(unique(x)))) |> equals(1) %>% .[which(.)] |> names())
+													) |> all()
+				)) |>
+
+				#slice(1:2) |>
+				mutate(fit = future_imap(
+					data,
+					~ {
+						print(.y)
+						one_value = .x  |>
+							lapply(function(x) table(x)) |>
+							lapply(function(x) x[x>1]) |>
+							lapply(function(x) length(unique(x))) |>
+							unlist() |>
+							equals(1) %>%
+							.[which(.)] |>
+							names()
+
+						other_covariates =
+							#c("sex" , "ethnicity" , "assay" ) |>
+							c("ethnicity" , "sex", "assay" ) |>
+							setdiff(one_value) |>
+							str_c(collapse = " + ")
+
+						f = "value ~ 1 + age_days + log_n "
+						if(other_covariates!="") f =	glue("{f} + {other_covariates}")
+						if(!"file_id" %in% one_value) f =	glue("{f} + (1 | file_id)")
+
+
+						# stan_glm(as.formula(f), family = Gamma(link="log"), data= .x, cores=2, chains = 2) |>
+						# 	spread_draws(age_days) %>%
+						# 	mean_qi()
+
+						brm(
+							as.formula(f),
+							family = Gamma(link = "log"),
+							data = .x,
+							backend = "cmdstanr",
+							cores = 4,
+							prior = prior(normal(0,2.5), class = "b")
+						) |>
+							summary(prob=0.95) %$%
+							fixed %>%
+							.["age_days",, drop=F]
+
+					}
+				)) |>
+
+				# Parse
+				mutate(estimate = map(fit, ~ .x )) |>
+				dplyr::select(-fit) |>
+				unnest(estimate) |>
+				# filter(!cell_to %in% c("immune", "non")) |>
+				# filter(!cell_from %in% c("immune", "non")) |>
+
+
+				saveRDS("cdc_gene_AND_cell_fit_random_intercept_file_resolved_cells.rds")
+
+		})
+
+		readRDS("cdc_gene_AND_cell_fit_random_intercept_file_resolved_cells.rds")  |>
 			filter((`l-95% CI` * `u-95% CI`)>0) |>
 			print(n=99)
+
+
+
+		source("https://gist.githubusercontent.com/stemangiola/cfa08c45c28fdf223d4996a6c1256a39/raw/7dc960e253bf6c26284dd713935e11ecf5c0cfc9/color_cell_types.R")
+		cell_type_color =
+			color_array %>%
+			enframe(name="cell_from", value="color") |>
+			filter(cell_from != "") |>
+			tidyr::separate( cell_from, c("cell_from", "phenotype", sep=" "), remove = FALSE) |>
+			with_groups(cell_from, slice, 1) |>
+			dplyr::select(cell_from, color) |>
+			deframe()
+
+pdf("circles_communication.pdf", width = 183*1.6*0.0393701, height = 70*1.6*0.0393701)
+par(mfrow=c(2, 3))
+plot_circles =
+		readRDS("cdc_gene_AND_cell_fit_random_intercept_file_resolved_cells.rds")  |>
+
+			mutate(Estimate = Estimate/Est.Error/2) |>
+
+			filter(tissue_harmonised=="blood") |>
+			#filter(cell_from=="cdc") |>
+			filter(cell_from!="non_immune" & cell_to != "non_immune") |>
+			filter(cell_from!="immune_unclassified" & cell_to != "immune_unclassified") |>
+			#filter((`l-95% CI` * `u-95% CI`)>0) |>
+
+			nest(gene_data = -c(gene, DB, tissue_harmonised)) |>
+
+	left_join(
+		CellChatDB.human$interaction|>
+			filter(pathway_name |> str_detect("CD23|MHC-I$|ICAM|ADGRE5|SELPLG|ITGB2")) |>
+			nest(data = -pathway_name) |>
+			mutate(ligand_receptor = map_chr(
+				data,
+				~ glue("({.x$ligand |> unique() |> sort() |>  str_c(collapse = ',')}) -> \n ({.x$receptor |> unique() |> sort() |>  str_c(collapse = ',')})")
+			)) |>
+			mutate(ligand_receptor = ligand_receptor |>
+						 	str_replace("HLA-A,HLA-B,HLA-C,HLA-E,HLA-F,HLA-G", "HLA-A-C/E-G") |>
+						 	str_replace("CD8A,CD8B,CD8B2", "CD8A/B/B2") |>
+						 	str_replace("ITGAL,ITGAL_ITGB2,ITGAM_ITGB2,ITGAX_ITGB2", "ITGAL/M/X_ITGB2") |>
+						 	str_replace("RAET1E,RAET1F,RAET1G", "RAET1E-G") |>
+						 	str_replace("CD94:NKG2A,CD94:NKG2C,CD94:NKG2E", "CD94:NKG2A/C/E") |>
+						 	str_replace("KIR2DL1,KIR2DL2,KIR2DL3,KIR2DS1,KIR2DS4,KIR3DL1,KIR3DL2,KIR3DL3,KIR3DS1,KLRC1,KLRC2,KLRK1", "KIR2DL/DS/C") |>
+						 	str_replace("LILRB1,LILRB2", "LILRB1/2") |>
+						 	str_replace("ITGAM_ITGB2,ITGAV_ITGB3,ITGAX_ITGB2", "ITGAM/X_ITGB2,ITGAV_ITGB3")
+						),
+		by=c("gene" = "pathway_name")
+	) |>
+			mutate(title = glue("{ligand_receptor}")) |>
+			filter(gene %in% c("CD23", "MHC-I", "ICAM", "ADGRE5", "SELPLG", "ITGB2")) |>
+
+			mutate(plot = map2(
+				gene_data, title,
+				~ {
+
+					cell_types = .x |> select(cell_from, cell_to) |> gather() |> pull(value) |>  unique()
+
+					expand_grid(cell_from = cell_types, cell_to = cell_types) |>
+						left_join(
+							.x |>
+								dplyr::select(cell_from, cell_to, Estimate)
+						) |>
+					tidyr::complete(cell_from, cell_to, fill= list(Estimate = 0)) |>
+					pivot_wider(names_from = cell_to, values_from =  Estimate) |>
+					tidybulk:::as_matrix(rownames = cell_from) |>
+						multiply_by(2) |>
+					draw_cellchat_circle_plot(
+						edge.width.max = 4,
+						#remove.isolate = TRUE,
+						#top = 0.2,
+						arrow.width = 3,
+						arrow.size = 0.3,
+						edge.weight.max = 8,
+						color.use = cell_type_color,
+						title.name = .y
+					)
+				}
+			))
+dev.off()
+
+
+plot_circles |>
+			pull(plot)
+
+
+		cdc_weight_fit |>
+			filter(DB == "Secreted Signaling" & tissue_harmonised=="blood") |>
+			mutate(Estimate = if_else((`l-95% CI` * `u-95% CI`)>0, Estimate, 0)) |>
+			filter(!cell_to %in% c("immune", "non")) |>
+			filter(!cell_from %in% c("immune", "non")) |>
+
+			mutate(Estimate = Estimate/Est.Error/2) |>
+			#mutate(Estimate = if_else(cell_from=="cdc" | cell_to =="cdc", Estimate, 0)) |>
+			dplyr::select(cell_from, cell_to, Estimate) |>
+			tidyr::complete(cell_from, cell_to, fill= list(Estimate = 0)) |>
+			pivot_wider(names_from = cell_to, values_from =  Estimate) |>
+			tidybulk:::as_matrix(rownames = cell_from) |>
+			draw_cellchat_circle_plot(
+				edge.width.max = 4,
+				#remove.isolate = TRUE,
+				#top = 0.2,
+				arrow.width = 8,
+				arrow.size = 0.3,
+				edge.weight.max = 2
+			)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # library(lme4)
 # # Analyses cell-cell weight

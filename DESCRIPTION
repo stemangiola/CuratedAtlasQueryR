@@ -1,5 +1,5 @@
 Type: Package
-Package: HCAquery
+Package: CuratedAtlasQuery
 Title: Queries the Human Cell Atlas
 Version: 0.1.0
 Authors@R: c(person("Stefano", "Mangiola", email = "mangiolastefano@gmail.com",
@@ -66,6 +66,6 @@ biocViews:
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 LazyDataCompression: xz
-URL: https://github.com/stemangiola/HCAquery
-BugReports: https://github.com/stemangiola/HCAquery/issues
+URL: https://github.com/stemangiola/CuratedAtlasQuery
+BugReports: https://github.com/stemangiola/CuratedAtlasQuery/issues
 VignetteBuilder: knitr

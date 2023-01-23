@@ -26,9 +26,9 @@ library(glmGamPoi)
 # dir(split_data_directory) |>
 # 	map( ~ glue("{scaled_data_directory}/{.x}:{split_data_directory}/{.x}\n{tab}Rscript scale_files.R {split_data_directory}/{.x} {scaled_data_directory}/{.x}")
 # ) |>
-# 	prepend(glue("CATEGORY=scale_data\nMEMORY=20000\nCORES=1\nWALL_TIME=30000")) |>
+# 	prepend(glue("CATEGORY=scale_data\nMEMORY=100000\nCORES=2\nWALL_TIME=30000")) |>
 # 	unlist()  |>
-# 	write_lines(glue("dev/scale_files.makeflow"))
+# 	write_lines(glue("~/PostDoc/HCAquery/dev/scale_files.makeflow"))
 
 
 
@@ -45,9 +45,27 @@ output_file |>  dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
 # Read file_cell_types
 data = loadHDF5SummarizedExperiment(input_file	)
 
-sce = SingleCellExperiment(list(counts_per_million = scuttle::calculateCPM(data, assay.type = "X")))
-rownames(sce) = rownames(data)
-colnames(sce) = colnames(data)
+# If there are huge value cap
+if(max(data@assays@data$X) > 1e100) {
+	q = quantile(data@assays@data$X, 0.9)
+	data@assays@data$X[data@assays@data$X>1e100] = q
+}
+
+# Avoid completely empty cells
+sce = SingleCellExperiment(list(counts_per_million = scuttle::calculateCPM(data[,colSums(data@assays@data$X) >0 ,drop=FALSE ], assay.type = "X")))
+rownames(sce) = rownames(data[,colSums(data@assays@data$X) >0  ])
+colnames(sce) = colnames(data[,colSums(data@assays@data$X) >0  ])
+
+# Avoid scaling zeros
+sce_zero = SingleCellExperiment(list(counts_per_million = data@assays@data$X[,colSums(data@assays@data$X) ==0 ,drop=FALSE ]))
+rownames(sce_zero) = rownames(data[,colSums(data@assays@data$X) == 0  ])
+colnames(sce_zero) = colnames(data[,colSums(data@assays@data$X) == 0 ])
+
+sce = sce |> cbind(sce_zero)
+
+sce = sce[,colnames(data)]
+
+
 
 rm(data)
 gc()
