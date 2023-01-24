@@ -1,4 +1,4 @@
 library(testthat)
-library(CuratedAtlasQuery)
+library(CuratedAtlasQueryR)
 
-test_check("CuratedAtlasQuery")
+test_check("CuratedAtlasQueryR")
