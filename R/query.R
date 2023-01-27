@@ -343,34 +343,34 @@ get_seurat <- function(...) {
 #'   connect to the metadata database. Possible parameters are described here:
 #'   https://rpostgres.r-dbi.org/reference/postgres.
 #' @return A lazy data.frame subclass containing the metadata. You can interact
-#'   with this object using most standard dplyr functions. However, it is
-#'   recommended that you use the %LIKE% operator for string matching, as most
-#'   stringr functions will not work.
+#'   with this object using most standard dplyr functions. For string matching, 
+#'   it is recommended that you use `stringr::str_like` to filter character
+#'   columns, as `stringr::str_match` will not work.
 #' @export
 #' @examples
 #' library(dplyr)
+#' library(stringr)
 #' filtered_metadata <- get_metadata() |>
 #'     filter(
 #'         ethnicity == "African" &
-#'             assay %LIKE% "%10x%" &
-#'             tissue == "lung parenchyma" &
-#'             cell_type %LIKE% "%CD4%"
+#'         str_like(assay, "%10x%") &
+#'         tissue == "lung parenchyma" &
+#'         str_like(cell_type, "%CD4%")
 #'     )
 #'
 #' @importFrom DBI dbConnect
-#' @importFrom RPostgres Postgres
+#' @importFrom RMariaDB MariaDB
 #' @importFrom dplyr tbl
 #'
 get_metadata <- function(
     connection = list(
         dbname="metadata",
-        host="zki3lfhznsa.db.cloud.edu.au",
-        port="5432",
+        host="7b4abe7csjh.db.cloud.edu.au",
         password="password",
         user="public_access"
     )
 ) {
-    Postgres() |>
+    MariaDB() |>
         list(drv=_) |>
         c(connection) |>
         do.call(dbConnect, args=_) |>

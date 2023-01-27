@@ -23,7 +23,6 @@ Imports:
     glue,
     HDF5Array,
     DBI,
-    RSQLite,
     rappdirs,
     httr,
     cli,
@@ -33,7 +32,7 @@ Imports:
     methods,
     rlang,
     stats,
-    RPostgres
+    RMariaDB
 Suggests:
     here,
     stringr,
