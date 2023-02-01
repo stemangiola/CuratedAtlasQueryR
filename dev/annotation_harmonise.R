@@ -31,8 +31,8 @@ clean_cell_types = function(.x){
 }
 
 metadata_file = "/vast/projects/RCP/human_cell_atlas/metadata_0.2.rds"
-file_curated_annotation_merged = "~/PostDoc/HCAquery/dev/cell_type_curated_annotation_0.2.rds"
-file_metadata_annotated = "/vast/projects/RCP/human_cell_atlas/metadata_annotated_0.2.rds"
+file_curated_annotation_merged = "~/PostDoc/HCAquery/dev/cell_type_curated_annotation_0.3.rds"
+file_metadata_annotated = "/vast/projects/RCP/human_cell_atlas/metadata_annotated_0.3.rds"
 
 annotation_harmonised =
 	dir("/vast/projects/RCP/human_cell_atlas/annotated_data_0.2/", full.names = TRUE) |>
@@ -505,13 +505,31 @@ curated_annotation =
 		TRUE ~ cell_type_harmonised
 	)) |>
 
+	# Change CD4 classification for version 0.3
+	mutate(cell_type_harmonised = if_else(
+		cell_type_harmonised |> str_detect("cd4|mait|treg|tgd") & cell_annotation_monaco_singler %in% c("terminal effector cd4 t", "naive cd4 t", "th2", "th17", "t regulatory", "follicular helper t", "th1/th17", "th1", "nonvd2 gd t", "vd2 gd t"),
+		cell_annotation_monaco_singler,
+		cell_type_harmonised
+	)) |>
+	mutate(cell_type_harmonised = cell_type_harmonised |>
+				 	str_replace("naive cd4 t", "cd4 naive") |>
+				 	str_replace("th2", "cd4 th2") |>
+				 	str_replace("^th17$", "cd4 th17") |>
+				 	str_replace("t regulatory", "treg") |>
+				 	str_replace("follicular helper t", "cd4 fh") |>
+				 	str_replace("th1/th17", "cd4 th1/th17") |>
+				 	str_replace("^th1$", "cd4 th1") |>
+				 	str_replace("nonvd2 gd t", "tgd") |>
+				 str_replace("vd2 gd t", "tgd")
+	) |>
+
 	# add immune_unclassified
 	mutate(cell_type_harmonised = if_else(cell_type_harmonised == "monocytes", "immune_unclassified", cell_type_harmonised)) |>
 	mutate(cell_type_harmonised = if_else(is.na(cell_type_harmonised), "immune_unclassified", cell_type_harmonised)) |>
 	mutate(confidence_class = if_else(is.na(confidence_class), 5, confidence_class)) |>
 
 	# drop uncommon cells
-	mutate(cell_type_harmonised = if_else(cell_type_harmonised %in% c("cd4 t", "cd8 t", "asdc", "cd4 ctl", ""), "immune_unclassified", cell_type_harmonised))
+	mutate(cell_type_harmonised = if_else(cell_type_harmonised %in% c("cd4 t", "cd8 t", "asdc", "cd4 ctl"), "immune_unclassified", cell_type_harmonised))
 
 
 
@@ -553,14 +571,14 @@ metadata_annotated |>
 	saveRDS(file_metadata_annotated)
 #
 #
-# library(RSQLite)
-# library(DBI)
-# library(dplyr)
-#
-# sqllite_output_path = tools::file_path_sans_ext(file_metadata_annotated)
-# con <- dbConnect(SQLite(), dbname=glue("{sqllite_output_path}.sqlite"))
-# dbWriteTable(con, "metadata", metadata_annotated)
-# dbDisconnect(con)
+library(RSQLite)
+library(DBI)
+library(dplyr)
+
+sqllite_output_path = tools::file_path_sans_ext(file_metadata_annotated)
+con <- dbConnect(SQLite(), dbname=glue("{sqllite_output_path}.sqlite"))
+dbWriteTable(con, "metadata", metadata_annotated)
+dbDisconnect(con)
 
 
 # # Filter samples that do not have immune

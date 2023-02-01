@@ -45,21 +45,18 @@ output_file |>  dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
 # Read file_cell_types
 data = loadHDF5SummarizedExperiment(input_file	)
 
-# If there are huge value cap
-if(max(data@assays@data$X) > 1e100) {
-	q = quantile(data@assays@data$X, 0.9)
-	data@assays@data$X[data@assays@data$X>1e100] = q
-}
-
 # Avoid completely empty cells
-sce = SingleCellExperiment(list(counts_per_million = scuttle::calculateCPM(data[,colSums(data@assays@data$X) >0 ,drop=FALSE ], assay.type = "X")))
-rownames(sce) = rownames(data[,colSums(data@assays@data$X) >0  ])
-colnames(sce) = colnames(data[,colSums(data@assays@data$X) >0  ])
+which_to_select = which(colSums(data@assays@data$X) >0)
+
+sce = SingleCellExperiment(list(counts_per_million = scuttle::calculateCPM(data[,which_to_select ,drop=FALSE ], assay.type = "X")))
+rownames(sce) = rownames(data[,which_to_select  ])
+colnames(sce) = colnames(data[,which_to_select  ])
 
 # Avoid scaling zeros
-sce_zero = SingleCellExperiment(list(counts_per_million = data@assays@data$X[,colSums(data@assays@data$X) ==0 ,drop=FALSE ]))
-rownames(sce_zero) = rownames(data[,colSums(data@assays@data$X) == 0  ])
-colnames(sce_zero) = colnames(data[,colSums(data@assays@data$X) == 0 ])
+which_to_select_not = setdiff(1:ncol(data), which_to_select)
+sce_zero = SingleCellExperiment(list(counts_per_million = data@assays@data$X[,which_to_select_not ,drop=FALSE ]))
+rownames(sce_zero) = rownames(data[,which_to_select_not  ])
+colnames(sce_zero) = colnames(data[,which_to_select_not ])
 
 sce = sce |> cbind(sce_zero)
 

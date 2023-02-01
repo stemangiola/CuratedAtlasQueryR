@@ -17,35 +17,65 @@ library(SingleR)
 library(glmGamPoi)
 source("utility.R")
 library(HCAquery)
-
+library(BiocParallel)
 
 
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
-input_file = args[[1]]
-file_for_annotation_workflow = args[[2]]
-cell_type_df = args[[3]]
-output_file = args[[4]]
+sample_files = args[1:(length(args)-6)]
+file_id_column = args[[length(args)-5]]
+light_data_directory = args[[length(args)-4]]
+file_for_annotation_workflow = args[[length(args)-3]]
+cell_type_df = args[[length(args)-2]]
+output_dir = args[[length(args)-1]]
+memory_Mb = args[[length(args)]] |> as.integer()
 
+library(future)
+plan("multicore", workers = 4)
+options(future.globals.maxSize = (memory_Mb - 10000)  * 1024^2)
+
+print(file_id_column )
+			print(light_data_directory )
+						print(file_for_annotation_workflow )
+									print(cell_type_df )
+												print(output_dir)
 # Create directory
-output_file |>  dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
-.sample = basename(input_file) |> tools::file_path_sans_ext()
+output_dir |> dir.create( showWarnings = FALSE, recursive = TRUE)
 
-# Read file_cell_types
+reference_azimuth = readRDS("reference_azimuth_NEW_UWOT.rds")
+
+metadata_few_columns = readRDS(file_for_annotation_workflow)
+
 data =
-	loadHDF5SummarizedExperiment(input_file	)  |>
-	mutate(.sample = !! .sample ) |>
+	sample_files |>
+	enframe(value = "input_file") |>
+	mutate(file_id = file_id_column) |>
+	mutate(sce = map2(
+		input_file, file_id,
+		~ {
+			.x |>
+				loadHDF5SummarizedExperiment() |>
+			#sce[rownames(sce) %in% VariableFeatures(reference_azimuth),] |>
 
-	# add lineage 1
-	left_join(readRDS(file_for_annotation_workflow) |> dplyr::select(-one_of("cell_type_harmonised"))) |>
-	left_join(read_csv(cell_type_df)) |>
-	filter(lineage_1 == "immune")
+				# Filter Immune
+				left_join(metadata_few_columns |> filter(file_id == .y) |> select(-file_id)) |>
+				left_join(read_csv(cell_type_df)) |>
+				filter(lineage_1 == "immune")
+	})) |>
+
+	unnest_single_cell_experiment(sce)
+
+	# pull(sce) %>%
+	# do.call(cbind, .)
 
 if(ncol(data) <= 30){
-	tibble(.cell = character()) |>
 
-		# Save
-		saveRDS(output_file)
+	data |>
+		distinct(file_id, .sample) |>
+		mutate(
+			saved = map(.sample, ~ 	tibble(.cell = character()) |> saveRDS(glue("{output_dir}/{.x}.rds")))
+			)
+
 } else {
 
 	# CHANGE REFERENCE
@@ -53,7 +83,6 @@ if(ncol(data) <= 30){
 	# 	readRDS("/stornext/Bioinf/data/bioinf-data/Papenfuss_lab/projects/reference_azimuth.rds") |>
 	# 	RunUMAP(dims = 1:30, spread = 0.5,min.dist  = 0.01, n.neighbors = 10L, return.model=TRUE, umap.method = 'uwot')
 
-	reference_azimuth = readRDS("reference_azimuth_NEW_UWOT.rds")
 
 	data_seurat = data
 
@@ -109,8 +138,10 @@ if(ncol(data) <= 30){
 			print(e)
 			data_seurat
 		}
-	)
+	) |>
+		as_tibble()
 
+	gc()
 
 	blueprint <- BlueprintEncodeData()
 
@@ -120,7 +151,9 @@ if(ncol(data) <= 30){
 		data |>
 		logNormCounts(assay.type = "X") |>
 		SingleR(ref = blueprint, assay.type.test=1,
-						labels = blueprint$label.fine)
+						labels = blueprint$label.fine,
+						BPPARAM=MulticoreParam(4)
+					)
 
 	rm(blueprint)
 	gc()
@@ -131,7 +164,9 @@ if(ncol(data) <= 30){
 		data |>
 		logNormCounts(assay.type = "X") |>
 		SingleR(ref = MonacoImmuneData, assay.type.test=1,
-						labels = MonacoImmuneData$label.fine)
+						labels = MonacoImmuneData$label.fine,
+						BPPARAM=MulticoreParam(4)
+						)
 
 	rm(data)
 	gc()
@@ -140,19 +175,25 @@ if(ncol(data) <= 30){
 		left_join(
 			annotation_blueprint  |>
 				as_tibble(rownames=".cell") |>
-				select(.cell, blueprint_singler = first.labels)
+				select(.cell, blueprint_singler = labels)
 		) |>
 		left_join(
 			annotation_monaco  |>
 				as_tibble(rownames=".cell") |>
-				select(.cell, monaco_singler = first.labels)
+				select(.cell, monaco_singler = labels)
 		) |>
 
 		# Just select essential information
 		as_tibble() |>
-		select(.cell, one_of("predicted.celltype.l1", "predicted.celltype.l2"), blueprint_singler, monaco_singler, contains("refUMAP")) |>
+		select(.cell, .sample, one_of("predicted.celltype.l1", "predicted.celltype.l2"), blueprint_singler, monaco_singler, contains("refUMAP")) |>
 
 		# Save
-		saveRDS(output_file)
+		nest(data = -.sample) |>
+		mutate(saved = map2(
+			data, .sample,
+			~ .x |> saveRDS(glue("{output_dir}/{.y}.rds"))
+		))
+
+
 }
 
