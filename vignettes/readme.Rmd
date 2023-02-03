@@ -34,9 +34,7 @@ Explore the HCA content
 
 ```{r}
 get_metadata() |>
-    distinct(tissue, file_id) |>
-    count(tissue) |>
-    arrange(desc(n))
+    distinct(tissue, file_id) 
 ```
 
 Query raw counts
@@ -45,7 +43,7 @@ Query raw counts
 library(stringr)
 sce <-
     get_metadata() |>
-    filter(
+    dplyr::filter(
         ethnicity == "African" &
         str_like(assay, "%10x%") &
         tissue == "lung parenchyma" &
@@ -61,7 +59,7 @@ Query counts scaled per million. This is helpful if just few genes are of intere
 ```{r}
 sce <-
     get_metadata() |>
-    filter(
+    dplyr::filter(
         ethnicity == "African" &
         str_like(assay, "%10x%") &
         tissue == "lung parenchyma" &
@@ -76,7 +74,7 @@ Extract only a subset of genes:
 
 ```{r}
 get_metadata() |>
-    filter(
+    dplyr::filter(
         ethnicity == "African" &
         str_like(assay, "%10x%") &
         tissue == "lung parenchyma" &
@@ -89,7 +87,7 @@ Extract the counts as a Seurat object:
 
 ```{r}
 get_metadata() |>
-    filter(
+    dplyr::filter(
         ethnicity == "African" &
         str_like(assay, "%10x%") &
         tissue == "lung parenchyma" &
@@ -97,6 +95,7 @@ get_metadata() |>
     ) |>
     get_seurat()
 ```
+
 ```{r}
 sessionInfo()
 ```
