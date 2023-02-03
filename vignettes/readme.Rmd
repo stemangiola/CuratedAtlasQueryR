@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 Load the package
 
 ```{r, message=FALSE, warning=FALSE}
-library(CuratedAtlasQuery)
+library(CuratedAtlasQueryR)
 library(dplyr)
 ```
 

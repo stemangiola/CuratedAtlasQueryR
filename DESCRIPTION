@@ -1,5 +1,5 @@
 Type: Package
-Package: CuratedAtlasQuery
+Package: CuratedAtlasQueryR
 Title: Queries the Human Cell Atlas
 Version: 0.1.0
 Authors@R: c(person("Stefano", "Mangiola", email = "mangiolastefano@gmail.com",

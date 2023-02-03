@@ -96,12 +96,9 @@ file_id = basename(input_file) |> tools::file_path_sans_ext() |> str_split("___"
 output_file |> dir.create(showWarnings = FALSE, recursive = TRUE)
 
 data = readH5AD(input_file,	use_hdf5 = TRUE, reader = "R")
-
 data_for_rows_and_columns = readH5AD(input_file,	use_hdf5 = TRUE, skip_assays = TRUE)
-
 colnames(data) = data_for_rows_and_columns |> colnames()
 rownames(data) = data_for_rows_and_columns|> rownames()
-
 rm(data_for_rows_and_columns)
 gc()
 

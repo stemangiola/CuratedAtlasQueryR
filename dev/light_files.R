@@ -124,18 +124,8 @@ output_file = args[[5]]
 # Create directory
 output_file |> dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
 
-# Read file_cell_types
-# data = readH5AD(input_file, reader = "R",	use_hdf5 = TRUE	)
-# # Read file_cell_types
-# if(ncol(colData(data)) >0 & "Cell" %in% colnames(colData(data))){
-#
-#
-# 	colnames(data) = colData(data)$Cell
-# 	data@colData = data@colData[,!colnames(data@colData) %in% "Cell"]
-#
-# } else
-data = loadHDF5SummarizedExperiment(input_file	)
 
+data = loadHDF5SummarizedExperiment(input_file	)
 rowData(data) = NULL
 colData(data) = NULL
 reducedDims(data) = NULL
@@ -146,7 +136,7 @@ data@assays@data = data@assays@data |> as.list() %>% .[1] |> SimpleList()
 
 gc()
 
- rownames(data) = AnnotationDbi::mapIds(org.Hs.eg.db::org.Hs.eg.db,
+rownames(data) = AnnotationDbi::mapIds(org.Hs.eg.db::org.Hs.eg.db,
  				keys = rownames(data),
  				keytype = "ENSEMBL",
  				column = "SYMBOL",
@@ -154,8 +144,6 @@ gc()
 							 )
 data = data[!is.na(rownames(data)),]
 rownames(data@assays@data$X)  = rownames(data)
-
-
 
 # Complete gene set
 missing_genes = readRDS(gene_names)  |> setdiff(rownames(data))
@@ -170,8 +158,6 @@ colnames(missing_matrix) = colnames(data)
 missing_sce = SingleCellExperiment(list(X=missing_matrix),  colData=colData(data))
 missing_sce@int_colData = data@int_colData
 missing_sce = missing_sce[!is.na(rownames(missing_sce)),]
-
-
 
 # Make cell name unique
 data = data |> rbind(missing_sce	)
