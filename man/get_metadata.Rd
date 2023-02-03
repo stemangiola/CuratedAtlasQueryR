@@ -6,7 +6,7 @@
 and ultimately passed into get_SingleCellExperiment.}
 \usage{
 get_metadata(
-  connection = list(dbname = "metadata", host = "7b4abe7csjh.db.cloud.edu.au", port =
+  connection = list(dbname = "metadata", host = "zki3lfhznsa.db.cloud.edu.au", port =
     "5432", password = "password", user = "public_access")
 )
 }

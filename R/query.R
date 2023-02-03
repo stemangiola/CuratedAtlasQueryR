@@ -299,13 +299,13 @@ sync_remote_file <- function(full_url, output_file, ...) {
 #' Returns the default cache directory
 #'
 #' @return A length one character vector.
-#' @importFrom rappdirs user_cache_dir
+#' @importFrom tools R_user_dir
 #' @noRd
 #'
 get_default_cache_dir <- function() {
-    file.path(
-        user_cache_dir(),
-        "hca_harmonised"
+    R_user_dir(
+        "hca_harmonised",
+        "cache"
     )
 }
 
@@ -323,7 +323,7 @@ as.sparse.DelayedMatrix <- function(x) {
 #' the samples in that data frame
 #'
 #' @inheritDotParams get_SingleCellExperiment
-#' @importFrom Seurat as.Seurat
+#' @importFrom SeuratObject as.Seurat
 #' @export
 #' @return A Seurat object containing the same data as a call to
 #'   get_SingleCellExperiment.
@@ -359,20 +359,67 @@ get_seurat <- function(...) {
 #'     )
 #'
 #' @importFrom DBI dbConnect
-#' @importFrom RMariaDB MariaDB
+#' @importFrom RPostgres Postgres
 #' @importFrom dplyr tbl
 #'
 get_metadata <- function(
     connection = list(
         dbname="metadata",
-        host="7b4abe7csjh.db.cloud.edu.au",
+        host="zki3lfhznsa.db.cloud.edu.au",
+        port="5432",
         password="password",
         user="public_access"
     )
 ) {
-    MariaDB() |>
+    Postgres() |>
         list(drv=_) |>
         c(connection) |>
         do.call(dbConnect, args=_) |>
+        tbl("metadata")
+}
+
+
+#' Downloads an SQLite database of the Human Cell Atlas metadata to a local 
+#' cache, and then opens it as a data frame. It can then be filtered and 
+#' passed into [get_SingleCellExperiment()] 
+#' to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)
+#'
+#' @param remote_url Optional character vector of length 1. An HTTP URL pointing
+#'   to the location of the sqlite database.
+#' @param cache_directory Optional character vector of length 1. A file path on
+#'   your local system to a directory (not a file) that will be used to store
+#'   metadata.sqlite
+#' @return A lazy data.frame subclass containing the metadata. You can interact
+#'   with this object using most standard dplyr functions. For string matching, 
+#'   it is recommended that you use `stringr::str_like` to filter character
+#'   columns, as `stringr::str_match` will not work.
+#' @export
+#' @examples
+#' library(dplyr)
+#' filtered_metadata <- get_metadata_local() |>
+#'     filter(
+#'         ethnicity == "African" &
+#'             assay %LIKE% "%10x%" &
+#'             tissue == "lung parenchyma" &
+#'             cell_type %LIKE% "%CD4%"
+#'     )
+#'
+#' @importFrom DBI dbConnect
+#' @importFrom RSQLite SQLite SQLITE_RO
+#' @importFrom dplyr tbl
+#' @importFrom httr progress
+#'
+get_metadata_local <- function(
+    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.sqlite",
+    cache_directory = get_default_cache_dir()
+) {
+    sqlite_path <- file.path(cache_directory, "metadata.sqlite")
+    sync_remote_file(
+        remote_url,
+        sqlite_path,
+        progress(type = "down", con = stderr())
+    )
+    SQLite() |>
+        dbConnect(drv = _, dbname = sqlite_path, flags = SQLITE_RO) |>
         tbl("metadata")
 }

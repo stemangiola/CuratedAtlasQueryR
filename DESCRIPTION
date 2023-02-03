@@ -13,7 +13,8 @@ Description: Provides access to a copy of the Human Cell Atlas, but with
     into a SingleCellExperiment object. 
 License: GPL-3
 Depends:
-    R (>= 4.2.0)
+    R (>= 4.2.0),
+    dbplyr (>= 2.3.0)
 Imports:
     dplyr,
     SummarizedExperiment,
@@ -23,16 +24,16 @@ Imports:
     glue,
     HDF5Array,
     DBI,
-    rappdirs,
+    tools,
     httr,
     cli,
     assertthat,
     SeuratObject,
-    Seurat,
     methods,
     rlang,
     stats,
-    RMariaDB
+    RMariaDB,
+    RSQLite
 Suggests:
     here,
     stringr,
@@ -47,8 +48,7 @@ Suggests:
     tools,
     rmarkdown,
     knitr,
-    testthat,
-    dbplyr (>= 2.3.0)
+    testthat
 Biarch: true
 biocViews: 
     AssayDomain,
