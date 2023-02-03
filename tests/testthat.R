@@ -1,4 +1,4 @@
 library(testthat)
-library(HCAquery)
+library(CuratedAtlasQuery)
 
-test_check("HCAquery")
+test_check("CuratedAtlasQuery")

@@ -5,7 +5,7 @@
 human_cell_atlas.Rproj
 local_file.rds
 slurm.status.*
-HCAquery.Rproj
+CuratedAtlasQuery.Rproj
 split_files.makeflow
 ._*
 .DS_Store

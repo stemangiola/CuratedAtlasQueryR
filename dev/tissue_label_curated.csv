@@ -65,20 +65,20 @@ heart right ventricle,heart
 interventricular septum,heart
 right cardiac atrium,heart
 left cardiac atrium,heart
-ascending colon,intestine
-colon,intestine
-duodeno-jejunal junction,intestine
-duodenum,intestine
+ascending colon,intestine large
+colon,intestine large
+duodeno-jejunal junction,intestine small
+duodenum,intestine small
 intestine,intestine
-large intestine,intestine
-sigmoid colon,intestine
-small intestine,intestine
-transverse colon,intestine
-caecum,intestine
-ileum,intestine
-jejunal epithelium,intestine
-jejunum,intestine
-vermiform appendix,intestine
+large intestine,intestine large
+sigmoid colon,intestine large
+small intestine,intestine small
+transverse colon,intestine large
+caecum,intestine large
+ileum,intestine small
+jejunal epithelium,intestine small
+jejunum,intestine small
+vermiform appendix,appendix
 kidney,kidney
 renal medulla,kidney
 renal papilla,kidney
@@ -120,7 +120,7 @@ pancreas,pancreas
 exocrine pancreas,pancreas
 islet of Langerhans,pancreas
 placenta,placenta
-chorionic villus,plcenta
+chorionic villus,placenta
 peripheral zone of prostate,prostate
 prostate gland,prostate
 transition zone of prostate,prostate
@@ -154,7 +154,7 @@ isthmus of fallopian tube,uterus
 artery,vasculature
 kidney blood vessel,vasculature
 vasculature,vasculature
-mesenteric artery,vasculaturew
+mesenteric artery,vasculature
 bronchial epithelial cell (cell culture),
 cultured cell (cell culture),
 embryonic stem cell (cell culture),
