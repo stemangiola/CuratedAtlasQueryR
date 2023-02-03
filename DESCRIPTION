@@ -32,7 +32,7 @@ Imports:
     methods,
     rlang,
     stats,
-    RMariaDB,
+    RPostgres,
     RSQLite
 Suggests:
     here,
