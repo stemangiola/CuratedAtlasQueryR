@@ -303,10 +303,10 @@ sync_remote_file <- function(full_url, output_file, ...) {
 #' @noRd
 #'
 get_default_cache_dir <- function() {
-    R_user_dir(
-        "hca_harmonised",
-        "cache"
-    )
+    packageName() |>
+        R_user_dir(
+            "cache"
+        )
 }
 
 #' @importFrom SeuratObject as.sparse
