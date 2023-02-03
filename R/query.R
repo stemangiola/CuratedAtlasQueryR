@@ -365,7 +365,7 @@ get_seurat <- function(...) {
 get_metadata <- function(
     connection = list(
         dbname="metadata",
-        host="zki3lfhznsa.db.cloud.edu.au",
+        host="xwwtauhwze2.db.cloud.edu.au",
         port="5432",
         password="password",
         user="public_access"
