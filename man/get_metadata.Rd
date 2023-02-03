@@ -17,9 +17,9 @@ https://rpostgres.r-dbi.org/reference/postgres.}
 }
 \value{
 A lazy data.frame subclass containing the metadata. You can interact
-  with this object using most standard dplyr functions. However, it is
-  recommended that you use the %LIKE% operator for string matching, as most
-  stringr functions will not work.
+  with this object using most standard dplyr functions. For string matching, 
+  it is recommended that you use `stringr::str_like` to filter character
+  columns, as `stringr::str_match` will not work.
 }
 \description{
 Returns a data frame of Human Cell Atlas metadata, which should be filtered
@@ -27,12 +27,13 @@ and ultimately passed into get_SingleCellExperiment.
 }
 \examples{
 library(dplyr)
+library(stringr)
 filtered_metadata <- get_metadata() |>
     filter(
         ethnicity == "African" &
-            assay \%LIKE\% "\%10x\%" &
-            tissue == "lung parenchyma" &
-            cell_type \%LIKE\% "\%CD4\%"
+        str_like(assay, "\%10x\%") &
+        tissue == "lung parenchyma" &
+        str_like(cell_type, "\%CD4\%")
     )
 
 }

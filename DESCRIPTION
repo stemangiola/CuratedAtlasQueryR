@@ -13,7 +13,8 @@ Description: Provides access to a copy of the Human Cell Atlas, but with
     into a SingleCellExperiment object. 
 License: GPL-3
 Depends:
-    R (>= 4.2.0)
+    R (>= 4.2.0),
+    dbplyr (>= 2.3.0)
 Imports:
     dplyr,
     SummarizedExperiment,
@@ -23,17 +24,16 @@ Imports:
     glue,
     HDF5Array,
     DBI,
-    RSQLite,
-    rappdirs,
+    tools,
     httr,
     cli,
     assertthat,
     SeuratObject,
-    Seurat,
     methods,
     rlang,
     stats,
-    RPostgres
+    RPostgres,
+    RSQLite
 Suggests:
     here,
     stringr,
@@ -48,8 +48,7 @@ Suggests:
     tools,
     rmarkdown,
     knitr,
-    testthat,
-    dbplyr (>= 2.3.0)
+    testthat
 Biarch: true
 biocViews: 
     AssayDomain,
@@ -66,6 +65,6 @@ biocViews:
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 LazyDataCompression: xz
-URL: https://github.com/stemangiola/CuratedAtlasQuery
-BugReports: https://github.com/stemangiola/CuratedAtlasQuery/issues
+URL: https://github.com/stemangiola/CuratedAtlasQueryR
+BugReports: https://github.com/stemangiola/CuratedAtlasQueryR/issues
 VignetteBuilder: knitr
