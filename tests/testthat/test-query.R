@@ -1,4 +1,4 @@
-library(HCAquery)
+library(CuratedAtlasQuery)
 
 test_that("get_SingleCellExperiment() correctly handles duplicate cell IDs", {
     meta <- get_metadata() |>

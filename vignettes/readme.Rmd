@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 Load the package
 
 ```{r, message=FALSE, warning=FALSE}
-library(HCAquery)
+library(CuratedAtlasQuery)
 library(dplyr)
 ```
 
