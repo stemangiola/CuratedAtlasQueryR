@@ -65,6 +65,6 @@ biocViews:
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 LazyDataCompression: xz
-URL: https://github.com/stemangiola/CuratedAtlasQuery
-BugReports: https://github.com/stemangiola/CuratedAtlasQuery/issues
+URL: https://github.com/stemangiola/CuratedAtlasQueryR
+BugReports: https://github.com/stemangiola/CuratedAtlasQueryR/issues
 VignetteBuilder: knitr
