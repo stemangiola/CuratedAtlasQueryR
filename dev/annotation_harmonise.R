@@ -31,14 +31,21 @@ clean_cell_types = function(.x){
 }
 
 metadata_file = "/vast/projects/RCP/human_cell_atlas/metadata_0.2.rds"
-file_curated_annotation_merged = "~/PostDoc/HCAquery/dev/cell_type_curated_annotation_0.3.rds"
-file_metadata_annotated = "/vast/projects/RCP/human_cell_atlas/metadata_annotated_0.3.rds"
+file_curated_annotation_merged = "~/PostDoc/HCAquery/dev/cell_type_curated_annotation_0.2.rds"
+file_metadata_annotated = "/vast/projects/RCP/human_cell_atlas/metadata_annotated_0.2.rds"
+annotation_directory = "/vast/projects/RCP/human_cell_atlas/annotated_data_0.2/"
+
+# metadata_file = "/vast/projects/RCP/human_cell_atlas/metadata.rds"
+# file_curated_annotation_merged = "~/PostDoc/HCAquery/dev/cell_type_curated_annotation.rds"
+# file_metadata_annotated = "/vast/projects/RCP/human_cell_atlas/metadata_annotated.rds"
+# annotation_directory = "/vast/projects/RCP/human_cell_atlas/annotated_data_0.1/"
+
 
 annotation_harmonised =
-	dir("/vast/projects/RCP/human_cell_atlas/annotated_data_0.2/", full.names = TRUE) |>
+	dir(annotation_directory, full.names = TRUE) |>
 	enframe(value="file") |>
 	tidyr::extract(  file,".sample", "/([a-z0-9]+)\\.rds", remove = F) |>
-	mutate(data = map(file, readRDS )) |>
+	mutate(data = map(file, ~ .x |> readRDS() |> select(-contains("score")) )) |>
 	unnest(data) |>
 
 	# Format
@@ -71,10 +78,9 @@ annotation_harmonised =
 
 
 
-# job::job({
-# 	annotation_harmonised |>  saveRDS("/vast/scratch/users/mangiola.s/human_cell_atlas/annotation_harmonised.rds")
-#
-# })
+job::job({
+	annotation_harmonised |>  saveRDS("~/PostDoc/HCAquery/dev/annotated_data_0.2_temp_table.rds")
+})
 
 # annotation_harmonised = readRDS("/vast/scratch/users/mangiola.s/human_cell_atlas/annotation_harmonised.rds")
 
@@ -91,7 +97,7 @@ annotation =
 	left_join(annotation_harmonised, by = c(".cell", ".sample")) |>
 
 	# Clen cell types
-	mutate(cell_type = cell_type |> clean_cell_types())
+	mutate(cell_type_clean = cell_type |> clean_cell_types())
 
 # annotation |>
 # 	filter(lineage_1=="immune") |>
@@ -102,6 +108,10 @@ annotation =
 
 annotation_crated_confirmed =
 	read_csv("~/PostDoc/HCAquery/dev/annotation_confirm_manually_curated.csv") |>
+
+	# TEMPORARY
+	rename(cell_type_clean = cell_type) |>
+
 	filter(!is.na(azhimut_confirmed) | !is.na(blueprint_confirmed)) |>
 	filter(azhimut_confirmed + blueprint_confirmed > 0) |>
 
@@ -122,243 +132,245 @@ annotation_crated_UNconfirmed =
 
 	# Read
 	read_csv("~/PostDoc/HCAquery/dev/annotation_confirm_manually_curated.csv") |>
+
+	# TEMPORARY
+	rename(cell_type_clean = cell_type) |>
+
 	filter(is.na(azhimut_confirmed) | (azhimut_confirmed + blueprint_confirmed) == 0) |>
 
 	# Annotate
-	mutate(cell_type_original = cell_type) |>
-	## mutate(cell_type = cell_type |> clean_cell_types()) |>
-	mutate(cell_type = cell_type |> tolower()) |>
-	mutate(cell_type = cell_type |> str_remove_all(",")) |>
-	mutate(cell_type = cell_type |> str_remove("alphabeta")) |>
-	mutate(cell_type = cell_type |> str_remove_all("positive")) |>
-	mutate(cell_type = cell_type |> str_replace("cd4  t", "cd4")) |>
-	mutate(cell_type = cell_type |> str_replace("regulatory t", "treg")) |>
-	mutate(cell_type = cell_type |> str_remove("thymusderived")) |>
-	mutate(cell_type = cell_type |> str_remove("human")) |>
-	mutate(cell_type = cell_type |> str_remove("igg ")) |>
-	mutate(cell_type = cell_type |> str_remove("igm ")) |>
-	mutate(cell_type = cell_type |> str_remove("iga ")) |>
-	mutate(cell_type = cell_type |> str_remove("group [0-9]")) |>
-	mutate(cell_type = cell_type |> str_remove("common")) |>
-	mutate(cell_type = cell_type |> str_remove("cd45ro")) |>
-	mutate(cell_type = cell_type |> str_remove("type i")) |>
-	mutate(cell_type = cell_type |> str_remove("germinal center")) |>
-	mutate(cell_type = cell_type |> str_remove("iggnegative")) |>
-	mutate(cell_type = cell_type |> str_remove("terminally differentiated")) |>
+	mutate(cell_type_clean = cell_type_clean |> tolower()) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove_all(",")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("alphabeta")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove_all("positive")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("cd4  t", "cd4")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("regulatory t", "treg")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("thymusderived")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("human")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("igg ")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("igm ")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("iga ")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("group [0-9]")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("common")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("cd45ro")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("type i")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("germinal center")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("iggnegative")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_remove("terminally differentiated")) |>
 
-	mutate(cell_type = if_else(cell_type |> str_detect("macrophage"), "macrophage", cell_type) ) |>
-	mutate(cell_type = if_else(cell_type == "mononuclear phagocyte", "macrophage", cell_type) ) |>
+	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("macrophage"), "macrophage", cell_type_clean) ) |>
+	mutate(cell_type_clean = if_else(cell_type_clean == "mononuclear phagocyte", "macrophage", cell_type_clean) ) |>
 
-	mutate(cell_type = if_else(cell_type |> str_detect(" treg"), "treg", cell_type) ) |>
-	mutate(cell_type = if_else(cell_type |> str_detect(" dendritic"), "dendritic", cell_type) ) |>
-	mutate(cell_type = if_else(cell_type |> str_detect(" thelper"), "thelper", cell_type) ) |>
-	mutate(cell_type = if_else(cell_type |> str_detect("thelper "), "thelper", cell_type) ) |>
-	mutate(cell_type = if_else(cell_type |> str_detect("gammadelta"), "tgd", cell_type) ) |>
-	mutate(cell_type = if_else(cell_type |> str_detect("natural killer"), "nk", cell_type) ) |>
+	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect(" treg"), "treg", cell_type_clean) ) |>
+	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect(" dendritic"), "dendritic", cell_type_clean) ) |>
+	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect(" thelper"), "thelper", cell_type_clean) ) |>
+	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("thelper "), "thelper", cell_type_clean) ) |>
+	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("gammadelta"), "tgd", cell_type_clean) ) |>
+	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("natural killer"), "nk", cell_type_clean) ) |>
 
 
-	mutate(cell_type = cell_type |> str_replace_all("  ", " ")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace_all("  ", " ")) |>
 
 
-	mutate(cell_type = cell_type |> str_replace("myeloid leukocyte", "myeloid")) |>
-	mutate(cell_type = cell_type |> str_replace("effector memory", "tem")) |>
-	mutate(cell_type = cell_type |> str_replace("effector", "tem")) |>
-	mutate(cell_type = cell_type |> str_replace_all("cd8 t", "cd8")) |>
-	mutate(cell_type = cell_type |> str_replace("central memory", "tcm")) |>
-	mutate(cell_type = cell_type |> str_replace("gammadelta t", "gdt")) |>
-	mutate(cell_type = cell_type |> str_replace("nonclassical monocyte", "cd16 monocyte")) |>
-	mutate(cell_type = cell_type |> str_replace("classical monocyte", "cd14 monocyte")) |>
-	mutate(cell_type = cell_type |> str_replace("follicular b", "b")) |>
-	mutate(cell_type = cell_type |> str_replace("unswitched memory", "memory")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("myeloid leukocyte", "myeloid")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("effector memory", "tem")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("effector", "tem")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace_all("cd8 t", "cd8")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("central memory", "tcm")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("gammadelta t", "gdt")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("nonclassical monocyte", "cd16 monocyte")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("classical monocyte", "cd14 monocyte")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("follicular b", "b")) |>
+	mutate(cell_type_clean = cell_type_clean |> str_replace("unswitched memory", "memory")) |>
 
-	mutate(cell_type = cell_type |> str_trim()) |>
+	mutate(cell_type_clean = cell_type_clean |> str_trim()) |>
 
 	mutate(cell_type_harmonised = "") |>
 
 	# Classify strong evidence
-	mutate(blueprint_confirmed = if_else(cell_type |> str_detect("cd8 cytokine secreting tem t") & blueprint_singler == "nk", T, blueprint_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type |> str_detect("cd8 cytotoxic t") & blueprint_singler == "nk",  T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type |> str_detect("cd8alphaalpha intraepithelial t") & predicted.celltype.l2 == "cd8 tem" & blueprint_singler == "cd8 tem", T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type |> str_detect("mature t") & strong_evidence & predicted.celltype.l2  |> str_detect("tem|tcm"), T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type |> str_detect("myeloid") & strong_evidence & predicted.celltype.l2  == "cd16 mono", T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean |> str_detect("cd8 cytokine secreting tem t") & blueprint_singler == "nk", T, blueprint_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean |> str_detect("cd8 cytotoxic t") & blueprint_singler == "nk",  T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean |> str_detect("cd8alphaalpha intraepithelial t") & predicted.celltype.l2 == "cd8 tem" & blueprint_singler == "cd8 tem", T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean |> str_detect("mature t") & strong_evidence & predicted.celltype.l2  |> str_detect("tem|tcm"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean |> str_detect("myeloid") & strong_evidence & predicted.celltype.l2  == "cd16 mono", T, azhimut_confirmed) ) |>
 
 	# Classify weak evidence
-	mutate(azhimut_confirmed = if_else(cell_type %in% c("b", "B") & predicted.celltype.l2   == "b memory" & blueprint_singler == "classswitched memory b", T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c("b", "B") & predicted.celltype.l2   %in% c("b memory", "b intermediate", "b naive", "plasma") & !blueprint_singler %in% c("classswitched memory b", "memory b", "naive b"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type %in% c("b", "B") & !predicted.celltype.l2   %in% c("b memory", "b intermediate", "b naive") & blueprint_singler %in% c("classswitched memory b", "memory b", "naive b", "plasma"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "activated cd4" & predicted.celltype.l2  %in% c("cd4 tcm", "cd4 tem", "tregs"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "activated cd4" & blueprint_singler  %in% c("cd4 tcm", "cd4 tem", "tregs"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "activated cd8" & predicted.celltype.l2  %in% c("cd8 tcm", "cd8 tem"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "activated cd8" & blueprint_singler  %in% c("cd8 tcm", "cd8 tem"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c("b", "B") & predicted.celltype.l2   == "b memory" & blueprint_singler == "classswitched memory b", T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c("b", "B") & predicted.celltype.l2   %in% c("b memory", "b intermediate", "b naive", "plasma") & !blueprint_singler %in% c("classswitched memory b", "memory b", "naive b"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c("b", "B") & !predicted.celltype.l2   %in% c("b memory", "b intermediate", "b naive") & blueprint_singler %in% c("classswitched memory b", "memory b", "naive b", "plasma"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "activated cd4" & predicted.celltype.l2  %in% c("cd4 tcm", "cd4 tem", "tregs"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "activated cd4" & blueprint_singler  %in% c("cd4 tcm", "cd4 tem", "tregs"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "activated cd8" & predicted.celltype.l2  %in% c("cd8 tcm", "cd8 tem"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "activated cd8" & blueprint_singler  %in% c("cd8 tcm", "cd8 tem"), T, blueprint_confirmed) ) |>
 
 	# Monocyte macrophage
-	mutate(azhimut_confirmed = if_else(cell_type == "cd14 cd16 monocyte" & predicted.celltype.l2  %in% c("cd14 mono", "cd16 mono"), T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "cd14 cd16negative classical monocyte" & predicted.celltype.l2  %in% c("cd14 mono"), T, azhimut_confirmed) ) |>
-	mutate(cell_type_harmonised = if_else(cell_type == "cd14 cd16negative classical monocyte" & blueprint_singler  %in% c("monocytes"), "cd14 mono", cell_type_harmonised) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "cd14 monocyte" & predicted.celltype.l2  %in% c("cd14 mono"), T, azhimut_confirmed) ) |>
-	mutate(cell_type_harmonised = if_else(cell_type == "cd14 monocyte" & blueprint_singler  %in% c("monocytes"), "cd14 mono", cell_type_harmonised) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "cd14low cd16 monocyte" & predicted.celltype.l2  %in% c("cd16 mono"), T, azhimut_confirmed) ) |>
-	mutate(cell_type_harmonised = if_else(cell_type == "cd14low cd16 monocyte" & blueprint_singler  %in% c("monocytes"), "cd16 mono", cell_type_harmonised) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "cd16 monocyte" & predicted.celltype.l2  %in% c("cd16 mono"), T, azhimut_confirmed) ) |>
-	mutate(cell_type_harmonised = if_else(cell_type == "cd16 monocyte" & blueprint_singler  %in% c("monocytes"), "cd16 mono", cell_type_harmonised) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "monocyte" & blueprint_singler  |> str_detect("monocyte|macrophage") & !predicted.celltype.l2 |> str_detect(" mono"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "monocyte" & predicted.celltype.l2 |> str_detect(" mono"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "cd14 cd16 monocyte" & predicted.celltype.l2  %in% c("cd14 mono", "cd16 mono"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "cd14 cd16negative classical monocyte" & predicted.celltype.l2  %in% c("cd14 mono"), T, azhimut_confirmed) ) |>
+	mutate(cell_type_harmonised = if_else(cell_type_clean == "cd14 cd16negative classical monocyte" & blueprint_singler  %in% c("monocytes"), "cd14 mono", cell_type_harmonised) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "cd14 monocyte" & predicted.celltype.l2  %in% c("cd14 mono"), T, azhimut_confirmed) ) |>
+	mutate(cell_type_harmonised = if_else(cell_type_clean == "cd14 monocyte" & blueprint_singler  %in% c("monocytes"), "cd14 mono", cell_type_harmonised) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "cd14low cd16 monocyte" & predicted.celltype.l2  %in% c("cd16 mono"), T, azhimut_confirmed) ) |>
+	mutate(cell_type_harmonised = if_else(cell_type_clean == "cd14low cd16 monocyte" & blueprint_singler  %in% c("monocytes"), "cd16 mono", cell_type_harmonised) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "cd16 monocyte" & predicted.celltype.l2  %in% c("cd16 mono"), T, azhimut_confirmed) ) |>
+	mutate(cell_type_harmonised = if_else(cell_type_clean == "cd16 monocyte" & blueprint_singler  %in% c("monocytes"), "cd16 mono", cell_type_harmonised) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "monocyte" & blueprint_singler  |> str_detect("monocyte|macrophage") & !predicted.celltype.l2 |> str_detect(" mono"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "monocyte" & predicted.celltype.l2 |> str_detect(" mono"), T, azhimut_confirmed) ) |>
 
 
-	mutate(azhimut_confirmed = if_else(cell_type == "cd4" & predicted.celltype.l2 |> str_detect("cd4|treg") & !blueprint_singler  |> str_detect("cd4"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "cd4" & !predicted.celltype.l2 |> str_detect("cd4") & blueprint_singler  |> str_detect("cd4|treg"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "cd8" & predicted.celltype.l2 |> str_detect("cd8") & !blueprint_singler  |> str_detect("cd8"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "cd8" & !predicted.celltype.l2 |> str_detect("cd8") & blueprint_singler  |> str_detect("cd8"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "cd4" & predicted.celltype.l2 |> str_detect("cd4|treg") & !blueprint_singler  |> str_detect("cd4"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "cd4" & !predicted.celltype.l2 |> str_detect("cd4") & blueprint_singler  |> str_detect("cd4|treg"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "cd8" & predicted.celltype.l2 |> str_detect("cd8") & !blueprint_singler  |> str_detect("cd8"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "cd8" & !predicted.celltype.l2 |> str_detect("cd8") & blueprint_singler  |> str_detect("cd8"), T, blueprint_confirmed) ) |>
 
 
-	mutate(azhimut_confirmed = if_else(cell_type == "memory t" & predicted.celltype.l2 |> str_detect("tem|tcm") & !blueprint_singler  |> str_detect("tem|tcm"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "memory t" & !predicted.celltype.l2 |> str_detect("tem|tcm") & blueprint_singler  |> str_detect("tem|tcm"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "memory t" & predicted.celltype.l2 |> str_detect("tem|tcm") & !blueprint_singler  |> str_detect("tem|tcm"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "memory t" & !predicted.celltype.l2 |> str_detect("tem|tcm") & blueprint_singler  |> str_detect("tem|tcm"), T, blueprint_confirmed) ) |>
 
 
-	mutate(azhimut_confirmed = if_else(cell_type == "cd8alphaalpha intraepithelial t" & predicted.celltype.l2 |> str_detect("cd8") & !blueprint_singler  |> str_detect("cd8"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "cd8alphaalpha intraepithelial t" & !predicted.celltype.l2 |> str_detect("cd8") & blueprint_singler  |> str_detect("cd8"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "cd8alphaalpha intraepithelial t" & predicted.celltype.l2 |> str_detect("cd8") & !blueprint_singler  |> str_detect("cd8"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "cd8alphaalpha intraepithelial t" & !predicted.celltype.l2 |> str_detect("cd8") & blueprint_singler  |> str_detect("cd8"), T, blueprint_confirmed) ) |>
 
-	mutate(azhimut_confirmed = if_else(cell_type == "cd8hymocyte" & predicted.celltype.l2 |> str_detect("cd8") & !blueprint_singler  |> str_detect("cd8"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "cd8hymocyte" & !predicted.celltype.l2 |> str_detect("cd8") & blueprint_singler  |> str_detect("cd8"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "cd8hymocyte" & predicted.celltype.l2 |> str_detect("cd8") & !blueprint_singler  |> str_detect("cd8"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "cd8hymocyte" & !predicted.celltype.l2 |> str_detect("cd8") & blueprint_singler  |> str_detect("cd8"), T, blueprint_confirmed) ) |>
 
 	# B cells
-	mutate(azhimut_confirmed = if_else(cell_type  |> str_detect("memory b") & predicted.celltype.l2 =="b memory", T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type  |> str_detect("memory b") & blueprint_singler |> str_detect("memory b"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "immature b" & predicted.celltype.l2 =="b naive", T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "immature b" & blueprint_singler |> str_detect("naive b"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "mature b" & predicted.celltype.l2 %in% c("b memory", "b intermediate"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "mature b" & blueprint_singler |> str_detect("memory b"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "naive b" & predicted.celltype.l2 %in% c("b naive"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "naive b" & blueprint_singler |> str_detect("naive b"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "transitional stage b" & predicted.celltype.l2 %in% c("b intermediate"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "transitional stage b" & blueprint_singler |> str_detect("naive b") & !predicted.celltype.l2 %in% c("b intermediate"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "memory b" & predicted.celltype.l2 %in% c("b intermediate"), T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "precursor b", "prob") & predicted.celltype.l2 %in% c("b naive") & !blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "precursor b", "prob") & blueprint_singler |> str_detect("naive b") & predicted.celltype.l2 %in% c("hspc"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "precursor b", "prob") & predicted.celltype.l2 %in% c("hspc"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "precursor b", "prob") & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean  |> str_detect("memory b") & predicted.celltype.l2 =="b memory", T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean  |> str_detect("memory b") & blueprint_singler |> str_detect("memory b"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "immature b" & predicted.celltype.l2 =="b naive", T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "immature b" & blueprint_singler |> str_detect("naive b"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "mature b" & predicted.celltype.l2 %in% c("b memory", "b intermediate"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "mature b" & blueprint_singler |> str_detect("memory b"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "naive b" & predicted.celltype.l2 %in% c("b naive"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "naive b" & blueprint_singler |> str_detect("naive b"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "transitional stage b" & predicted.celltype.l2 %in% c("b intermediate"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "transitional stage b" & blueprint_singler |> str_detect("naive b") & !predicted.celltype.l2 %in% c("b intermediate"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "memory b" & predicted.celltype.l2 %in% c("b intermediate"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "precursor b", "prob") & predicted.celltype.l2 %in% c("b naive") & !blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "precursor b", "prob") & blueprint_singler |> str_detect("naive b") & predicted.celltype.l2 %in% c("hspc"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "precursor b", "prob") & predicted.celltype.l2 %in% c("hspc"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "precursor b", "prob") & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, blueprint_confirmed) ) |>
 
 	# Plasma cells
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "plasma") & predicted.celltype.l2 == "plasma" , T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "plasma") & predicted.celltype.l2 == "plasma" , T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "plasma") & predicted.celltype.l2 == "plasma" , T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "plasma") & predicted.celltype.l2 == "plasma" , T, blueprint_confirmed) ) |>
 
 	mutate(azhimut_confirmed = case_when(
-		cell_type %in% c("cd4 cytotoxic t", "cd4 helper t") & predicted.celltype.l2 == "cd4 ctl" & blueprint_singler != "cd4 tcm" ~ T,
-		cell_type %in% c("cd4 cytotoxic t", "cd4 helper t") & predicted.celltype.l2 == "cd4 tem" & blueprint_singler != "cd4 tcm" ~ T,
+		cell_type_clean %in% c("cd4 cytotoxic t", "cd4 helper t") & predicted.celltype.l2 == "cd4 ctl" & blueprint_singler != "cd4 tcm" ~ T,
+		cell_type_clean %in% c("cd4 cytotoxic t", "cd4 helper t") & predicted.celltype.l2 == "cd4 tem" & blueprint_singler != "cd4 tcm" ~ T,
 		TRUE ~ azhimut_confirmed
 	) ) |>
 	mutate(blueprint_confirmed = case_when(
-		cell_type %in% c("cd4 cytotoxic t", "cd4 helper t") & blueprint_singler == "cd4 tem" & predicted.celltype.l2 != "cd4 tcm" ~ T,
-		cell_type %in% c("cd4 cytotoxic t", "cd4 helper t") & blueprint_singler == "cd4 t" & predicted.celltype.l2 != "cd4 tcm" ~ T,
+		cell_type_clean %in% c("cd4 cytotoxic t", "cd4 helper t") & blueprint_singler == "cd4 tem" & predicted.celltype.l2 != "cd4 tcm" ~ T,
+		cell_type_clean %in% c("cd4 cytotoxic t", "cd4 helper t") & blueprint_singler == "cd4 t" & predicted.celltype.l2 != "cd4 tcm" ~ T,
 		TRUE ~ blueprint_confirmed
 	) ) |>
 
-	mutate(azhimut_confirmed = if_else(cell_type == "cd4hymocyte" & predicted.celltype.l2 |> str_detect("cd4|treg") & !blueprint_singler  |> str_detect("cd4"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == "cd4hymocyte" & !predicted.celltype.l2 |> str_detect("cd4") & blueprint_singler  |> str_detect("cd4|treg"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "cd4hymocyte" & predicted.celltype.l2 |> str_detect("cd4|treg") & !blueprint_singler  |> str_detect("cd4"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "cd4hymocyte" & !predicted.celltype.l2 |> str_detect("cd4") & blueprint_singler  |> str_detect("cd4|treg"), T, blueprint_confirmed) ) |>
 
 	mutate(azhimut_confirmed = case_when(
-		cell_type %in% c("cd8 memory t") & predicted.celltype.l2 == "cd8 tem" & blueprint_singler != "cd8 tcm" ~ T,
-		cell_type %in% c("cd8 memory t") & predicted.celltype.l2 == "cd8 tcm" & blueprint_singler != "cd8 tem" ~ T,
+		cell_type_clean %in% c("cd8 memory t") & predicted.celltype.l2 == "cd8 tem" & blueprint_singler != "cd8 tcm" ~ T,
+		cell_type_clean %in% c("cd8 memory t") & predicted.celltype.l2 == "cd8 tcm" & blueprint_singler != "cd8 tem" ~ T,
 		TRUE ~ azhimut_confirmed
 	) ) |>
 	mutate(blueprint_confirmed = case_when(
-		cell_type %in% c("cd8 memory t") & predicted.celltype.l2 != "cd8 tem" & blueprint_singler == "cd8 tcm" ~ T,
-		cell_type %in% c("cd8 memory t") & predicted.celltype.l2 != "cd8 tcm" & blueprint_singler == "cd8 tem" ~ T,
+		cell_type_clean %in% c("cd8 memory t") & predicted.celltype.l2 != "cd8 tem" & blueprint_singler == "cd8 tcm" ~ T,
+		cell_type_clean %in% c("cd8 memory t") & predicted.celltype.l2 != "cd8 tcm" & blueprint_singler == "cd8 tem" ~ T,
 		TRUE ~ blueprint_confirmed
 	) ) |>
 
 	mutate(azhimut_confirmed = case_when(
-		cell_type %in% c("cd4 memory t") & predicted.celltype.l2 == "cd4 tem" & blueprint_singler != "cd8 tcm" ~ T,
-		cell_type %in% c("cd4 memory t") & predicted.celltype.l2 == "cd4 tcm" & blueprint_singler != "cd8 tem" ~ T,
+		cell_type_clean %in% c("cd4 memory t") & predicted.celltype.l2 == "cd4 tem" & blueprint_singler != "cd8 tcm" ~ T,
+		cell_type_clean %in% c("cd4 memory t") & predicted.celltype.l2 == "cd4 tcm" & blueprint_singler != "cd8 tem" ~ T,
 		TRUE ~ azhimut_confirmed
 	) ) |>
 	mutate(blueprint_confirmed = case_when(
-		cell_type %in% c("cd4 memory t") & predicted.celltype.l2 != "cd4 tem" & blueprint_singler == "cd4 tcm" ~ T,
-		cell_type %in% c("cd4 memory t") & predicted.celltype.l2 != "cd4 tcm" & blueprint_singler == "cd4 tem" ~ T,
+		cell_type_clean %in% c("cd4 memory t") & predicted.celltype.l2 != "cd4 tem" & blueprint_singler == "cd4 tcm" ~ T,
+		cell_type_clean %in% c("cd4 memory t") & predicted.celltype.l2 != "cd4 tcm" & blueprint_singler == "cd4 tem" ~ T,
 		TRUE ~ blueprint_confirmed
 	) ) |>
 
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "t") & blueprint_singler =="cd8 t" & predicted.celltype.l2 |> str_detect("cd8"), T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "t") & blueprint_singler =="cd4 t" & predicted.celltype.l2 |> str_detect("cd4|treg"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "t") & blueprint_singler =="cd8 t" & predicted.celltype.l2 |> str_detect("cd8"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "t") & blueprint_singler =="cd4 t" & predicted.celltype.l2 |> str_detect("cd4|treg"), T, azhimut_confirmed) ) |>
 
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "treg") & blueprint_singler %in% c("tregs"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "treg") & predicted.celltype.l2 == "treg", T, azhimut_confirmed) ) |>
-
-
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "tcm cd4") & blueprint_singler %in% c("cd4 tcm"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "tcm cd4") & predicted.celltype.l2 == "cd4 tcm", T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "tcm cd8") & blueprint_singler %in% c("cd8 tcm"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "tcm cd8") & predicted.celltype.l2 == "cd8 tcm", T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "tem cd4") & blueprint_singler %in% c("cd4 tem"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "tem cd4") & predicted.celltype.l2 == "cd4 tem", T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "tem cd8") & blueprint_singler %in% c("cd8 tem"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "tem cd8") & predicted.celltype.l2 == "cd8 tem", T, azhimut_confirmed) ) |>
-
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "tgd") & predicted.celltype.l2 == "gdt", T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "activated cd4") & predicted.celltype.l2 == "cd4 proliferating", T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "activated cd8") & predicted.celltype.l2 == "cd8 proliferating", T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "treg") & blueprint_singler %in% c("tregs"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "treg") & predicted.celltype.l2 == "treg", T, azhimut_confirmed) ) |>
 
 
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "tcm cd4") & blueprint_singler %in% c("cd4 tcm"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "tcm cd4") & predicted.celltype.l2 == "cd4 tcm", T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "tcm cd8") & blueprint_singler %in% c("cd8 tcm"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "tcm cd8") & predicted.celltype.l2 == "cd8 tcm", T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "tem cd4") & blueprint_singler %in% c("cd4 tem"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "tem cd4") & predicted.celltype.l2 == "cd4 tem", T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "tem cd8") & blueprint_singler %in% c("cd8 tem"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "tem cd8") & predicted.celltype.l2 == "cd8 tem", T, azhimut_confirmed) ) |>
 
-	mutate(azhimut_confirmed = if_else(cell_type %in% c("naive cd4", "naive t") & predicted.celltype.l2 %in% c("cd4 naive"), T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c("naive cd8", "naive t") & predicted.celltype.l2 %in% c("cd8 naive"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "tgd") & predicted.celltype.l2 == "gdt", T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "activated cd4") & predicted.celltype.l2 == "cd4 proliferating", T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "activated cd8") & predicted.celltype.l2 == "cd8 proliferating", T, azhimut_confirmed) ) |>
 
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "prot") & predicted.celltype.l2 %in% c("cd4 naive") & !blueprint_singler |> str_detect("clp|hcs|mpp|cd8"), T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "prot") & predicted.celltype.l2 %in% c("cd8 naive") & !blueprint_singler |> str_detect("clp|hcs|mpp|cd4"), T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "prot") & predicted.celltype.l2 %in% c("hspc"), T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "prot") & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, blueprint_confirmed) ) |>
 
-	mutate(azhimut_confirmed = if_else(cell_type == "dendritic" & predicted.celltype.l2 %in% c("asdc", "cdc2", "cdc1", "pdc"), T, azhimut_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type == "double negative t regulatory" & predicted.celltype.l2 == "dnt", T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "early t lineage precursor", "immature innate lymphoid") & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "early t lineage precursor", "immature innate lymphoid") & predicted.celltype.l2 == "hspc" & blueprint_singler != "clp", T, azhimut_confirmed) ) |>
 
-	mutate(blueprint_confirmed = if_else(cell_type %in% c("ilc1", "ilc2", "innate lymphoid") & blueprint_singler == "nk", T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c("ilc1", "ilc2", "innate lymphoid") & predicted.celltype.l2 %in% c( "nk", "ilc", "nk proliferating"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c("naive cd4", "naive t") & predicted.celltype.l2 %in% c("cd4 naive"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c("naive cd8", "naive t") & predicted.celltype.l2 %in% c("cd8 naive"), T, azhimut_confirmed) ) |>
 
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "immature t") & blueprint_singler %in% c("naive t"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "immature t") & predicted.celltype.l2 == "t naive", T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "prot") & predicted.celltype.l2 %in% c("cd4 naive") & !blueprint_singler |> str_detect("clp|hcs|mpp|cd8"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "prot") & predicted.celltype.l2 %in% c("cd8 naive") & !blueprint_singler |> str_detect("clp|hcs|mpp|cd4"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "prot") & predicted.celltype.l2 %in% c("hspc"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "prot") & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, blueprint_confirmed) ) |>
 
-	mutate(cell_type_harmonised = if_else(cell_type == "fraction a prepro b", "naive b", cell_type_harmonised))  |>
-	mutate(blueprint_confirmed = if_else(cell_type == "granulocyte" & blueprint_singler %in% c("eosinophils", "neutrophils"), T, blueprint_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type %in% c("immature neutrophil", "neutrophil") & blueprint_singler %in% c( "neutrophils"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "dendritic" & predicted.celltype.l2 %in% c("asdc", "cdc2", "cdc1", "pdc"), T, azhimut_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == "double negative t regulatory" & predicted.celltype.l2 == "dnt", T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "early t lineage precursor", "immature innate lymphoid") & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "early t lineage precursor", "immature innate lymphoid") & predicted.celltype.l2 == "hspc" & blueprint_singler != "clp", T, azhimut_confirmed) ) |>
 
-	mutate(blueprint_confirmed = if_else(cell_type |> str_detect("megakaryocyte") & blueprint_singler |> str_detect("megakaryocyte"), T, blueprint_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type |> str_detect("macrophage") & blueprint_singler |> str_detect("macrophage"), T, blueprint_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c("ilc1", "ilc2", "innate lymphoid") & blueprint_singler == "nk", T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c("ilc1", "ilc2", "innate lymphoid") & predicted.celltype.l2 %in% c( "nk", "ilc", "nk proliferating"), T, azhimut_confirmed) ) |>
 
-	mutate(blueprint_confirmed = if_else(cell_type %in% c( "nk") & blueprint_singler %in% c("nk"), T, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type %in% c( "nk") & predicted.celltype.l2 %in% c("nk", "nk proliferating", "nk_cd56bright", "ilc"), T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "immature t") & blueprint_singler %in% c("naive t"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "immature t") & predicted.celltype.l2 == "t naive", T, azhimut_confirmed) ) |>
+
+	mutate(cell_type_harmonised = if_else(cell_type_clean == "fraction a prepro b", "naive b", cell_type_harmonised))  |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == "granulocyte" & blueprint_singler %in% c("eosinophils", "neutrophils"), T, blueprint_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c("immature neutrophil", "neutrophil") & blueprint_singler %in% c( "neutrophils"), T, blueprint_confirmed) ) |>
+
+	mutate(blueprint_confirmed = if_else(cell_type_clean |> str_detect("megakaryocyte") & blueprint_singler |> str_detect("megakaryocyte"), T, blueprint_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean |> str_detect("macrophage") & blueprint_singler |> str_detect("macrophage"), T, blueprint_confirmed) ) |>
+
+	mutate(blueprint_confirmed = if_else(cell_type_clean %in% c( "nk") & blueprint_singler %in% c("nk"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean %in% c( "nk") & predicted.celltype.l2 %in% c("nk", "nk proliferating", "nk_cd56bright", "ilc"), T, azhimut_confirmed) ) |>
 
 
 	# If identical force
-	mutate(azhimut_confirmed = if_else(cell_type == predicted.celltype.l2 , T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type == blueprint_singler , T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean == predicted.celltype.l2 , T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean == blueprint_singler , T, blueprint_confirmed) ) |>
 
 	# Perogenitor
-	mutate(azhimut_confirmed = if_else(cell_type  |> str_detect("progenitor|hematopoietic|precursor") & predicted.celltype.l2  == "hspc", T, azhimut_confirmed) ) |>
-	mutate(blueprint_confirmed = if_else(cell_type  |> str_detect("progenitor|hematopoietic|precursor") & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean  |> str_detect("progenitor|hematopoietic|precursor") & predicted.celltype.l2  == "hspc", T, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean  |> str_detect("progenitor|hematopoietic|precursor") & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, blueprint_confirmed) ) |>
 
-	# Geleric original annotation and stem for new annotations
+	# Generic original annotation and stem for new annotations
 		mutate(azhimut_confirmed = if_else(
-			cell_type  %in% c("T cell", "myeloid cell", "leukocyte", "myeloid leukocyte", "B cell") &
+			cell_type_clean  %in% c("T cell", "myeloid cell", "leukocyte", "myeloid leukocyte", "B cell") &
 				predicted.celltype.l2  == "hspc" &
 				blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), T, azhimut_confirmed) ) |>
 
 	# Omit mature for stem
-	mutate(blueprint_confirmed = if_else(cell_type  |> str_detect("mature") & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), F, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type  |> str_detect("mature") & predicted.celltype.l2  == "hspc", F, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean  |> str_detect("mature") & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), F, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean  |> str_detect("mature") & predicted.celltype.l2  == "hspc", F, azhimut_confirmed) ) |>
 
 	# Omit megacariocyte for stem
-	mutate(blueprint_confirmed = if_else(cell_type  == "megakaryocyte" & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), F, blueprint_confirmed) ) |>
-	mutate(azhimut_confirmed = if_else(cell_type  == "megakaryocyte" & predicted.celltype.l2  == "hspc", F, azhimut_confirmed) ) |>
+	mutate(blueprint_confirmed = if_else(cell_type_clean  == "megakaryocyte" & blueprint_singler %in% c("clp","hcs", "mpp", "gmp"), F, blueprint_confirmed) ) |>
+	mutate(azhimut_confirmed = if_else(cell_type_clean  == "megakaryocyte" & predicted.celltype.l2  == "hspc", F, azhimut_confirmed) ) |>
 
 	# Mast cells
-	mutate(cell_type_harmonised = if_else(cell_type == "mast", "mast", cell_type_harmonised))  |>
+	mutate(cell_type_harmonised = if_else(cell_type_clean == "mast", "mast", cell_type_harmonised))  |>
 
 
 	# Visualise
-	#distinct(cell_type, predicted.celltype.l2, blueprint_singler, strong_evidence, azhimut_confirmed, blueprint_confirmed) |>
-	arrange(!strong_evidence, cell_type) |>
+	#distinct(cell_type_clean, predicted.celltype.l2, blueprint_singler, strong_evidence, azhimut_confirmed, blueprint_confirmed) |>
+	arrange(!strong_evidence, cell_type_clean) |>
 
 	# set cell names
 	mutate(cell_type_harmonised = case_when(
@@ -372,21 +384,21 @@ annotation_crated_UNconfirmed =
 
 	# Add unannotated cells because datasets were too small
 	mutate(cell_type_harmonised = case_when(
-		is.na(cell_type_harmonised) & cell_type  |> str_detect("progenitor|hematopoietic|stem|precursor") ~ "stem",
+		is.na(cell_type_harmonised) & cell_type_clean  |> str_detect("progenitor|hematopoietic|stem|precursor") ~ "stem",
 
-		is.na(cell_type_harmonised) & cell_type == "cd14 monocyte" ~ "cd14 mono",
-		is.na(cell_type_harmonised) & cell_type == "cd16 monocyte" ~ "cd16 mono",
-		is.na(cell_type_harmonised) & cell_type %in% c("cd4 cytotoxic t", "tem cd4") ~ "cd4 tem",
-		is.na(cell_type_harmonised) & cell_type %in% c("cd8 cytotoxic t", "tem cd8") ~ "cd8 tem",
-		is.na(cell_type_harmonised) & cell_type |> str_detect("macrophage") ~ "macrophage",
-		is.na(cell_type_harmonised) & cell_type %in% c("mature b", "memory b", "transitional stage b") ~ "b memory",
-		is.na(cell_type_harmonised) & cell_type == "mucosal invariant t" ~ "mait",
-		is.na(cell_type_harmonised) & cell_type == "naive b" ~ "b naive",
-		is.na(cell_type_harmonised) & cell_type == "nk" ~ "nk",
-		is.na(cell_type_harmonised) & cell_type == "naive cd4" ~"cd4 naive",
-		is.na(cell_type_harmonised) & cell_type == "naive cd8" ~"cd8 naive",
-		is.na(cell_type_harmonised) & cell_type == "treg" ~ "treg",
-		is.na(cell_type_harmonised) & cell_type == "tgd" ~ "tgd",
+		is.na(cell_type_harmonised) & cell_type_clean == "cd14 monocyte" ~ "cd14 mono",
+		is.na(cell_type_harmonised) & cell_type_clean == "cd16 monocyte" ~ "cd16 mono",
+		is.na(cell_type_harmonised) & cell_type_clean %in% c("cd4 cytotoxic t", "tem cd4") ~ "cd4 tem",
+		is.na(cell_type_harmonised) & cell_type_clean %in% c("cd8 cytotoxic t", "tem cd8") ~ "cd8 tem",
+		is.na(cell_type_harmonised) & cell_type_clean |> str_detect("macrophage") ~ "macrophage",
+		is.na(cell_type_harmonised) & cell_type_clean %in% c("mature b", "memory b", "transitional stage b") ~ "b memory",
+		is.na(cell_type_harmonised) & cell_type_clean == "mucosal invariant t" ~ "mait",
+		is.na(cell_type_harmonised) & cell_type_clean == "naive b" ~ "b naive",
+		is.na(cell_type_harmonised) & cell_type_clean == "nk" ~ "nk",
+		is.na(cell_type_harmonised) & cell_type_clean == "naive cd4" ~"cd4 naive",
+		is.na(cell_type_harmonised) & cell_type_clean == "naive cd8" ~"cd8 naive",
+		is.na(cell_type_harmonised) & cell_type_clean == "treg" ~ "treg",
+		is.na(cell_type_harmonised) & cell_type_clean == "tgd" ~ "tgd",
 		TRUE ~ cell_type_harmonised
 	)) |>
 
@@ -399,9 +411,9 @@ annotation_crated_UNconfirmed =
 	mutate(cell_type_harmonised = case_when(
 
 		# Get origincal annotation
-		is.na(cell_type_harmonised) & cell_type %in% c("neutrophil", "granulocyte") ~ cell_type,
-		is.na(cell_type_harmonised) & cell_type %in% c("conventional dendritic", "dendritic") ~ "cdc",
-		is.na(cell_type_harmonised) & cell_type %in% c("classical monocyte") ~ "cd14 mono",
+		is.na(cell_type_harmonised) & cell_type_clean %in% c("neutrophil", "granulocyte") ~ cell_type_clean,
+		is.na(cell_type_harmonised) & cell_type_clean %in% c("conventional dendritic", "dendritic") ~ "cdc",
+		is.na(cell_type_harmonised) & cell_type_clean %in% c("classical monocyte") ~ "cd14 mono",
 
 		# Get Seurat annotation
 		is.na(cell_type_harmonised) & predicted.celltype.l2 != "eryth" & !is.na(predicted.celltype.l2) ~ predicted.celltype.l2,
@@ -425,12 +437,7 @@ annotation_crated_UNconfirmed =
 	mutate(confidence_class = case_when(
 		is.na(confidence_class) & !is.na(cell_type_harmonised) ~ 4,
 		TRUE ~ confidence_class
-	)) |>
-
-
-	# Rename
-	rename(cell_type_temporary_shortened = cell_type) |>
-	rename(cell_type = cell_type_original)
+	))
 
 # Another passage
 
@@ -451,7 +458,7 @@ annotation_all =
 
 	# I have multiple confidence_class per combination of labels
 	distinct() |>
-	with_groups(c(cell_type, predicted.celltype.l2, blueprint_singler), ~ .x |> arrange(confidence_class) |> slice(1)) |>
+	with_groups(c(cell_type_clean, predicted.celltype.l2, blueprint_singler), ~ .x |> arrange(confidence_class) |> slice(1)) |>
 
 	# Simplify after harmonisation
 	mutate(cell_type_harmonised =	case_when(
@@ -469,17 +476,28 @@ annotation_all =
 
 		TRUE ~ cell_type_harmonised
 	)) |>
-	dplyr::select(cell_type, cell_type_harmonised, predicted.celltype.l2, blueprint_singler, confidence_class) |>
+	dplyr::select(cell_type_clean, cell_type_harmonised, predicted.celltype.l2, blueprint_singler, confidence_class) |>
 	distinct()
+
+# This is specifci for the 1.5 version
+new_monaco_annotation =
+	get_metadata("/vast/projects/RCP/human_cell_atlas/metadata_annotated_0.2.sqlite") |>
+	select(.cell, file_id, monaco_singler = cell_annotation_monaco_singler) |>
+	as_tibble()
 
 
 curated_annotation =
 	annotation |>
+
+	# This is specifci for the 1.5 version
+	left_join(new_monaco_annotation) |>
+
 	filter(lineage_1=="immune") |>
-	dplyr::select(.cell, .sample, cell_type, predicted.celltype.l2, blueprint_singler, monaco_singler) |>
+	dplyr::select(
+		.cell, .sample, cell_type, cell_type_clean, predicted.celltype.l2, blueprint_singler, monaco_singler) |>
 	left_join(
 		annotation_all ,
-		by = c("cell_type", "predicted.celltype.l2", "blueprint_singler")
+		by = c("cell_type_clean", "predicted.celltype.l2", "blueprint_singler")
 	) |>
 	dplyr::select(
 		.cell, .sample, cell_type, cell_type_harmonised, confidence_class,

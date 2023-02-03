@@ -18,7 +18,7 @@ library(glmGamPoi)
 source("utility.R")
 library(HCAquery)
 library(BiocParallel)
-
+library(scuttle)
 
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
@@ -30,72 +30,150 @@ cell_type_df = args[[length(args)-2]]
 output_dir = args[[length(args)-1]]
 memory_Mb = args[[length(args)]] |> as.integer()
 
-library(future)
-plan("multicore", workers = 4)
-options(future.globals.maxSize = (memory_Mb - 10000)  * 1024^2)
+# library(future)
+# plan("multicore", workers = 4)
+# options(future.globals.maxSize = (memory_Mb - 10000)  * 1024^2)
 
-print(file_id_column )
-			print(light_data_directory )
-						print(file_for_annotation_workflow )
-									print(cell_type_df )
-												print(output_dir)
+# print(file_id_column )
+# 			print(light_data_directory )
+# 						print(file_for_annotation_workflow )
+# 									print(cell_type_df )
+# 												print(output_dir)
+
 # Create directory
 output_dir |> dir.create( showWarnings = FALSE, recursive = TRUE)
 
-reference_azimuth = readRDS("reference_azimuth_NEW_UWOT.rds")
-
 metadata_few_columns = readRDS(file_for_annotation_workflow)
 
-data =
+
+# SINGLER
+blueprint <- BlueprintEncodeData()
+MonacoImmuneData = MonacoImmuneData()
+
+print("Start SingleR")
+
+data_singler =
 	sample_files |>
 	enframe(value = "input_file") |>
 	mutate(file_id = file_id_column) |>
-	mutate(sce = map2(
+	mutate(singler = map2(
 		input_file, file_id,
 		~ {
-			.x |>
+print(.x)
+			sce =
+				.x |>
 				loadHDF5SummarizedExperiment() |>
-			#sce[rownames(sce) %in% VariableFeatures(reference_azimuth),] |>
+				#sce[rownames(sce) %in% VariableFeatures(reference_azimuth),] |>
 
 				# Filter Immune
 				left_join(metadata_few_columns |> filter(file_id == .y) |> select(-file_id)) |>
 				left_join(read_csv(cell_type_df)) |>
-				filter(lineage_1 == "immune")
-	})) |>
+				filter(lineage_1 == "immune") |>
 
-	unnest_single_cell_experiment(sce)
+				logNormCounts(assay.type = "X")
 
-	# pull(sce) %>%
-	# do.call(cbind, .)
+			# If no cell kill
+			if(ncol(sce)==0)
+				return(tibble(.cell = character()))
 
-if(ncol(data) <= 30){
+			# If I have negative values
+			if((	sce@assays@data$X[,1:min(100, ncol(sce))] |>  min()) < 0)
+				sce@assays@data$X[	sce@assays@data$X<0] <- 0
 
-	data |>
-		distinct(file_id, .sample) |>
+			if(ncol(sce)==1){
+				sce = cbind(sce, sce)
+				colnames(sce)[2]= "dummy___"
+			}
+
+			left_join(
+				sce |>
+					SingleR(
+						ref = blueprint,
+						assay.type.test= 1,
+						labels = blueprint$label.fine
+					)  |>
+					as_tibble(rownames=".cell") |>
+					nest(blueprint_scores = starts_with("score")) |>
+					select(-one_of("delta.next"),- pruned.labels) |>
+					rename( blueprint_singler = labels),
+
+				sce |>
+					SingleR(
+						ref = MonacoImmuneData,
+						assay.type.test= 1,
+						labels = MonacoImmuneData$label.fine
+					)  |>
+					as_tibble(rownames=".cell") |>
+
+					nest(monaco_scores = starts_with("score")) |>
+					select(-delta.next,- pruned.labels) |>
+					rename( monaco_singler = labels)
+			) |>
+				filter(.cell!="dummy___")
+
+		})) |>
+
+	unnest(singler) |>
+	select(-name)
+
+# If not immune cells
+if(nrow(data_singler) == 0){
+
+	sample_files |>
+		enframe(value = "file") |>
+		mutate(.sample = file |>  basename() |> tools::file_path_sans_ext()) |>
 		mutate(
 			saved = map(.sample, ~ 	tibble(.cell = character()) |> saveRDS(glue("{output_dir}/{.x}.rds")))
-			)
+		)
 
-} else {
+} else if(nrow(data_singler) <= 30){
 
-	# CHANGE REFERENCE
-	# reference_azimuth=
-	# 	readRDS("/stornext/Bioinf/data/bioinf-data/Papenfuss_lab/projects/reference_azimuth.rds") |>
-	# 	RunUMAP(dims = 1:30, spread = 0.5,min.dist  = 0.01, n.neighbors = 10L, return.model=TRUE, umap.method = 'uwot')
+# If too little immune cells
 
 
-	data_seurat = data
+	data_singler |>
+		mutate(.sample = input_file |>  basename() |> tools::file_path_sans_ext()) |>
+		nest(data = -c(.sample, file_id)) |>
+		mutate(
+			saved = map(.sample, ~ 	tibble(.cell = character()) |> saveRDS(glue("{output_dir}/{.x}.rds")))
+		)
 
-	# Selectonly interesting genes
-	data_seurat = data_seurat[rownames(data_seurat) %in% VariableFeatures(reference_azimuth),]
 
-	# Convert to Seurat matrix
-	data_seurat@assays@data$X = data_seurat@assays@data$X |>  as("dgCMatrix")
-	data_seurat =
-		data_seurat |>
+} else{
 
-		# Convert
-		as.Seurat(counts = "X",  data = NULL)
+print("Start Seurat")
+
+reference_azimuth = readRDS("reference_azimuth_NEW_UWOT.rds")
+
+
+data_seurat =
+	sample_files |>
+
+	enframe(value = "input_file") |>
+	mutate(file_id = file_id_column) |>
+	mutate(seu = map2(
+		input_file, file_id,
+		~ {
+			sce =
+				.x |>
+				loadHDF5SummarizedExperiment() |>
+				#sce[rownames(sce) %in% VariableFeatures(reference_azimuth),] |>
+
+				# Filter Immune
+				left_join(metadata_few_columns |> filter(file_id == .y) |> select(-file_id)) |>
+				left_join(read_csv(cell_type_df)) |>
+				filter(lineage_1 == "immune") %>%
+
+				.[rownames(.) %in% VariableFeatures(reference_azimuth),]
+
+			sce@assays@data$X = sce@assays@data$X |>  as("dgCMatrix")
+
+			sce |>
+				as.Seurat(counts = "X",  data = NULL)
+		})) |>
+
+	unnest_seurat(seu)
+
 
 	# If I have negative values
 	if((data_seurat@assays$originalexp@counts |> as.matrix() |> min()) < 0)
@@ -139,56 +217,18 @@ if(ncol(data) <= 30){
 			data_seurat
 		}
 	) |>
-		as_tibble()
+		as_tibble() |>
+		select(.cell, .sample, one_of("predicted.celltype.l1", "predicted.celltype.l2"), contains("refUMAP"))
 
-	gc()
-
-	blueprint <- BlueprintEncodeData()
-
-	library(scuttle)
-
-	annotation_blueprint <-
-		data |>
-		logNormCounts(assay.type = "X") |>
-		SingleR(ref = blueprint, assay.type.test=1,
-						labels = blueprint$label.fine,
-						BPPARAM=MulticoreParam(4)
-					)
-
-	rm(blueprint)
-	gc()
-
-	MonacoImmuneData = MonacoImmuneData()
-
-	annotation_monaco <-
-		data |>
-		logNormCounts(assay.type = "X") |>
-		SingleR(ref = MonacoImmuneData, assay.type.test=1,
-						labels = MonacoImmuneData$label.fine,
-						BPPARAM=MulticoreParam(4)
-						)
-
-	rm(data)
-	gc()
 
 	data_seurat |>
-		left_join(
-			annotation_blueprint  |>
-				as_tibble(rownames=".cell") |>
-				select(.cell, blueprint_singler = labels)
-		) |>
-		left_join(
-			annotation_monaco  |>
-				as_tibble(rownames=".cell") |>
-				select(.cell, monaco_singler = labels)
-		) |>
+
+		left_join(	data_singler	, by = join_by(.cell)	) |>
 
 		# Just select essential information
-		as_tibble() |>
-		select(.cell, .sample, one_of("predicted.celltype.l1", "predicted.celltype.l2"), blueprint_singler, monaco_singler, contains("refUMAP")) |>
 
 		# Save
-		nest(data = -.sample) |>
+		nest(data = -c(.sample, file_id)) |>
 		mutate(saved = map2(
 			data, .sample,
 			~ .x |> saveRDS(glue("{output_dir}/{.y}.rds"))
