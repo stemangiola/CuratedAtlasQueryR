@@ -10,11 +10,10 @@ Description: Provides access to a copy of the Human Cell Atlas, but with
     datasets within the Atlas using common fields such as cell type, tissue 
     type, and patient ethnicity. Usage involves first querying the metadata
     table for cells of interest, and then downloading the corresponding cells 
-    into a SingleCellExperiment object. 
+    into a SingleCellExperiment object.
 License: GPL-3
 Depends:
-    R (>= 4.2.0),
-    dbplyr (>= 2.3.0)
+    R (>= 4.2.0)
 Imports:
     dplyr,
     SummarizedExperiment,
@@ -32,8 +31,12 @@ Imports:
     methods,
     rlang,
     stats,
+    S4Vectors,
+    tibble,
     RPostgres,
-    RSQLite
+    RSQLite,
+    Seurat,
+    dbplyr (>= 2.3.0)
 Suggests:
     here,
     stringr,
@@ -45,7 +48,6 @@ Suggests:
     cellxgenedp,
     celldex,
     SingleR,
-    tools,
     rmarkdown,
     knitr,
     testthat

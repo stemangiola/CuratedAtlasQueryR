@@ -30,16 +30,16 @@ Load the metadata
 get_metadata()
 ```
 
-Explore the HCA content
+Explore the HCA content. This shows the number of unique count files per tissue:
 
 ```{r}
 get_metadata() |>
-    distinct(tissue, file_id) |>
-    count(tissue) |>
-    arrange(desc(n))
+    group_by(tissue) |> 
+    summarise(unique_files=file_id |> distinct() |> count()) |>
+    arrange(desc(unique_files))
 ```
 
-Query raw counts
+Query raw counts by piping into `get_SingleCellExperiment()`
 
 ```{r}
 library(stringr)
@@ -56,7 +56,8 @@ sce <-
 sce
 ```
 
-Query counts scaled per million. This is helpful if just few genes are of interest
+Using `assays = "cpm"` returns the query counts scaled per million. 
+This is helpful if just few genes are of interest:
 
 ```{r}
 sce <-
@@ -72,7 +73,7 @@ sce <-
 sce
 ```
 
-Extract only a subset of genes:
+Extract only a subset of genes using the `features` argument:
 
 ```{r}
 get_metadata() |>
@@ -85,7 +86,7 @@ get_metadata() |>
     get_SingleCellExperiment(features = "PUM1")
 ```
 
-Extract the counts as a Seurat object:
+Extract the counts as a Seurat object using `get_seurat()`:
 
 ```{r}
 get_metadata() |>
@@ -97,6 +98,7 @@ get_metadata() |>
     ) |>
     get_seurat()
 ```
+
 ```{r}
 sessionInfo()
 ```
