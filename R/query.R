@@ -419,6 +419,7 @@ get_metadata_local <- function(
     if (!file.exists(sqlite_path)){
         tar_dir <- tempdir()
         tar_file <- file.path(tar_dir, "metadata.tar.xz")
+        cli_alert_info("Downloading tar archive")
         sync_remote_file(
             remote_url,
             tar_file,
