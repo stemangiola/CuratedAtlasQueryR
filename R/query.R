@@ -419,8 +419,7 @@ get_metadata_local <- function(
     if (!file.exists(sqlite_path)){
         tar_dir <- tempdir()
         tar_file <- file.path(tar_dir, "metadata.tar.xz")
-        cli_alert_info("The following procedure is performed once and will take approximately 3 minutes")
-        cli_alert_info("Downloading tar archive")
+        cli_alert_info("Downloading tar archive. The following procedure is performed once and will take approximately 3 minutes.")
         sync_remote_file(
             remote_url,
             tar_file,
