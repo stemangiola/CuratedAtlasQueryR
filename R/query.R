@@ -346,7 +346,7 @@ get_seurat <- function(...) {
 #'   your local system to a directory (not a file) that will be used to store
 #'   metadata.sqlite
 #' @return A lazy data.frame subclass containing the metadata. You can interact
-#'   with this object using most standard dplyr functions. For string matching, 
+#'   with this object using most standard dplyr functions. For string matching,
 #'   it is recommended that you use `stringr::str_like` to filter character
 #'   columns, as `stringr::str_match` will not work.
 #' @export
@@ -375,7 +375,7 @@ get_metadata <- function(
     if (!file.exists(sqlite_path)){
         tar_dir <- tempdir()
         tar_file <- file.path(tar_dir, "metadata.tar.xz")
-        cli_alert_info("Downloading tar archive")
+        cli_alert_info("Downloading tar archive. The following procedure is performed once and will take approximately 3 minutes.")
         sync_remote_file(
             remote_url,
             tar_file,
