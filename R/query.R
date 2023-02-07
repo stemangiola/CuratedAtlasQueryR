@@ -343,7 +343,7 @@ get_seurat <- function(...) {
 #'   connect to the metadata database. Possible parameters are described here:
 #'   https://rpostgres.r-dbi.org/reference/postgres.
 #' @return A lazy data.frame subclass containing the metadata. You can interact
-#'   with this object using most standard dplyr functions. For string matching, 
+#'   with this object using most standard dplyr functions. For string matching,
 #'   it is recommended that you use `stringr::str_like` to filter character
 #'   columns, as `stringr::str_match` will not work.
 #' @export
@@ -379,9 +379,9 @@ get_metadata <- function(
 }
 
 
-#' Downloads an SQLite database of the Human Cell Atlas metadata to a local 
-#' cache, and then opens it as a data frame. It can then be filtered and 
-#' passed into [get_SingleCellExperiment()] 
+#' Downloads an SQLite database of the Human Cell Atlas metadata to a local
+#' cache, and then opens it as a data frame. It can then be filtered and
+#' passed into [get_SingleCellExperiment()]
 #' to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)
 #'
 #' @param remote_url Optional character vector of length 1. An HTTP URL pointing
@@ -390,7 +390,7 @@ get_metadata <- function(
 #'   your local system to a directory (not a file) that will be used to store
 #'   metadata.sqlite
 #' @return A lazy data.frame subclass containing the metadata. You can interact
-#'   with this object using most standard dplyr functions. For string matching, 
+#'   with this object using most standard dplyr functions. For string matching,
 #'   it is recommended that you use `stringr::str_like` to filter character
 #'   columns, as `stringr::str_match` will not work.
 #' @export
@@ -419,7 +419,7 @@ get_metadata_local <- function(
     if (!file.exists(sqlite_path)){
         tar_dir <- tempdir()
         tar_file <- file.path(tar_dir, "metadata.tar.xz")
-        cli_alert_info("Downloading tar archive")
+        cli_alert_info("Downloading tar archive. The following procedure is performed once and will take approximately 3 minutes.")
         sync_remote_file(
             remote_url,
             tar_file,
