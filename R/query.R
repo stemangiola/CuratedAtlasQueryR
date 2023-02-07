@@ -408,17 +408,25 @@ get_metadata <- function(
 #' @importFrom RSQLite SQLite SQLITE_RO
 #' @importFrom dplyr tbl
 #' @importFrom httr progress
+#' @importFrom cli cli_alert_info
 #'
 get_metadata_local <- function(
-    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.sqlite",
+    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.tar.xz",
     cache_directory = get_default_cache_dir()
 ) {
+    tar_path <- file.path(cache_directory, "metadata.tar.xz")
     sqlite_path <- file.path(cache_directory, "metadata.sqlite")
-    sync_remote_file(
-        remote_url,
-        sqlite_path,
-        progress(type = "down", con = stderr())
-    )
+    if (!file.exists(sqlite_path)){
+        tar_dir <- tempdir()
+        tar_file <- file.path(tar_dir, "metadata.tar.xz")
+        sync_remote_file(
+            remote_url,
+            tar_file,
+            progress(type = "down", con = stderr())
+        )
+        cli_alert_info("Decompressing tar archive")
+        untar(tar_file, exdir = cache_directory)
+    }
     SQLite() |>
         dbConnect(drv = _, dbname = sqlite_path, flags = SQLITE_RO) |>
         tbl("metadata")
