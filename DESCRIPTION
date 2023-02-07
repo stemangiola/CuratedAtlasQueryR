@@ -29,10 +29,10 @@ Imports:
     cli,
     assertthat,
     SeuratObject,
+    Seurat,
     methods,
     rlang,
     stats,
-    RPostgres,
     RSQLite
 Suggests:
     here,

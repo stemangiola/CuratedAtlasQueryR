@@ -335,50 +335,6 @@ get_seurat <- function(...) {
     get_SingleCellExperiment(...) |> as.Seurat(data = NULL)
 }
 
-
-#' Returns a data frame of Human Cell Atlas metadata, which should be filtered
-#' and ultimately passed into get_SingleCellExperiment.
-#'
-#' @param connection Optional list of postgres connection parameters used to
-#'   connect to the metadata database. Possible parameters are described here:
-#'   https://rpostgres.r-dbi.org/reference/postgres.
-#' @return A lazy data.frame subclass containing the metadata. You can interact
-#'   with this object using most standard dplyr functions. For string matching, 
-#'   it is recommended that you use `stringr::str_like` to filter character
-#'   columns, as `stringr::str_match` will not work.
-#' @export
-#' @examples
-#' library(dplyr)
-#' library(stringr)
-#' filtered_metadata <- get_metadata() |>
-#'     filter(
-#'         ethnicity == "African" &
-#'         str_like(assay, "%10x%") &
-#'         tissue == "lung parenchyma" &
-#'         str_like(cell_type, "%CD4%")
-#'     )
-#'
-#' @importFrom DBI dbConnect
-#' @importFrom RPostgres Postgres
-#' @importFrom dplyr tbl
-#'
-get_metadata <- function(
-    connection = list(
-        dbname="metadata",
-        host="xwwtauhwze2.db.cloud.edu.au",
-        port="5432",
-        password="password",
-        user="public_access"
-    )
-) {
-    Postgres() |>
-        list(drv=_) |>
-        c(connection) |>
-        do.call(dbConnect, args=_) |>
-        tbl("metadata")
-}
-
-
 #' Downloads an SQLite database of the Human Cell Atlas metadata to a local 
 #' cache, and then opens it as a data frame. It can then be filtered and 
 #' passed into [get_SingleCellExperiment()] 
@@ -396,7 +352,7 @@ get_metadata <- function(
 #' @export
 #' @examples
 #' library(dplyr)
-#' filtered_metadata <- get_metadata_local() |>
+#' filtered_metadata <- get_metadata() |>
 #'     filter(
 #'         ethnicity == "African" &
 #'             assay %LIKE% "%10x%" &
@@ -410,7 +366,7 @@ get_metadata <- function(
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info
 #'
-get_metadata_local <- function(
+get_metadata <- function(
     remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.tar.xz",
     cache_directory = get_default_cache_dir()
 ) {
