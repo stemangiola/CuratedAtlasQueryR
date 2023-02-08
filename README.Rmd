@@ -167,7 +167,3 @@ get_metadata() |>
 knitr::include_graphics("inst/NCAM1_figure.png")
 ```
 
-```{r}
-sessionInfo()
-```
-
