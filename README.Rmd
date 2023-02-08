@@ -1,0 +1,169 @@
+---
+title: "CuratedAtlasQueryR"
+output: github_document
+---
+
+```{r, include = FALSE}
+# Note: knit this to the repo readme file using:
+# rmarkdown::render("vignettes/readme.Rmd", output_format = "github_document", output_dir = getwd())
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+```{r, echo=FALSE, out.height = "139px", out.width = "120px"}
+knitr::include_graphics("inst/logo.png")
+```
+
+## Load the package
+
+```{r, message=FALSE, warning=FALSE}
+library(CuratedAtlasQueryR)
+library(dplyr)
+library(stringr)
+```
+
+## Load and explore the metadata
+
+### Load the metadata
+
+```{r}
+get_metadata()
+```
+
+### Explore the tissue 
+
+```{r, eval=FALSE}
+get_metadata() |>
+    dplyr::distinct(tissue, file_id) 
+```
+
+```{r}
+#> # Source:     SQL [?? x 2]
+#> # Database:   sqlite 3.40.0 [public_access@zki3lfhznsa.db.cloud.edu.au:5432/metadata]
+#> # Ordered by: desc(n)
+#>    tissue                      n
+#>    <chr>                 <int64>
+#>  1 blood                      47
+#>  2 heart left ventricle       46
+#>  3 cortex of kidney           31
+#>  4 renal medulla              29
+#>  5 lung                       27
+#>  6 liver                      24
+#>  7 middle temporal gyrus      24
+#>  8 kidney                     19
+#>  9 intestine                  18
+#> 10 thymus                     17
+#> # … with more rows
+```
+
+
+## Download single-cell RNA sequencing counts 
+
+### Query raw counts
+
+```{r}
+
+single_cell_counts = 
+	get_metadata() |>
+    dplyr::filter(
+        ethnicity == "African" &
+        stringr::str_like(assay, "%10x%") &
+        tissue == "lung parenchyma" &
+        stringr::str_like(cell_type, "%CD4%")
+    ) |>
+    get_SingleCellExperiment()
+
+single_cell_counts
+```
+
+### Query counts scaled per million
+
+This is helpful if just few genes are of interest, as they can be compared across samples.
+
+```{r}
+single_cell_counts = 
+	get_metadata() |>
+    dplyr::filter(
+        ethnicity == "African" &
+        stringr::str_like(assay, "%10x%") &
+        tissue == "lung parenchyma" &
+        stringr::str_like(cell_type, "%CD4%")
+    ) |>
+    get_SingleCellExperiment(assays = "cpm")
+
+single_cell_counts
+```
+
+### Extract only a subset of genes
+
+```{r}
+single_cell_counts = 
+	get_metadata() |>
+    dplyr::filter(
+        ethnicity == "African" &
+        stringr::str_like(assay, "%10x%") &
+        tissue == "lung parenchyma" &
+        stringr::str_like(cell_type, "%CD4%")
+    ) |>
+    get_SingleCellExperiment(assays = "cpm", features = "PUM1")
+
+single_cell_counts
+```
+
+### Extract the counts as a Seurat object
+
+This convert the H5 SingleCellExperiment to Seurat so it might take long time and occupy a lot of memory dependeing on how many cells you are requesting.
+
+
+```{r}
+single_cell_counts = 
+	get_metadata() |>
+    dplyr::filter(
+        ethnicity == "African" &
+        stringr::str_like(assay, "%10x%") &
+        tissue == "lung parenchyma" &
+        stringr::str_like(cell_type, "%CD4%")
+    ) |>
+    get_seurat()
+
+single_cell_counts
+```
+
+## Visualise gene transcription
+
+We can gather all natural killer cells and plot the distribution of CD56 (NCAM1) across all tissues
+
+```{r, eval=FALSE}
+library(tidySingleCellExperiment)
+library(ggplot2)
+
+get_metadata() |> 
+    
+  # Filter and subset
+  filter(cell_type_harmonised=="nk") |> 
+  select(.cell, file_id_db, disease, file_id, tissue_harmonised) |> 
+  
+  # Get counts per million for NCAM1 gene 
+  get_SingleCellExperiment(assays = "cpm", features = "NCAM1") |> 
+
+	# Get transcriptional abundance for plotting with `tidySingleCellExperiment`
+  join_features("NCAM1", shape = "wide") |> 
+	
+	# Plot
+  ggplot(aes( tissue_harmonised, NCAM1,color = file_id)) +
+  geom_jitter(shape=".") +
+	
+	# Style
+  guides(color="none") +
+  scale_y_log10() +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1))
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::include_graphics("inst/NCAM1_figure.png")
+```
+

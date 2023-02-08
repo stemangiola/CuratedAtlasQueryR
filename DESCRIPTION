@@ -48,7 +48,9 @@ Suggests:
     tools,
     rmarkdown,
     knitr,
-    testthat
+    testthat,
+    tidySingleCellExperiment,
+    ggplot2
 Biarch: true
 biocViews: 
     AssayDomain,
