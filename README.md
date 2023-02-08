@@ -3,7 +3,7 @@ CuratedAtlasQueryR
 
     #> here() starts at /stornext/Bioinf/data/bioinf-data/Papenfuss_lab/projects/mangiola.s/PostDoc/CuratedAtlasQueryR
 
-<img src="../inst/logo.png" width="120px" height="139px" />
+<img src="inst/logo.png" width="120px" height="139px" />
 
 ## Load the package
 
