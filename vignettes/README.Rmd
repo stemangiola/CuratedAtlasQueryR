@@ -16,6 +16,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r, echo=FALSE, out.height = "139px", out.width = "120px"}
+knitr::include_graphics("inst/logo.png")
+```
+
 ## Load the package
 
 ```{r, message=FALSE, warning=FALSE}
