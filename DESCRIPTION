@@ -33,7 +33,9 @@ Imports:
     methods,
     rlang,
     stats,
-    RSQLite
+    RSQLite,
+    S4Vectors,
+    tibble
 Suggests:
     here,
     stringr,
@@ -45,7 +47,6 @@ Suggests:
     cellxgenedp,
     celldex,
     SingleR,
-    tools,
     rmarkdown,
     knitr,
     testthat

@@ -23,7 +23,7 @@ metadata.sqlite}
 }
 \value{
 A lazy data.frame subclass containing the metadata. You can interact
-  with this object using most standard dplyr functions. For string matching, 
+  with this object using most standard dplyr functions. For string matching,
   it is recommended that you use `stringr::str_like` to filter character
   columns, as `stringr::str_match` will not work.
 }
