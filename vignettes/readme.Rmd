@@ -1,5 +1,5 @@
 ---
-title: "HCA Harmonised"
+title: "CuratedAtlasQueryR"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{readme}
@@ -16,84 +16,156 @@ knitr::opts_chunk$set(
 )
 ```
 
-
-Load the package
+## Load the package
 
 ```{r, message=FALSE, warning=FALSE}
 library(CuratedAtlasQueryR)
 library(dplyr)
+library(stringr)
 ```
 
-Load the metadata
+## Load and explore the metadata
+
+### Load the metadata
 
 ```{r}
 get_metadata()
 ```
 
-Explore the HCA content
+### Explore the tissue 
 
-```{r}
+```{r, eval=FALSE}
 get_metadata() |>
-    distinct(tissue, file_id) 
+    dplyr::distinct(tissue, file_id) 
 ```
 
-Query raw counts
+```{r}
+#> # Source:     SQL [?? x 2]
+#> # Database:   sqlite 3.40.0 [public_access@zki3lfhznsa.db.cloud.edu.au:5432/metadata]
+#> # Ordered by: desc(n)
+#>    tissue                      n
+#>    <chr>                 <int64>
+#>  1 blood                      47
+#>  2 heart left ventricle       46
+#>  3 cortex of kidney           31
+#>  4 renal medulla              29
+#>  5 lung                       27
+#>  6 liver                      24
+#>  7 middle temporal gyrus      24
+#>  8 kidney                     19
+#>  9 intestine                  18
+#> 10 thymus                     17
+#> # … with more rows
+```
+
+
+## Download single-cell RNA sequencing counts 
+
+### Query raw counts
 
 ```{r}
-library(stringr)
-sce <-
-    get_metadata() |>
+
+single_cell_counts = 
+	get_metadata() |>
     dplyr::filter(
         ethnicity == "African" &
-        str_like(assay, "%10x%") &
+        stringr::str_like(assay, "%10x%") &
         tissue == "lung parenchyma" &
-        str_like(cell_type, "%CD4%")
+        stringr::str_like(cell_type, "%CD4%")
     ) |>
     get_SingleCellExperiment()
 
-sce
+single_cell_counts
 ```
 
-Query counts scaled per million. This is helpful if just few genes are of interest
+### Query counts scaled per million
+
+This is helpful if just few genes are of interest, as they can be compared across samples.
 
 ```{r}
-sce <-
-    get_metadata() |>
+single_cell_counts = 
+	get_metadata() |>
     dplyr::filter(
         ethnicity == "African" &
-        str_like(assay, "%10x%") &
+        stringr::str_like(assay, "%10x%") &
         tissue == "lung parenchyma" &
-        str_like(cell_type, "%CD4%")
+        stringr::str_like(cell_type, "%CD4%")
     ) |>
     get_SingleCellExperiment(assays = "cpm")
 
-sce
+single_cell_counts
 ```
 
-Extract only a subset of genes:
+### Extract only a subset of genes
 
 ```{r}
-get_metadata() |>
+single_cell_counts = 
+	get_metadata() |>
     dplyr::filter(
         ethnicity == "African" &
-        str_like(assay, "%10x%") &
+        stringr::str_like(assay, "%10x%") &
         tissue == "lung parenchyma" &
-        str_like(cell_type, "%CD4%")
+        stringr::str_like(cell_type, "%CD4%")
     ) |>
-    get_SingleCellExperiment(features = "PUM1")
+    get_SingleCellExperiment(assays = "cpm", features = "PUM1")
+
+single_cell_counts
 ```
 
-Extract the counts as a Seurat object:
+### Extract the counts as a Seurat object
+
+This convert the H5 SingleCellExperiment to Seurat so it might take long time and occupy a lot of memory dependeing on how many cells you are requesting.
+
 
 ```{r}
-get_metadata() |>
+single_cell_counts = 
+	get_metadata() |>
     dplyr::filter(
         ethnicity == "African" &
-        str_like(assay, "%10x%") &
+        stringr::str_like(assay, "%10x%") &
         tissue == "lung parenchyma" &
-        str_like(cell_type, "%CD4%")
+        stringr::str_like(cell_type, "%CD4%")
     ) |>
     get_seurat()
+
+single_cell_counts
+```
+
+## Visualise gene transcription
+
+We can gather all natural killer cells and plot the distribution of CD56 (NCAM1) across all tissues
+
+```{r, eval=FALSE}
+library(tidySingleCellExperiment)
+library(ggplot2)
+
+get_metadata() |> 
+    
+  # Filter and subset
+  filter(cell_type_harmonised=="nk") |> 
+  select(.cell, file_id_db, disease, file_id, tissue_harmonised) |> 
+  
+  # Get counts per million for NCAM1 gene 
+  get_SingleCellExperiment(assays = "cpm", features = "NCAM1") |> 
+
+	# Get transcriptional abundance for plotting with `tidySingleCellExperiment`
+  join_features("NCAM1", shape = "wide") |> 
+	
+	# Plot
+  ggplot(aes( tissue_harmonised, NCAM1,color = file_id)) +
+  geom_jitter(shape=".") +
+	
+	# Style
+  guides(color="none") +
+  scale_y_log10() +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1))
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(here)
+knitr::include_graphics(here("inst/NCAM1_figure.png"))
 ```
 
 ```{r}
