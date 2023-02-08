@@ -2,9 +2,9 @@
 % Please edit documentation in R/query.R
 \name{get_metadata}
 \alias{get_metadata}
-\title{Downloads an SQLite database of the Human Cell Atlas metadata to a local
-cache, and then opens it as a data frame. It can then be filtered and
-passed into [get_SingleCellExperiment()]
+\title{Downloads an SQLite database of the Human Cell Atlas metadata to a local 
+cache, and then opens it as a data frame. It can then be filtered and 
+passed into [get_SingleCellExperiment()] 
 to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)}
 \usage{
 get_metadata(
@@ -28,9 +28,9 @@ A lazy data.frame subclass containing the metadata. You can interact
   columns, as `stringr::str_match` will not work.
 }
 \description{
-Downloads an SQLite database of the Human Cell Atlas metadata to a local
-cache, and then opens it as a data frame. It can then be filtered and
-passed into [get_SingleCellExperiment()]
+Downloads an SQLite database of the Human Cell Atlas metadata to a local 
+cache, and then opens it as a data frame. It can then be filtered and 
+passed into [get_SingleCellExperiment()] 
 to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)
 }
 \examples{
