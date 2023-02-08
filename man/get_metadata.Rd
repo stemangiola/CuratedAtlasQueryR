@@ -2,18 +2,24 @@
 % Please edit documentation in R/query.R
 \name{get_metadata}
 \alias{get_metadata}
-\title{Returns a data frame of Human Cell Atlas metadata, which should be filtered
-and ultimately passed into get_SingleCellExperiment.}
+\title{Downloads an SQLite database of the Human Cell Atlas metadata to a local
+cache, and then opens it as a data frame. It can then be filtered and
+passed into [get_SingleCellExperiment()]
+to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)}
 \usage{
 get_metadata(
-  connection = list(dbname = "metadata", host = "xwwtauhwze2.db.cloud.edu.au", port =
-    "5432", password = "password", user = "public_access")
+  remote_url =
+    "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.tar.xz",
+  cache_directory = get_default_cache_dir()
 )
 }
 \arguments{
-\item{connection}{Optional list of postgres connection parameters used to
-connect to the metadata database. Possible parameters are described here:
-https://rpostgres.r-dbi.org/reference/postgres.}
+\item{remote_url}{Optional character vector of length 1. An HTTP URL pointing
+to the location of the sqlite database.}
+
+\item{cache_directory}{Optional character vector of length 1. A file path on
+your local system to a directory (not a file) that will be used to store
+metadata.sqlite}
 }
 \value{
 A lazy data.frame subclass containing the metadata. You can interact
@@ -22,18 +28,19 @@ A lazy data.frame subclass containing the metadata. You can interact
   columns, as `stringr::str_match` will not work.
 }
 \description{
-Returns a data frame of Human Cell Atlas metadata, which should be filtered
-and ultimately passed into get_SingleCellExperiment.
+Downloads an SQLite database of the Human Cell Atlas metadata to a local
+cache, and then opens it as a data frame. It can then be filtered and
+passed into [get_SingleCellExperiment()]
+to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)
 }
 \examples{
 library(dplyr)
-library(stringr)
 filtered_metadata <- get_metadata() |>
     filter(
         ethnicity == "African" &
-        str_like(assay, "\%10x\%") &
-        tissue == "lung parenchyma" &
-        str_like(cell_type, "\%CD4\%")
+            assay \%LIKE\% "\%10x\%" &
+            tissue == "lung parenchyma" &
+            cell_type \%LIKE\% "\%CD4\%"
     )
 
 }
