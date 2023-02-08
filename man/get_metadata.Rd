@@ -6,7 +6,7 @@
 and ultimately passed into get_SingleCellExperiment.}
 \usage{
 get_metadata(
-  connection = list(dbname = "metadata", host = "zki3lfhznsa.db.cloud.edu.au", port =
+  connection = list(dbname = "metadata", host = "xwwtauhwze2.db.cloud.edu.au", port =
     "5432", password = "password", user = "public_access")
 )
 }
@@ -17,7 +17,7 @@ https://rpostgres.r-dbi.org/reference/postgres.}
 }
 \value{
 A lazy data.frame subclass containing the metadata. You can interact
-  with this object using most standard dplyr functions. For string matching, 
+  with this object using most standard dplyr functions. For string matching,
   it is recommended that you use `stringr::str_like` to filter character
   columns, as `stringr::str_match` will not work.
 }
