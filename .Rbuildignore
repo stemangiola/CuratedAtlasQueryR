@@ -1,8 +1,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-^dev
+^dev*
 ^\.github$
 ^LICENSE\.md$
 ^README\.Rmd$
 ^doc$
 ^Meta$
+makeflow*
+dev/makeflow*
