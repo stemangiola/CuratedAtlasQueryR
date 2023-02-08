@@ -2,9 +2,13 @@ Type: Package
 Package: CuratedAtlasQueryR
 Title: Queries the Human Cell Atlas
 Version: 0.1.0
-Authors@R: c(person("Stefano", "Mangiola", email = "mangiolastefano@gmail.com",
-                  role = c("aut", "cre"))
-                  )
+Authors@R: c(
+    person(
+        "Stefano",
+        "Mangiola",
+        email = "mangiolastefano@gmail.com",
+        role = c("aut", "cre")
+    ))
 Description: Provides access to a copy of the Human Cell Atlas, but with 
     harmonised metadata. This allows for uniform querying across numerous 
     datasets within the Atlas using common fields such as cell type, tissue 
@@ -13,8 +17,7 @@ Description: Provides access to a copy of the Human Cell Atlas, but with
     into a SingleCellExperiment object. 
 License: GPL-3
 Depends:
-    R (>= 4.2.0),
-    dbplyr (>= 2.3.0)
+    R (>= 4.2.0)
 Imports:
     dplyr,
     SummarizedExperiment,
@@ -35,7 +38,9 @@ Imports:
     stats,
     RSQLite,
     S4Vectors,
-    tibble
+    tibble,
+    utils,
+    dbplyr (>= 2.3.0)
 Suggests:
     here,
     stringr,

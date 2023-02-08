@@ -1,11 +1,17 @@
+# These are hacks to force the above packages to be loaded, and also to
+# satisfy R CMD check. We don't need to attach them at all.
+#' @import dbplyr 
+#' @import Seurat
+NULL
+
 # Maps user provided assay names to their corresponding paths in the repository
 assay_map <- c(
     counts = "original",
     cpm = "cpm"
 )
 
-# ' Used in a pipeline to run one or more expressions with side effects, but
-# ' return the input value as the output value unaffected
+#' Used in a pipeline to run one or more expressions with side effects, but
+#' return the input value as the output value unaffected
 aside <- function(x, ...) {
     # Courtesy of Hadley: https://fosstodon.org/@hadleywickham/109558265769090930
     list(...)
@@ -120,7 +126,7 @@ get_SingleCellExperiment <- function(
             )
 
             raw_data |>
-                dplyr::group_by(file_id_db) |>
+                dplyr::group_by(.data$file_id_db) |>
                 # Load each file and attach metadata
                 dplyr::summarise(sces = list(group_to_sce(
                     dplyr::cur_group_id(),
@@ -146,18 +152,17 @@ get_SingleCellExperiment <- function(
 
 #' Converts a data frame into a single SCE
 #'
-#' @param prefix Prefix to be added to the column names
+#' @param i Suffix to be added to the column names, to make them unique
 #' @param df The data frame to be converted
 #' @param dir_prefix The path to the single cell experiment, minus the final segment
 #' @param features The list of genes/rows of interest
-#'
 #' @return A SingleCellExperiment object
 #' @importFrom dplyr mutate
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment
 #' @importFrom SummarizedExperiment colData<-
 #' @importFrom tibble column_to_rownames
-#' @importClassesFrom SingleCellExperiment SingleCellExperiment
-#'
+#' @importFrom utils head
+#' @noRd
 group_to_sce <- function(i, df, dir_prefix, features) {
     sce_path <- df$file_id_db |>
         head(1) |>
@@ -183,7 +188,7 @@ group_to_sce <- function(i, df, dir_prefix, features) {
     # variable
     new_cellnames <- paste0(cells, "_", i)
     new_coldata <- df |>
-        mutate(original_cell_id = .cell, .cell = new_cellnames) |>
+        mutate(original_cell_id = .data$.cell, .cell = new_cellnames) |>
         column_to_rownames(".cell") |>
         as("DataFrame")
 
@@ -300,18 +305,20 @@ sync_remote_file <- function(full_url, output_file, ...) {
 #'
 #' @return A length one character vector.
 #' @importFrom tools R_user_dir
+#' @importFrom utils packageName
 #' @noRd
 #'
 get_default_cache_dir <- function() {
     packageName() |>
         R_user_dir(
             "cache"
-        )
+        ) |>
+        normalizePath()
 }
 
-#' @importFrom SeuratObject as.sparse
 #' @importFrom assertthat assert_that
 #' @importFrom methods as
+#' @importFrom SeuratObject as.sparse
 #' @exportS3Method
 as.sparse.DelayedMatrix <- function(x) {
     # This is glue to ensure the SCE -> Seurat conversion works properly with
@@ -323,7 +330,7 @@ as.sparse.DelayedMatrix <- function(x) {
 #' the samples in that data frame
 #'
 #' @inheritDotParams get_SingleCellExperiment
-#' @importFrom Seurat as.Seurat
+#' @importFrom SeuratObject as.Seurat
 #' @export
 #' @return A Seurat object containing the same data as a call to
 #'   get_SingleCellExperiment.
@@ -365,7 +372,7 @@ get_seurat <- function(...) {
 #' @importFrom dplyr tbl
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info
-#'
+#' @importFrom utils untar
 get_metadata <- function(
     remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.tar.xz",
     cache_directory = get_default_cache_dir()

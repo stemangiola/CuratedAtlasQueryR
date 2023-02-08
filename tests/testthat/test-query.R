@@ -19,10 +19,11 @@ test_that("get_default_cache_dir() returns the correct directory on Linux", {
     grepl("linux", version$platform, fixed = TRUE) |>
         skip_if_not()
 
-    expect_equal(
-        get_default_cache_dir(),
-        "~/.cache/hca_harmonised"
-    )
+    "~/.cache/R/CuratedAtlasQueryR" |>
+        normalizePath() |>
+        expect_equal(
+            get_default_cache_dir(),
+        )
 })
 
 test_that("sync_assay_files() syncs appropriate files", {
