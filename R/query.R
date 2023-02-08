@@ -323,7 +323,7 @@ as.sparse.DelayedMatrix <- function(x) {
 #' the samples in that data frame
 #'
 #' @inheritDotParams get_SingleCellExperiment
-#' @importFrom SeuratObject as.Seurat
+#' @importFrom Seurat as.Seurat
 #' @export
 #' @return A Seurat object containing the same data as a call to
 #'   get_SingleCellExperiment.
