@@ -26,8 +26,8 @@ REMOTE_URL <- "https://swift.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3e
 #' @param data A data frame containing, at minimum, a `.sample` column, which
 #'   corresponds to a single cell sample ID. This can be obtained from the
 #'   [get_metadata()] function.
-#' @param assays A character vector whose elements must be either "raw" or
-#'   "scaled", representing the corresponding assay you want to request.
+#' @param assays A character vector whose elements must be either "counts" or
+#'   "cpm", representing the corresponding assay(s) you want to request.
 #' @param repository A character vector of length one. If provided, it should be
 #'   an HTTP URL pointing to the location where the single cell data is stored.
 #' @param cache_directory An optional character vector of length one. If
