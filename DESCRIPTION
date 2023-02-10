@@ -40,7 +40,8 @@ Imports:
     S4Vectors,
     tibble,
     utils,
-    dbplyr (>= 2.3.0)
+    dbplyr (>= 2.3.0),
+    duckdb
 Suggests:
     here,
     stringr,

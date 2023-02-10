@@ -342,16 +342,16 @@ get_seurat <- function(...) {
     get_SingleCellExperiment(...) |> as.Seurat(data = NULL)
 }
 
-#' Downloads an SQLite database of the Human Cell Atlas metadata to a local 
+#' Downloads a parquet database of the Human Cell Atlas metadata to a local 
 #' cache, and then opens it as a data frame. It can then be filtered and 
 #' passed into [get_SingleCellExperiment()] 
 #' to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)
 #'
 #' @param remote_url Optional character vector of length 1. An HTTP URL pointing
-#'   to the location of the sqlite database.
+#'   to the location of the parquet database.
 #' @param cache_directory Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
-#'   metadata.sqlite
+#'   metadata.parquet
 #' @return A lazy data.frame subclass containing the metadata. You can interact
 #'   with this object using most standard dplyr functions. For string matching,
 #'   it is recommended that you use `stringr::str_like` to filter character
@@ -368,30 +368,22 @@ get_seurat <- function(...) {
 #'     )
 #'
 #' @importFrom DBI dbConnect
-#' @importFrom RSQLite SQLite SQLITE_RO
+#' @importFrom duckdb duckdb
 #' @importFrom dplyr tbl
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info
 #' @importFrom utils untar
 get_metadata <- function(
-    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.tar.xz",
+    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.parquet",
     cache_directory = get_default_cache_dir()
 ) {
-    tar_path <- file.path(cache_directory, "metadata.tar.xz")
-    sqlite_path <- file.path(cache_directory, "metadata.sqlite")
-    if (!file.exists(sqlite_path)){
-        tar_dir <- tempdir()
-        tar_file <- file.path(tar_dir, "metadata.tar.xz")
-        cli_alert_info("Downloading tar archive. The following procedure is performed once and will take approximately 3 minutes.")
-        sync_remote_file(
-            remote_url,
-            tar_file,
-            progress(type = "down", con = stderr())
-        )
-        cli_alert_info("Decompressing tar archive")
-        untar(tar_file, exdir = cache_directory)
-    }
-    SQLite() |>
-        dbConnect(drv = _, dbname = sqlite_path, flags = SQLITE_RO) |>
-        tbl("metadata")
+    db_path <- file.path(cache_directory, "metadata.parquet")
+    sync_remote_file(
+        remote_url,
+        db_path,
+        progress(type = "down", con = stderr())
+    )
+    table <- duckdb() |>
+        dbConnect(drv = _, read_only = TRUE) |>
+        tbl(db_path)
 }

@@ -2,24 +2,24 @@
 % Please edit documentation in R/query.R
 \name{get_metadata}
 \alias{get_metadata}
-\title{Downloads an SQLite database of the Human Cell Atlas metadata to a local 
+\title{Downloads a parquet database of the Human Cell Atlas metadata to a local 
 cache, and then opens it as a data frame. It can then be filtered and 
 passed into [get_SingleCellExperiment()] 
 to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)}
 \usage{
 get_metadata(
   remote_url =
-    "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.tar.xz",
+    "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.parquet",
   cache_directory = get_default_cache_dir()
 )
 }
 \arguments{
 \item{remote_url}{Optional character vector of length 1. An HTTP URL pointing
-to the location of the sqlite database.}
+to the location of the parquet database.}
 
 \item{cache_directory}{Optional character vector of length 1. A file path on
 your local system to a directory (not a file) that will be used to store
-metadata.sqlite}
+metadata.parquet}
 }
 \value{
 A lazy data.frame subclass containing the metadata. You can interact
@@ -28,7 +28,7 @@ A lazy data.frame subclass containing the metadata. You can interact
   columns, as `stringr::str_match` will not work.
 }
 \description{
-Downloads an SQLite database of the Human Cell Atlas metadata to a local 
+Downloads a parquet database of the Human Cell Atlas metadata to a local 
 cache, and then opens it as a data frame. It can then be filtered and 
 passed into [get_SingleCellExperiment()] 
 to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)
