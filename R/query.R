@@ -12,6 +12,9 @@ assay_map <- c(
 
 #' Used in a pipeline to run one or more expressions with side effects, but
 #' return the input value as the output value unaffected
+#' @noRd
+#' @param x The value to return
+#' @param ... Expressions to evaluate
 aside <- function(x, ...) {
     # Courtesy of Hadley: https://fosstodon.org/@hadleywickham/109558265769090930
     list(...)

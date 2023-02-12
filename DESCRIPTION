@@ -36,7 +36,6 @@ Imports:
     methods,
     rlang,
     stats,
-    RSQLite,
     S4Vectors,
     tibble,
     utils,
