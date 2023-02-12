@@ -383,7 +383,7 @@ get_metadata <- function(
         db_path,
         progress(type = "down", con = stderr())
     )
-    table <- duckdb() |>
+    duckdb() |>
         dbConnect(drv = _, read_only = TRUE) |>
         tbl(db_path)
 }
