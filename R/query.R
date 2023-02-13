@@ -10,17 +10,6 @@ assay_map <- c(
     cpm = "cpm"
 )
 
-#' Used in a pipeline to run one or more expressions with side effects, but
-#' return the input value as the output value unaffected
-#' @noRd
-#' @param x The value to return
-#' @param ... Expressions to evaluate
-aside <- function(x, ...) {
-    # Courtesy of Hadley: https://fosstodon.org/@hadleywickham/109558265769090930
-    list(...)
-    x
-}
-
 REMOTE_URL <- "https://swift.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
 
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object
@@ -94,29 +83,27 @@ get_SingleCellExperiment <- function(
 
     cache_directory |> dir.create(showWarnings = FALSE)
 
-    cells_of_interest <- raw_data |>
-        pull(.data$.cell) |>
-        unique() |>
-        as.character()
-
     subdirs <- assay_map[assays]
 
     # The repository is optional. If not provided we load only from the cache
     if (!is.null(repository)) {
         cli_alert_info("Synchronising files")
+        parsed_repo <- parse_url(repository)
+        parsed_repo$scheme |>
+            `%in%`(c("http", "https")) |>
+            assert_that()
+
         files_to_read <-
             raw_data |>
             pull(.data$file_id_db) |>
             unique() |>
-            as.character()
-        parsed_repo <- parse_url(repository)
-        (parsed_repo$scheme %in% c("http", "https")) |> assert_that()
-        sync_assay_files(
-            url = parsed_repo,
-            cache_dir = cache_directory,
-            files = files_to_read,
-            subdirs = subdirs
-        )
+            as.character() |>
+            sync_assay_files(
+                url = parsed_repo,
+                cache_dir = cache_directory,
+                files = _,
+                subdirs = subdirs
+            )
     }
 
     cli_alert_info("Reading files.")
@@ -316,7 +303,8 @@ get_default_cache_dir <- function() {
         R_user_dir(
             "cache"
         ) |>
-        normalizePath()
+        normalizePath() |>
+        suppressWarnings()
 }
 
 #' @importFrom assertthat assert_that
@@ -375,7 +363,6 @@ get_seurat <- function(...) {
 #' @importFrom dplyr tbl
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info
-#' @importFrom utils untar
 get_metadata <- function(
     remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.parquet",
     cache_directory = get_default_cache_dir()

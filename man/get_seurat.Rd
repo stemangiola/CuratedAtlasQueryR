@@ -14,7 +14,7 @@ get_seurat(...)
     \item{\code{data}}{A data frame containing, at minimum, a `.sample` column, which
 corresponds to a single cell sample ID. This can be obtained from the
 [get_metadata()] function.}
-    \item{\code{assays}}{A character vector whose elements must be either "counts" or
+    \item{\code{assays}}{A character vector whose elements must be either "counts" and/or
 "cpm", representing the corresponding assay(s) you want to request.}
     \item{\code{repository}}{A character vector of length one. If provided, it should be
 an HTTP URL pointing to the location where the single cell data is stored.}
