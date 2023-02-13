@@ -90,7 +90,7 @@ get_SingleCellExperiment <- function(
         cli_alert_info("Synchronising files")
         parsed_repo <- parse_url(repository)
         parsed_repo$scheme |>
-            `%in`(c("http", "https")) |>
+            `%in%`(c("http", "https")) |>
             assert_that()
 
         files_to_read <-
