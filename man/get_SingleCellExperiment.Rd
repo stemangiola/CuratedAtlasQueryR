@@ -18,8 +18,8 @@ get_SingleCellExperiment(
 corresponds to a single cell sample ID. This can be obtained from the
 [get_metadata()] function.}
 
-\item{assays}{A character vector whose elements must be either "raw" or
-"scaled", representing the corresponding assay you want to request.}
+\item{assays}{A character vector whose elements must be either "counts" or
+"cpm", representing the corresponding assay(s) you want to request.}
 
 \item{cache_directory}{An optional character vector of length one. If
 provided, it should indicate a local file path where any remotely accessed
