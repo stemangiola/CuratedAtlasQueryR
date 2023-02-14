@@ -6,6 +6,8 @@ exploration and retrieval of the harmonised, curated and reannotated
 CELLxGENE single-cell human cell atlas. Data can be retrieved at cell,
 sample, or dataset levels based on filtering criteria.
 
+[website](https://stemangiola.github.io/CuratedAtlasQueryR)
+
 # Query interface
 
 <img src="inst/logo.png" width="120px" height="139px" />
@@ -24,8 +26,8 @@ library(stringr)
 
 ``` r
 get_metadata()
-#> # Source:   table<metadata> [?? x 56]
-#> # Database: sqlite 3.40.0 [/stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.sqlite]
+#> # Source:   table</stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.parquet> [?? x 56]
+#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
 #>    .cell   sampl…¹ .sample .samp…² assay assay…³ file_…⁴ cell_…⁵ cell_…⁶ devel…⁷
 #>    <chr>   <chr>   <chr>   <chr>   <chr> <chr>   <chr>   <chr>   <chr>   <chr>  
 #>  1 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
@@ -52,6 +54,21 @@ get_metadata()
 ``` r
 get_metadata() |>
     dplyr::distinct(tissue, file_id) 
+#> # Source:   SQL [?? x 2]
+#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
+#>    tissue                      file_id                             
+#>    <chr>                       <chr>                               
+#>  1 prefrontal cortex           27e51147-93c7-40c5-a6a3-da4b203e05ba
+#>  2 macula lutea proper         28d54b40-7a92-40cf-b164-a6c3158f55f6
+#>  3 fovea centralis             28d54b40-7a92-40cf-b164-a6c3158f55f6
+#>  4 peripheral region of retina 28d54b40-7a92-40cf-b164-a6c3158f55f6
+#>  5 heart left ventricle        29027c24-8042-4eef-b3f1-62089f197e38
+#>  6 cortex of kidney            2977b3fa-e4d6-4929-8540-ae12d33a3c53
+#>  7 blood                       343f46f2-7cdd-4da8-bc7f-50a18b2c0e8e
+#>  8 bone marrow                 343f46f2-7cdd-4da8-bc7f-50a18b2c0e8e
+#>  9 kidney                      343f46f2-7cdd-4da8-bc7f-50a18b2c0e8e
+#> 10 large intestine             343f46f2-7cdd-4da8-bc7f-50a18b2c0e8e
+#> # … with more rows
 ```
 
 ``` r

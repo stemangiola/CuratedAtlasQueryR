@@ -5,6 +5,8 @@ output: github_document
 
 `CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria. 
 
+[website](https://stemangiola.github.io/CuratedAtlasQueryR)
+
 # Query interface
 
 ```{r, include = FALSE}
@@ -38,7 +40,7 @@ get_metadata()
 
 ### Explore the tissue 
 
-```{r, eval=FALSE}
+```{r}
 get_metadata() |>
     dplyr::distinct(tissue, file_id) 
 ```
