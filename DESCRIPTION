@@ -7,7 +7,7 @@ Authors@R: c(
         "Stefano",
         "Mangiola",
         email = "mangiolastefano@gmail.com",
-        role = c("aut", "cre")
+        role = c("aut", "cre", "rev")
     ),
     person(
         "Michael",
@@ -18,25 +18,25 @@ Authors@R: c(
     person(
         "Martin",
         "Morgan",
-        email = "",
+        email = "Martin.Morgan@RoswellPark.org",
         role = c("ctb", "rev")
     ),
     person(
         "Vincent",
         "Carey",
-        email = "",
+        email = "stvjc@channing.harvard.edu",
         role = c("ctb", "rev")
     ),
     person(
         "Julie",
         "Iskander",
-        email = "",
+        email = "iskander.j@wehi.edu.au",
         role = c( "rev")
     ),
     person(
         "Tony",
         "Papenfuss",
-        email = "",
+        email = "papenfuss@wehi.edu.au",
         role = c( "rev")
     ),
     person(
