@@ -6,11 +6,19 @@ exploration and retrieval of the harmonised, curated and reannotated
 CELLxGENE single-cell human cell atlas. Data can be retrieved at cell,
 sample, or dataset levels based on filtering criteria.
 
+<img src="inst/logo.png" width="120x" height="139px" />
+
+<img src="inst/svcf_logo.jpeg" width="155x" height="58px" /><img src="inst/czi_logo.png" width="129px" height="58px" /><img src="inst/bioconductor_logo.jpg" width="202px" height="58px" /><img src="inst/vca_logo.png" width="219px" height="58px" />
+
 [website](https://stemangiola.github.io/CuratedAtlasQueryR)
 
 # Query interface
 
-<img src="inst/logo.png" width="120px" height="139px" />
+## Installation
+
+``` r
+devtools::install_github("stemangiola/CuratedAtlasQueryR")
+```
 
 ## Load the package
 
@@ -56,18 +64,18 @@ get_metadata() |>
     dplyr::distinct(tissue, file_id) 
 #> # Source:   SQL [?? x 2]
 #> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    tissue                      file_id                             
-#>    <chr>                       <chr>                               
-#>  1 prefrontal cortex           27e51147-93c7-40c5-a6a3-da4b203e05ba
-#>  2 macula lutea proper         28d54b40-7a92-40cf-b164-a6c3158f55f6
-#>  3 fovea centralis             28d54b40-7a92-40cf-b164-a6c3158f55f6
-#>  4 peripheral region of retina 28d54b40-7a92-40cf-b164-a6c3158f55f6
-#>  5 heart left ventricle        29027c24-8042-4eef-b3f1-62089f197e38
-#>  6 cortex of kidney            2977b3fa-e4d6-4929-8540-ae12d33a3c53
-#>  7 blood                       343f46f2-7cdd-4da8-bc7f-50a18b2c0e8e
-#>  8 bone marrow                 343f46f2-7cdd-4da8-bc7f-50a18b2c0e8e
-#>  9 kidney                      343f46f2-7cdd-4da8-bc7f-50a18b2c0e8e
-#> 10 large intestine             343f46f2-7cdd-4da8-bc7f-50a18b2c0e8e
+#>    tissue                   file_id                             
+#>    <chr>                    <chr>                               
+#>  1 lung                     09132373-0ea7-4d8b-add8-9b0717781109
+#>  2 bronchus                 09132373-0ea7-4d8b-add8-9b0717781109
+#>  3 cortex of kidney         670b45b1-80d9-4573-9c0b-fdc22784ef04
+#>  4 renal medulla            670b45b1-80d9-4573-9c0b-fdc22784ef04
+#>  5 colon                    7bff556a-2448-4a32-8097-caad9d1a9a11
+#>  6 duodeno-jejunal junction 7bff556a-2448-4a32-8097-caad9d1a9a11
+#>  7 ileum                    7bff556a-2448-4a32-8097-caad9d1a9a11
+#>  8 heart left ventricle     7c2ffd6d-9b5a-45ef-bd9d-fcfc21cd20c1
+#>  9 superior frontal gyrus   7c3ecfef-155d-4cb9-a049-089b63c45b44
+#> 10 renal medulla            7d0faf2c-623f-48b9-8159-ecc9797df96f
 #> # … with more rows
 ```
 

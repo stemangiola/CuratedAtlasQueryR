@@ -9,8 +9,6 @@ vignette: >
 
 `CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria. 
 
-# Query interface
-
 ```{r, include = FALSE}
 # Note: knit this to the repo readme file using:
 # rmarkdown::render("vignettes/readme.Rmd", output_format = "github_document", output_dir = getwd())
@@ -20,9 +18,25 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, echo=FALSE, out.height = "139px", out.width = "120px"}
-system.file("logo.png", package="CuratedAtlasQueryR") |>
-    knitr::include_graphics()
+```{r, echo=FALSE, out.height = c("139px"), out.width = "120x" }
+knitr::include_graphics(c("../inst/logo.png"))
+```
+
+```{r, echo=FALSE, out.height = c("58px"), out.width = c("155x", "129px", "202px", "219px")}
+knitr::include_graphics(c(
+  "../inst/svcf_logo.jpeg", 
+  "../inst/czi_logo.png", 
+  "../inst/bioconductor_logo.jpg",
+    "../inst/vca_logo.png"
+))
+```
+
+# Query interface
+
+## Installation
+
+```{r}
+devtools::install_github("stemangiola/CuratedAtlasQueryR")
 ```
 
 ## Load the package
@@ -175,8 +189,7 @@ meta |>
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-system.file("NCAM1_figure.png", package="CuratedAtlasQueryR") |>
-    knitr::include_graphics()
+knitr::include_graphics("../inst/NCAM1_figure.png")
 ```
 
 # Cell metadata
