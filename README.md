@@ -1,14 +1,29 @@
 CuratedAtlasQueryR
 ================
 
+<!-- badges: start -->
+
+[![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+<!-- badges: end -->
+
 `CuratedAtlasQuery` is a query interface that allow the programmatic
 exploration and retrieval of the harmonised, curated and reannotated
 CELLxGENE single-cell human cell atlas. Data can be retrieved at cell,
 sample, or dataset levels based on filtering criteria.
 
+<img src="inst/logo.png" width="120x" height="139px" />
+
+<img src="inst/svcf_logo.jpeg" width="155x" height="58px" /><img src="inst/czi_logo.png" width="129px" height="58px" /><img src="inst/bioconductor_logo.jpg" width="202px" height="58px" /><img src="inst/vca_logo.png" width="219px" height="58px" />
+
+[website](https://stemangiola.github.io/CuratedAtlasQueryR)
+
 # Query interface
 
-<img src="inst/logo.png" width="120px" height="139px" />
+## Installation
+
+``` r
+devtools::install_github("stemangiola/CuratedAtlasQueryR")
+```
 
 ## Load the package
 
@@ -24,8 +39,8 @@ library(stringr)
 
 ``` r
 get_metadata()
-#> # Source:   table<metadata> [?? x 56]
-#> # Database: sqlite 3.40.0 [/stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.sqlite]
+#> # Source:   table</stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.parquet> [?? x 56]
+#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
 #>    .cell   sampl…¹ .sample .samp…² assay assay…³ file_…⁴ cell_…⁵ cell_…⁶ devel…⁷
 #>    <chr>   <chr>   <chr>   <chr>   <chr> <chr>   <chr>   <chr>   <chr>   <chr>  
 #>  1 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
@@ -52,6 +67,21 @@ get_metadata()
 ``` r
 get_metadata() |>
     dplyr::distinct(tissue, file_id) 
+#> # Source:   SQL [?? x 2]
+#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
+#>    tissue              file_id                             
+#>    <chr>               <chr>                               
+#>  1 blood               07beec85-51be-4d73-bb80-8f85b7b643d5
+#>  2 blood               3431ab62-b11d-445f-a461-1408d2b29f8c
+#>  3 blood               5500774a-6ebe-4ddf-adce-90302b7cd007
+#>  4 blood               550760cb-ede9-4e6b-b6ab-7152f2ce29e1
+#>  5 blood               a0396bf6-cd6d-42d9-b1b5-c66b19d312ae
+#>  6 cortex of kidney    a1035da5-137b-4fac-8435-d1e4af20851c
+#>  7 blood               a139b1d6-eba0-484d-860c-4fb810e17615
+#>  8 prefrontal cortex   27e51147-93c7-40c5-a6a3-da4b203e05ba
+#>  9 macula lutea proper 28d54b40-7a92-40cf-b164-a6c3158f55f6
+#> 10 fovea centralis     28d54b40-7a92-40cf-b164-a6c3158f55f6
+#> # … with more rows
 ```
 
 ``` r
@@ -277,7 +307,7 @@ present in the original CELLxGENE metadata
 
 - `tissue_harmonised`: a coarser tissue name for better filtering
 - `age_days`: the number of days corresponding to the age
-- `cell_type_harmonised`: the consensus call identiti (for immune cells)
+- `cell_type_harmonised`: the consensus call identity (for immune cells)
   using the original and three novel annotations using Seurat Azimuth
   and SingleR
 - `confidence_class`: an ordinal class of how confident
@@ -297,7 +327,16 @@ present in the original CELLxGENE metadata
 
 The `raw` assay includes RNA abundance in the positive real scale (not
 transformed with non-linear functions, e.g. log sqrt). Originally
-CELLxGENE include a mix of scales and tranformations specified in the
+CELLxGENE include a mix of scales and transformations specified in the
 `x_normalization` column.
 
 The `cpm` assay includes counts per million.
+
+------------------------------------------------------------------------
+
+This project has been funded by
+
+- *Silicon Valley Foundation* CZF2019-002443
+- *Bioconductor core funding* NIH NHGRI 5U24HG004059-18
+- *Victoria Cancer Agency* ECRF21036
+- *Australian National Health and Medical Research Council* 1116955
