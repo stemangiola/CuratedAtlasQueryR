@@ -35,7 +35,7 @@ knitr::include_graphics(c(
 
 ## Installation
 
-```{r}
+```{r, eval=FALSE}
 devtools::install_github("stemangiola/CuratedAtlasQueryR")
 ```
 
