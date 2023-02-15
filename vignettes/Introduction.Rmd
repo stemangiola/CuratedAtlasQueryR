@@ -7,6 +7,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<!-- badges: start -->
+[![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+<!-- badges: end -->
+
 `CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria. 
 
 ```{r, include = FALSE}
@@ -210,7 +214,7 @@ Through harmonisation and curation we introduced custom column, not present in t
 
 - `tissue_harmonised`: a coarser tissue name for better filtering
 - `age_days`: the number of days corresponding to the age
-- `cell_type_harmonised`: the consensus call identiti (for immune cells) using the original and three novel annotations using Seurat Azimuth and SingleR
+- `cell_type_harmonised`: the consensus call identity (for immune cells) using the original and three novel annotations using Seurat Azimuth and SingleR
 - `confidence_class`: an ordinal class of how confident `cell_type_harmonised` is. 1 is complete consensus, 2 is 3 out of four and so on.             
 - `cell_annotation_azimuth_l2`: Azimuth cell annotation
 - `cell_annotation_blueprint_singler`: SingleR cell annotation using Blueprint reference
@@ -222,6 +226,6 @@ Through harmonisation and curation we introduced custom column, not present in t
 
 # RNA abundance
 
-The `raw` assay includes RNA abundance in the positive real scale (not transformed with non-linear functions, e.g. log sqrt). Originally CELLxGENE include a mix of scales and tranformations specified in the `x_normalization` column.
+The `raw` assay includes RNA abundance in the positive real scale (not transformed with non-linear functions, e.g. log sqrt). Originally CELLxGENE include a mix of scales and transformations specified in the `x_normalization` column.
 
 The `cpm` assay includes counts per million.

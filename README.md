@@ -1,6 +1,11 @@
 CuratedAtlasQueryR
 ================
 
+<!-- badges: start -->
+
+[![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+<!-- badges: end -->
+
 `CuratedAtlasQuery` is a query interface that allow the programmatic
 exploration and retrieval of the harmonised, curated and reannotated
 CELLxGENE single-cell human cell atlas. Data can be retrieved at cell,
@@ -64,18 +69,18 @@ get_metadata() |>
     dplyr::distinct(tissue, file_id) 
 #> # Source:   SQL [?? x 2]
 #> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    tissue                       file_id                             
-#>    <chr>                        <chr>                               
-#>  1 lung                         09132373-0ea7-4d8b-add8-9b0717781109
-#>  2 respiratory tract epithelium 09132373-0ea7-4d8b-add8-9b0717781109
-#>  3 cerebellum                   3fe53a40-38ff-4f25-b33b-e4d60f2289ef
-#>  4 telencephalon                3fe53a40-38ff-4f25-b33b-e4d60f2289ef
-#>  5 cortex of kidney             62a6cd85-7d85-4958-b9d9-eb0c5f2fbd2f
-#>  6 cortex of kidney             63523aa3-0d04-4fc6-ac59-5cadd3e73a14
-#>  7 kidney                       63523aa3-0d04-4fc6-ac59-5cadd3e73a14
-#>  8 renal medulla                63523aa3-0d04-4fc6-ac59-5cadd3e73a14
-#>  9 renal pelvis                 63523aa3-0d04-4fc6-ac59-5cadd3e73a14
-#> 10 kidney blood vessel          63523aa3-0d04-4fc6-ac59-5cadd3e73a14
+#>    tissue              file_id                             
+#>    <chr>               <chr>                               
+#>  1 blood               07beec85-51be-4d73-bb80-8f85b7b643d5
+#>  2 blood               3431ab62-b11d-445f-a461-1408d2b29f8c
+#>  3 blood               5500774a-6ebe-4ddf-adce-90302b7cd007
+#>  4 blood               550760cb-ede9-4e6b-b6ab-7152f2ce29e1
+#>  5 blood               a0396bf6-cd6d-42d9-b1b5-c66b19d312ae
+#>  6 cortex of kidney    a1035da5-137b-4fac-8435-d1e4af20851c
+#>  7 blood               a139b1d6-eba0-484d-860c-4fb810e17615
+#>  8 prefrontal cortex   27e51147-93c7-40c5-a6a3-da4b203e05ba
+#>  9 macula lutea proper 28d54b40-7a92-40cf-b164-a6c3158f55f6
+#> 10 fovea centralis     28d54b40-7a92-40cf-b164-a6c3158f55f6
 #> # … with more rows
 ```
 
@@ -302,7 +307,7 @@ present in the original CELLxGENE metadata
 
 - `tissue_harmonised`: a coarser tissue name for better filtering
 - `age_days`: the number of days corresponding to the age
-- `cell_type_harmonised`: the consensus call identiti (for immune cells)
+- `cell_type_harmonised`: the consensus call identity (for immune cells)
   using the original and three novel annotations using Seurat Azimuth
   and SingleR
 - `confidence_class`: an ordinal class of how confident
@@ -322,14 +327,14 @@ present in the original CELLxGENE metadata
 
 The `raw` assay includes RNA abundance in the positive real scale (not
 transformed with non-linear functions, e.g. log sqrt). Originally
-CELLxGENE include a mix of scales and tranformations specified in the
+CELLxGENE include a mix of scales and transformations specified in the
 `x_normalization` column.
 
 The `cpm` assay includes counts per million.
 
 ------------------------------------------------------------------------
 
-This project have beeen funded by
+This project has been funded by
 
 - *Silicon Valley Foundation* CZF2019-002443
 - *Bioconductor core funding* NIH NHGRI 5U24HG004059-18
