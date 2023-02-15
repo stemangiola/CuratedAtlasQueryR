@@ -86,16 +86,26 @@
 <div class="section level1">
 <div class="page-header"><h1 id="curatedatlasqueryr">CuratedAtlasQueryR<a class="anchor" aria-label="anchor" href="#curatedatlasqueryr"></a>
 </h1></div>
+<!-- badges: start -->
+
 <p><code>CuratedAtlasQuery</code> is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria.</p>
+<p><img src="inst/logo.png" width="120x" height="139px"></p>
+<p><img src="inst/svcf_logo.jpeg" width="155x" height="58px"><img src="inst/czi_logo.png" width="129px" height="58px"><img src="inst/bioconductor_logo.jpg" width="202px" height="58px"><img src="inst/vca_logo.png" width="219px" height="58px"></p>
+<p><a href="https://stemangiola.github.io/CuratedAtlasQueryR" class="external-link">website</a></p>
 </div>
 <div class="section level1">
 <h1 id="query-interface">Query interface<a class="anchor" aria-label="anchor" href="#query-interface"></a>
 </h1>
-<p><img src="inst/logo.png" width="120px" height="139px"></p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"stemangiola/CuratedAtlasQueryR"</span><span class="op">)</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="load-the-package">Load the package<a class="anchor" aria-label="anchor" href="#load-the-package"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stemangiola/CuratedAtlasQueryR" class="external-link">CuratedAtlasQueryR</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stringr.tidyverse.org" class="external-link">stringr</a></span><span class="op">)</span></span></code></pre></div>
@@ -106,10 +116,10 @@
 <div class="section level3">
 <h3 id="load-the-metadata">Load the metadata<a class="anchor" aria-label="anchor" href="#load-the-metadata"></a>
 </h3>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # Source:   table&lt;metadata&gt; [?? x 56]</span></span>
-<span><span class="co">#&gt; # Database: sqlite 3.40.0 [/stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.sqlite]</span></span>
+<span><span class="co">#&gt; # Source:   table&lt;/stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.parquet&gt; [?? x 56]</span></span>
+<span><span class="co">#&gt; # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]</span></span>
 <span><span class="co">#&gt;    .cell   sampl…¹ .sample .samp…² assay assay…³ file_…⁴ cell_…⁵ cell_…⁶ devel…⁷</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  </span></span>
 <span><span class="co">#&gt;  1 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…</span></span>
@@ -133,10 +143,25 @@
 <div class="section level3">
 <h3 id="explore-the-tissue">Explore the tissue<a class="anchor" aria-label="anchor" href="#explore-the-tissue"></a>
 </h3>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">tissue</span>, <span class="va">file_id</span><span class="op">)</span> </span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">tissue</span>, <span class="va">file_id</span><span class="op">)</span> </span>
+<span><span class="co">#&gt; # Source:   SQL [?? x 2]</span></span>
+<span><span class="co">#&gt; # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]</span></span>
+<span><span class="co">#&gt;    tissue              file_id                             </span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;               &lt;chr&gt;                               </span></span>
+<span><span class="co">#&gt;  1 blood               07beec85-51be-4d73-bb80-8f85b7b643d5</span></span>
+<span><span class="co">#&gt;  2 blood               3431ab62-b11d-445f-a461-1408d2b29f8c</span></span>
+<span><span class="co">#&gt;  3 blood               5500774a-6ebe-4ddf-adce-90302b7cd007</span></span>
+<span><span class="co">#&gt;  4 blood               550760cb-ede9-4e6b-b6ab-7152f2ce29e1</span></span>
+<span><span class="co">#&gt;  5 blood               a0396bf6-cd6d-42d9-b1b5-c66b19d312ae</span></span>
+<span><span class="co">#&gt;  6 cortex of kidney    a1035da5-137b-4fac-8435-d1e4af20851c</span></span>
+<span><span class="co">#&gt;  7 blood               a139b1d6-eba0-484d-860c-4fb810e17615</span></span>
+<span><span class="co">#&gt;  8 prefrontal cortex   27e51147-93c7-40c5-a6a3-da4b203e05ba</span></span>
+<span><span class="co">#&gt;  9 macula lutea proper 28d54b40-7a92-40cf-b164-a6c3158f55f6</span></span>
+<span><span class="co">#&gt; 10 fovea centralis     28d54b40-7a92-40cf-b164-a6c3158f55f6</span></span>
+<span><span class="co">#&gt; # … with more rows</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#&gt; # Source:     SQL [?? x 2]</span></span>
 <span><span class="co">#&gt; # Database:   sqlite 3.40.0 [public_access@zki3lfhznsa.db.cloud.edu.au:5432/metadata]</span></span>
 <span><span class="co">#&gt; # Ordered by: desc(n)</span></span>
@@ -161,7 +186,7 @@
 <div class="section level3">
 <h3 id="query-raw-counts">Query raw counts<a class="anchor" aria-label="anchor" href="#query-raw-counts"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
 <span>    <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -196,7 +221,7 @@
 <h3 id="query-counts-scaled-per-million">Query counts scaled per million<a class="anchor" aria-label="anchor" href="#query-counts-scaled-per-million"></a>
 </h3>
 <p>This is helpful if just few genes are of interest, as they can be compared across samples.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
 <span>    <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
@@ -229,7 +254,7 @@
 <div class="section level3">
 <h3 id="extract-only-a-subset-of-genes">Extract only a subset of genes<a class="anchor" aria-label="anchor" href="#extract-only-a-subset-of-genes"></a>
 </h3>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
 <span>    <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
@@ -263,7 +288,7 @@
 <h3 id="extract-the-counts-as-a-seurat-object">Extract the counts as a Seurat object<a class="anchor" aria-label="anchor" href="#extract-the-counts-as-a-seurat-object"></a>
 </h3>
 <p>This convert the H5 SingleCellExperiment to Seurat so it might take long time and occupy a lot of memory dependeing on how many cells you are requesting.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
 <span>    <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
@@ -290,7 +315,7 @@
 <h2 id="visualise-gene-transcription">Visualise gene transcription<a class="anchor" aria-label="anchor" href="#visualise-gene-transcription"></a>
 </h2>
 <p>We can gather all natural killer cells and plot the distribution of CD56 (NCAM1) across all tissues</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stemangiola/tidySingleCellExperiment" class="external-link">tidySingleCellExperiment</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
@@ -334,7 +359,7 @@
 <li>
 <code>age_days</code>: the number of days corresponding to the age</li>
 <li>
-<code>cell_type_harmonised</code>: the consensus call identiti (for immune cells) using the original and three novel annotations using Seurat Azimuth and SingleR</li>
+<code>cell_type_harmonised</code>: the consensus call identity (for immune cells) using the original and three novel annotations using Seurat Azimuth and SingleR</li>
 <li>
 <code>confidence_class</code>: an ordinal class of how confident <code>cell_type_harmonised</code> is. 1 is complete consensus, 2 is 3 out of four and so on.<br>
 </li>
@@ -357,8 +382,20 @@
 <div class="section level1">
 <h1 id="rna-abundance">RNA abundance<a class="anchor" aria-label="anchor" href="#rna-abundance"></a>
 </h1>
-<p>The <code>raw</code> assay includes RNA abundance in the positive real scale (not transformed with non-linear functions, e.g. log sqrt). Originally CELLxGENE include a mix of scales and tranformations specified in the <code>x_normalization</code> column.</p>
+<p>The <code>raw</code> assay includes RNA abundance in the positive real scale (not transformed with non-linear functions, e.g. log sqrt). Originally CELLxGENE include a mix of scales and transformations specified in the <code>x_normalization</code> column.</p>
 <p>The <code>cpm</code> assay includes counts per million.</p>
+<hr>
+<p>This project has been funded by</p>
+<ul>
+<li>
+<em>Silicon Valley Foundation</em> CZF2019-002443</li>
+<li>
+<em>Bioconductor core funding</em> NIH NHGRI 5U24HG004059-18</li>
+<li>
+<em>Victoria Cancer Agency</em> ECRF21036</li>
+<li>
+<em>Australian National Health and Medical Research Council</em> 1116955</li>
+</ul>
 </div>
 
   </div>
@@ -391,11 +428,22 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Stefano Mangiola <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Stefano Mangiola <br><small class="roles"> Author, maintainer, reviewer </small>  </li>
+<li>Michael Milton <br><small class="roles"> Author, reviewer </small>  </li>
+<li>Silicon Valley Foundation CZF2019-002443 <br><small class="roles"> Funder </small>  </li>
+<li>NIH NHGRI 5U24HG004059-18 <br><small class="roles"> Funder </small>  </li>
+<li>Victoria Cancer Agnency ECRF21036 <br><small class="roles"> Funder </small>  </li>
+<li>NHMRC 1116955 <br><small class="roles"> Funder </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://www.tidyverse.org/lifecycle/#maturing" class="external-link"><img src="https://img.shields.io/badge/lifecycle-maturing-blue.svg" alt="Lifecycle:maturing"></a></li>
+</ul>
+</div>
 
   </div>
 </div>
@@ -403,7 +451,7 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Stefano Mangiola.</p>
+<p>Developed by Stefano Mangiola, Michael Milton, Silicon Valley Foundation CZF2019-002443, NIH NHGRI 5U24HG004059-18, Victoria Cancer Agnency ECRF21036, NHMRC 1116955.</p>
 </div>
 
 <div class="pkgdown">
