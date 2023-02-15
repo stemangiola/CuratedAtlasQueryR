@@ -64,18 +64,18 @@ get_metadata() |>
     dplyr::distinct(tissue, file_id) 
 #> # Source:   SQL [?? x 2]
 #> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    tissue                   file_id                             
-#>    <chr>                    <chr>                               
-#>  1 lung                     09132373-0ea7-4d8b-add8-9b0717781109
-#>  2 bronchus                 09132373-0ea7-4d8b-add8-9b0717781109
-#>  3 cortex of kidney         670b45b1-80d9-4573-9c0b-fdc22784ef04
-#>  4 renal medulla            670b45b1-80d9-4573-9c0b-fdc22784ef04
-#>  5 colon                    7bff556a-2448-4a32-8097-caad9d1a9a11
-#>  6 duodeno-jejunal junction 7bff556a-2448-4a32-8097-caad9d1a9a11
-#>  7 ileum                    7bff556a-2448-4a32-8097-caad9d1a9a11
-#>  8 heart left ventricle     7c2ffd6d-9b5a-45ef-bd9d-fcfc21cd20c1
-#>  9 superior frontal gyrus   7c3ecfef-155d-4cb9-a049-089b63c45b44
-#> 10 renal medulla            7d0faf2c-623f-48b9-8159-ecc9797df96f
+#>    tissue                       file_id                             
+#>    <chr>                        <chr>                               
+#>  1 lung                         09132373-0ea7-4d8b-add8-9b0717781109
+#>  2 respiratory tract epithelium 09132373-0ea7-4d8b-add8-9b0717781109
+#>  3 cerebellum                   3fe53a40-38ff-4f25-b33b-e4d60f2289ef
+#>  4 telencephalon                3fe53a40-38ff-4f25-b33b-e4d60f2289ef
+#>  5 cortex of kidney             62a6cd85-7d85-4958-b9d9-eb0c5f2fbd2f
+#>  6 cortex of kidney             63523aa3-0d04-4fc6-ac59-5cadd3e73a14
+#>  7 kidney                       63523aa3-0d04-4fc6-ac59-5cadd3e73a14
+#>  8 renal medulla                63523aa3-0d04-4fc6-ac59-5cadd3e73a14
+#>  9 renal pelvis                 63523aa3-0d04-4fc6-ac59-5cadd3e73a14
+#> 10 kidney blood vessel          63523aa3-0d04-4fc6-ac59-5cadd3e73a14
 #> # … with more rows
 ```
 
@@ -326,3 +326,12 @@ CELLxGENE include a mix of scales and tranformations specified in the
 `x_normalization` column.
 
 The `cpm` assay includes counts per million.
+
+------------------------------------------------------------------------
+
+This project have beeen funded by
+
+- *Silicon Valley Foundation* CZF2019-002443
+- *Bioconductor core funding* NIH NHGRI 5U24HG004059-18
+- *Victoria Cancer Agency* ECRF21036
+- *Australian National Health and Medical Research Council* 1116955
