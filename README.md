@@ -69,18 +69,18 @@ get_metadata() |>
     dplyr::distinct(tissue, file_id) 
 #> # Source:   SQL [?? x 2]
 #> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    tissue                                             file_id                   
-#>    <chr>                                              <chr>                     
-#>  1 epithelial cell of alveolus of lung (cell culture) 0e8f9ce4-46e5-434e-9ca0-e…
-#>  2 peripheral zone of prostate                        0f017e66-9c70-4d29-9435-2…
-#>  3 transition zone of prostate                        0f017e66-9c70-4d29-9435-2…
-#>  4 superior frontal gyrus                             0fe32cca-d111-42b6-9b93-b…
-#>  5 fovea centralis                                    100c44ed-f754-4d45-8649-d…
-#>  6 blood                                              1042ba0a-98c5-4816-897d-e…
-#>  7 telencephalon                                      3fe53a40-38ff-4f25-b33b-e…
-#>  8 kidney                                             69b67eef-43fd-40ff-8fd3-e…
-#>  9 blood                                              6a044711-8df7-4f88-bad7-f…
-#> 10 heart left ventricle                               6a579758-a4b4-4f64-be54-4…
+#>    tissue                  file_id                             
+#>    <chr>                   <chr>                               
+#>  1 cortex of kidney        2977b3fa-e4d6-4929-8540-ae12d33a3c53
+#>  2 entorhinal cortex       29d5d028-6f90-4943-91f7-fa3f93731de8
+#>  3 middle temporal gyrus   2a689fda-d335-4ac0-81b1-a356fdf939db
+#>  4 respiratory airway      2c2d5bea-8be7-4227-8a56-f2a85d57fa56
+#>  5 thymus                  2ec94470-8171-4825-8346-34d77383438b
+#>  6 ileum                   2f893c30-c91b-487b-b1f8-b386a4ef91a3
+#>  7 cortex of kidney        2fe625b6-8c85-4818-a9c5-1189303f6e2b
+#>  8 fimbria of uterine tube 3044b5dd-a499-456e-86d9-94769bc3b63e
+#>  9 ampulla of uterine tube 3044b5dd-a499-456e-86d9-94769bc3b63e
+#> 10 temporal cortex         4e4bbb2d-f341-4523-a5a0-5407d8b03e0e
 #> # … with more rows
 ```
 
@@ -211,7 +211,7 @@ single_cell_counts
 ### Extract the counts as a Seurat object
 
 This convert the H5 SingleCellExperiment to Seurat so it might take long
-time and occupy a lot of memory dependeing on how many cells you are
+time and occupy a lot of memory depending on how many cells you are
 requesting.
 
 ``` r
