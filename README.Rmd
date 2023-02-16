@@ -20,15 +20,15 @@ knitr::opts_chunk$set(
 ```
 
 ```{r, echo=FALSE, out.height = c("139px"), out.width = "120x" }
-knitr::include_graphics(c("inst/logo.png"))
+knitr::include_graphics(c("man/figures/logo.png"))
 ```
 
 ```{r, echo=FALSE, out.height = c("58px"), out.width = c("155x", "129px", "202px", "219px")}
 knitr::include_graphics(c(
-  "inst/svcf_logo.jpeg", 
-  "inst/czi_logo.png", 
-  "inst/bioconductor_logo.jpg",
-    "inst/vca_logo.png"
+  "man/figures/svcf_logo.jpeg", 
+  "man/figures/czi_logo.png", 
+  "man/figures/bioconductor_logo.jpg",
+    "man/figures/vca_logo.png"
 ))
 ```
 
@@ -190,7 +190,7 @@ get_metadata() |>
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("inst/NCAM1_figure.png")
+knitr::include_graphics("man/figures/NCAM1_figure.png")
 ```
 
 # Cell metadata

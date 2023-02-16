@@ -11,9 +11,9 @@ exploration and retrieval of the harmonised, curated and reannotated
 CELLxGENE single-cell human cell atlas. Data can be retrieved at cell,
 sample, or dataset levels based on filtering criteria.
 
-<img src="inst/logo.png" width="120x" height="139px" />
+<img src="man/figures/logo.png" width="120x" height="139px" />
 
-<img src="inst/svcf_logo.jpeg" width="155x" height="58px" /><img src="inst/czi_logo.png" width="129px" height="58px" /><img src="inst/bioconductor_logo.jpg" width="202px" height="58px" /><img src="inst/vca_logo.png" width="219px" height="58px" />
+<img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" />
 
 [website](https://stemangiola.github.io/CuratedAtlasQueryR)
 
@@ -69,18 +69,18 @@ get_metadata() |>
     dplyr::distinct(tissue, file_id) 
 #> # Source:   SQL [?? x 2]
 #> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    tissue              file_id                             
-#>    <chr>               <chr>                               
-#>  1 blood               07beec85-51be-4d73-bb80-8f85b7b643d5
-#>  2 blood               3431ab62-b11d-445f-a461-1408d2b29f8c
-#>  3 blood               5500774a-6ebe-4ddf-adce-90302b7cd007
-#>  4 blood               550760cb-ede9-4e6b-b6ab-7152f2ce29e1
-#>  5 blood               a0396bf6-cd6d-42d9-b1b5-c66b19d312ae
-#>  6 cortex of kidney    a1035da5-137b-4fac-8435-d1e4af20851c
-#>  7 blood               a139b1d6-eba0-484d-860c-4fb810e17615
-#>  8 prefrontal cortex   27e51147-93c7-40c5-a6a3-da4b203e05ba
-#>  9 macula lutea proper 28d54b40-7a92-40cf-b164-a6c3158f55f6
-#> 10 fovea centralis     28d54b40-7a92-40cf-b164-a6c3158f55f6
+#>    tissue                                             file_id                   
+#>    <chr>                                              <chr>                     
+#>  1 epithelial cell of alveolus of lung (cell culture) 0e8f9ce4-46e5-434e-9ca0-e…
+#>  2 peripheral zone of prostate                        0f017e66-9c70-4d29-9435-2…
+#>  3 transition zone of prostate                        0f017e66-9c70-4d29-9435-2…
+#>  4 superior frontal gyrus                             0fe32cca-d111-42b6-9b93-b…
+#>  5 fovea centralis                                    100c44ed-f754-4d45-8649-d…
+#>  6 blood                                              1042ba0a-98c5-4816-897d-e…
+#>  7 telencephalon                                      3fe53a40-38ff-4f25-b33b-e…
+#>  8 kidney                                             69b67eef-43fd-40ff-8fd3-e…
+#>  9 blood                                              6a044711-8df7-4f88-bad7-f…
+#> 10 heart left ventricle                               6a579758-a4b4-4f64-be54-4…
 #> # … with more rows
 ```
 
@@ -269,7 +269,7 @@ get_metadata() |>
   theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1))
 ```
 
-<img src="inst/NCAM1_figure.png" width="629" />
+<img src="man/figures/NCAM1_figure.png" width="629" />
 
 # Cell metadata
 
