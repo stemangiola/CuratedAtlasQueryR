@@ -13,14 +13,17 @@ assay_map <- c(
 REMOTE_URL <- "https://swift.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
 COUNTS_VERSION <- "0.2"
 
-#' Given a data frame of HCA metadata, returns a SingleCellExperiment object
-#' corresponding to the samples in that data frame
+#' Gets a SingleCellExperiment from curated metadata
+#'
+#' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
+#' returns a [`SingleCellExperiment::SingleCellExperiment-class`] object corresponding to the samples in that
+#' data frame
 #'
 #' @param data A data frame containing, at minimum, a `.sample` column, which
 #'   corresponds to a single cell sample ID. This can be obtained from the
 #'   [get_metadata()] function.
-#' @param assays A character vector whose elements must be either "counts" and/or
-#'   "cpm", representing the corresponding assay(s) you want to request.
+#' @param assays A character vector whose elements must be either "counts"
+#'   and/or "cpm", representing the corresponding assay(s) you want to request.
 #' @param repository A character vector of length one. If provided, it should be
 #'   an HTTP URL pointing to the location where the single cell data is stored.
 #' @param cache_directory An optional character vector of length one. If
@@ -52,7 +55,7 @@ COUNTS_VERSION <- "0.2"
 #'
 #' @export
 #'
-#'
+#' 
 get_SingleCellExperiment <- function(
     data,
     assays = c("counts", "cpm"),
@@ -335,10 +338,12 @@ get_seurat <- function(...) {
     get_SingleCellExperiment(...) |> as.Seurat(data = NULL)
 }
 
+#' Gets the Curated Atlas metadata as a data frame.
+#' 
 #' Downloads a parquet database of the Human Cell Atlas metadata to a local 
 #' cache, and then opens it as a data frame. It can then be filtered and 
 #' passed into [get_SingleCellExperiment()] 
-#' to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)
+#' to obtain a [`SingleCellExperiment::SingleCellExperiment-class`]
 #'
 #' @param remote_url Optional character vector of length 1. An HTTP URL pointing
 #'   to the location of the parquet database.

@@ -2,8 +2,7 @@
 % Please edit documentation in R/query.R
 \name{get_SingleCellExperiment}
 \alias{get_SingleCellExperiment}
-\title{Given a data frame of HCA metadata, returns a SingleCellExperiment object
-corresponding to the samples in that data frame}
+\title{Gets a SingleCellExperiment from curated metadata}
 \usage{
 get_SingleCellExperiment(
   data,
@@ -14,12 +13,12 @@ get_SingleCellExperiment(
 )
 }
 \arguments{
-\item{data}{A data frame containing, at minimum, a `.sample` column, which
+\item{data}{A data frame containing, at minimum, a \code{.sample} column, which
 corresponds to a single cell sample ID. This can be obtained from the
-[get_metadata()] function.}
+\code{\link[=get_metadata]{get_metadata()}} function.}
 
-\item{assays}{A character vector whose elements must be either "counts" and/or
-"cpm", representing the corresponding assay(s) you want to request.}
+\item{assays}{A character vector whose elements must be either "counts"
+and/or "cpm", representing the corresponding assay(s) you want to request.}
 
 \item{cache_directory}{An optional character vector of length one. If
 provided, it should indicate a local file path where any remotely accessed
@@ -33,11 +32,12 @@ the counts for. By default counts for all features will be returned.}
 }
 \value{
 A SingleCellExperiment object, with one assay for each value in the
-  assays argument
+assays argument
 }
 \description{
-Given a data frame of HCA metadata, returns a SingleCellExperiment object
-corresponding to the samples in that data frame
+Given a data frame of Curated Atlas metadata obtained from \code{\link[=get_metadata]{get_metadata()}},
+returns a \code{\link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment}} object corresponding to the samples in that
+data frame
 }
 \examples{
 meta <- get_metadata() |> head(2)

@@ -11,11 +11,11 @@ get_seurat(...)
 \item{...}{
   Arguments passed on to \code{\link[=get_SingleCellExperiment]{get_SingleCellExperiment}}
   \describe{
-    \item{\code{data}}{A data frame containing, at minimum, a `.sample` column, which
+    \item{\code{data}}{A data frame containing, at minimum, a \code{.sample} column, which
 corresponds to a single cell sample ID. This can be obtained from the
-[get_metadata()] function.}
-    \item{\code{assays}}{A character vector whose elements must be either "counts" and/or
-"cpm", representing the corresponding assay(s) you want to request.}
+\code{\link[=get_metadata]{get_metadata()}} function.}
+    \item{\code{assays}}{A character vector whose elements must be either "counts"
+and/or "cpm", representing the corresponding assay(s) you want to request.}
     \item{\code{repository}}{A character vector of length one. If provided, it should be
 an HTTP URL pointing to the location where the single cell data is stored.}
     \item{\code{cache_directory}}{An optional character vector of length one. If
@@ -27,7 +27,7 @@ the counts for. By default counts for all features will be returned.}
 }
 \value{
 A Seurat object containing the same data as a call to
-  get_SingleCellExperiment.
+get_SingleCellExperiment.
 }
 \description{
 Given a data frame of HCA metadata, returns a Seurat object corresponding to
