@@ -7,9 +7,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-`CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria. 
+<!-- badges: start -->
+[![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+<!-- badges: end -->
 
-# Query interface
+`CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria. 
 
 ```{r, include = FALSE}
 # Note: knit this to the repo readme file using:
@@ -20,8 +22,25 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, echo=FALSE, out.height = "139px", out.width = "120px"}
-knitr::include_graphics("inst/logo.png")
+```{r, echo=FALSE, out.height = c("139px"), out.width = "120x" }
+knitr::include_graphics(c("../man/figures/logo.png"))
+```
+
+```{r, echo=FALSE, out.height = c("58px"), out.width = c("155x", "129px", "202px", "219px")}
+knitr::include_graphics(c(
+  "../man/figures/svcf_logo.jpeg", 
+  "../man/figures/czi_logo.png", 
+  "../man/figures/bioconductor_logo.jpg",
+  "../man/figures/vca_logo.png"
+))
+```
+
+# Query interface
+
+## Installation
+
+```{r, eval=FALSE}
+devtools::install_github("stemangiola/CuratedAtlasQueryR")
 ```
 
 ## Load the package
@@ -37,13 +56,15 @@ library(stringr)
 ### Load the metadata
 
 ```{r}
-get_metadata()
+meta <- get_metadata()
 ```
+
+The `meta` variable can then be re-used for all subsequent queries.
 
 ### Explore the tissue 
 
 ```{r, eval=FALSE}
-get_metadata() |>
+meta |>
     dplyr::distinct(tissue, file_id) 
 ```
 
@@ -74,7 +95,7 @@ get_metadata() |>
 ```{r}
 
 single_cell_counts = 
-	get_metadata() |>
+	meta |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -92,7 +113,7 @@ This is helpful if just few genes are of interest, as they can be compared acros
 
 ```{r}
 single_cell_counts = 
-	get_metadata() |>
+	meta |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -108,7 +129,7 @@ single_cell_counts
 
 ```{r}
 single_cell_counts = 
-	get_metadata() |>
+	meta |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -127,7 +148,7 @@ This convert the H5 SingleCellExperiment to Seurat so it might take long time an
 
 ```{r}
 single_cell_counts = 
-	get_metadata() |>
+	meta |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -147,7 +168,7 @@ We can gather all natural killer cells and plot the distribution of CD56 (NCAM1)
 library(tidySingleCellExperiment)
 library(ggplot2)
 
-get_metadata() |> 
+meta |> 
     
   # Filter and subset
   filter(cell_type_harmonised=="nk") |> 
@@ -172,7 +193,7 @@ get_metadata() |>
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("inst/NCAM1_figure.png")
+knitr::include_graphics("../man/figures/NCAM1_figure.png")
 ```
 
 # Cell metadata
@@ -193,7 +214,7 @@ Through harmonisation and curation we introduced custom column, not present in t
 
 - `tissue_harmonised`: a coarser tissue name for better filtering
 - `age_days`: the number of days corresponding to the age
-- `cell_type_harmonised`: the consensus call identiti (for immune cells) using the original and three novel annotations using Seurat Azimuth and SingleR
+- `cell_type_harmonised`: the consensus call identity (for immune cells) using the original and three novel annotations using Seurat Azimuth and SingleR
 - `confidence_class`: an ordinal class of how confident `cell_type_harmonised` is. 1 is complete consensus, 2 is 3 out of four and so on.             
 - `cell_annotation_azimuth_l2`: Azimuth cell annotation
 - `cell_annotation_blueprint_singler`: SingleR cell annotation using Blueprint reference
@@ -205,6 +226,6 @@ Through harmonisation and curation we introduced custom column, not present in t
 
 # RNA abundance
 
-The `raw` assay includes RNA abundance in the positive real scale (not transformed with non-linear functions, e.g. log sqrt). Originally CELLxGENE include a mix of scales and tranformations specified in the `x_normalization` column.
+The `raw` assay includes RNA abundance in the positive real scale (not transformed with non-linear functions, e.g. log sqrt). Originally CELLxGENE include a mix of scales and transformations specified in the `x_normalization` column.
 
 The `cpm` assay includes counts per million.

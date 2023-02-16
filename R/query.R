@@ -10,15 +10,7 @@ assay_map <- c(
     cpm = "cpm"
 )
 
-#' Used in a pipeline to run one or more expressions with side effects, but
-#' return the input value as the output value unaffected
-aside <- function(x, ...) {
-    # Courtesy of Hadley: https://fosstodon.org/@hadleywickham/109558265769090930
-    list(...)
-    x
-}
-
-REMOTE_URL <- "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
+REMOTE_URL <- "https://swift.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
 
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object
 #' corresponding to the samples in that data frame
@@ -26,8 +18,8 @@ REMOTE_URL <- "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d
 #' @param data A data frame containing, at minimum, a `.sample` column, which
 #'   corresponds to a single cell sample ID. This can be obtained from the
 #'   [get_metadata()] function.
-#' @param assays A character vector whose elements must be either "raw" or
-#'   "scaled", representing the corresponding assay you want to request.
+#' @param assays A character vector whose elements must be either "counts" and/or
+#'   "cpm", representing the corresponding assay(s) you want to request.
 #' @param repository A character vector of length one. If provided, it should be
 #'   an HTTP URL pointing to the location where the single cell data is stored.
 #' @param cache_directory An optional character vector of length one. If
@@ -87,33 +79,31 @@ get_SingleCellExperiment <- function(
     cli_alert_info("Realising metadata.")
     raw_data <- collect(data)
     inherits(raw_data, "tbl") |> assert_that()
-    has_name(raw_data, c(".cell", "file_id_db")) |> assert_that()
+    has_name(raw_data, c("_cell", "file_id_db")) |> assert_that()
 
     cache_directory |> dir.create(showWarnings = FALSE)
-
-    cells_of_interest <- raw_data |>
-        pull(.data$.cell) |>
-        unique() |>
-        as.character()
 
     subdirs <- assay_map[assays]
 
     # The repository is optional. If not provided we load only from the cache
     if (!is.null(repository)) {
         cli_alert_info("Synchronising files")
+        parsed_repo <- parse_url(repository)
+        parsed_repo$scheme |>
+            `%in%`(c("http", "https")) |>
+            assert_that()
+
         files_to_read <-
             raw_data |>
             pull(.data$file_id_db) |>
             unique() |>
-            as.character()
-        parsed_repo <- parse_url(repository)
-        (parsed_repo$scheme %in% c("http", "https")) |> assert_that()
-        sync_assay_files(
-            url = parsed_repo,
-            cache_dir = cache_directory,
-            files = files_to_read,
-            subdirs = subdirs
-        )
+            as.character() |>
+            sync_assay_files(
+                url = parsed_repo,
+                cache_dir = cache_directory,
+                files = _,
+                subdirs = subdirs
+            )
     }
 
     cli_alert_info("Reading files.")
@@ -182,14 +172,14 @@ group_to_sce <- function(i, df, dir_prefix, features) {
     sce <- loadHDF5SummarizedExperiment(sce_path)
     # The cells we select here are those that are both available in the SCE
     # object, and requested for this particular file
-    cells <- colnames(sce) |> intersect(df$.cell)
+    cells <- colnames(sce) |> intersect(df$`_cell`)
     # We need to make the cell names globally unique, which we can guarantee
     # by adding a suffix that is derived from file_id_db, which is the grouping
     # variable
     new_cellnames <- paste0(cells, "_", i)
     new_coldata <- df |>
-        mutate(original_cell_id = .data$.cell, .cell = new_cellnames) |>
-        column_to_rownames(".cell") |>
+        mutate(original_cell_id = .data$`_cell`, `_cell` = new_cellnames) |>
+        column_to_rownames("_cell") |>
         as("DataFrame")
 
     features |>
@@ -313,7 +303,8 @@ get_default_cache_dir <- function() {
         R_user_dir(
             "cache"
         ) |>
-        normalizePath()
+        normalizePath() |>
+        suppressWarnings()
 }
 
 #' @importFrom assertthat assert_that
@@ -372,18 +363,17 @@ get_seurat <- function(...) {
 #' @importFrom dplyr tbl
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info
-#' @importFrom utils untar
 get_metadata <- function(
     remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.2.parquet",
     cache_directory = get_default_cache_dir()
 ) {
-    db_path <- file.path(cache_directory, "metadata.parquet")
+    db_path <- file.path(cache_directory, "metadata.0.2.2.parquet")
     sync_remote_file(
         remote_url,
         db_path,
         progress(type = "down", con = stderr())
     )
-    table <- duckdb() |>
+    duckdb() |>
         dbConnect(drv = _, read_only = TRUE) |>
         tbl(db_path)
 }

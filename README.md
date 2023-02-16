@@ -1,14 +1,29 @@
 CuratedAtlasQueryR
 ================
 
+<!-- badges: start -->
+
+[![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+<!-- badges: end -->
+
 `CuratedAtlasQuery` is a query interface that allow the programmatic
 exploration and retrieval of the harmonised, curated and reannotated
 CELLxGENE single-cell human cell atlas. Data can be retrieved at cell,
 sample, or dataset levels based on filtering criteria.
 
+<img src="man/figures/logo.png" width="120x" height="139px" />
+
+<img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" />
+
+[website](https://stemangiola.github.io/CuratedAtlasQueryR)
+
 # Query interface
 
-<img src="inst/logo.png" width="120px" height="139px" />
+## Installation
+
+``` r
+devtools::install_github("stemangiola/CuratedAtlasQueryR")
+```
 
 ## Load the package
 
@@ -24,8 +39,8 @@ library(stringr)
 
 ``` r
 get_metadata()
-#> # Source:   table<metadata> [?? x 56]
-#> # Database: sqlite 3.40.0 [/stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.sqlite]
+#> # Source:   table</stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.parquet> [?? x 56]
+#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
 #>    .cell   sampl…¹ .sample .samp…² assay assay…³ file_…⁴ cell_…⁵ cell_…⁶ devel…⁷
 #>    <chr>   <chr>   <chr>   <chr>   <chr> <chr>   <chr>   <chr>   <chr>   <chr>  
 #>  1 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
@@ -52,6 +67,21 @@ get_metadata()
 ``` r
 get_metadata() |>
     dplyr::distinct(tissue, file_id) 
+#> # Source:   SQL [?? x 2]
+#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
+#>    tissue                                             file_id                   
+#>    <chr>                                              <chr>                     
+#>  1 epithelial cell of alveolus of lung (cell culture) 0e8f9ce4-46e5-434e-9ca0-e…
+#>  2 peripheral zone of prostate                        0f017e66-9c70-4d29-9435-2…
+#>  3 transition zone of prostate                        0f017e66-9c70-4d29-9435-2…
+#>  4 superior frontal gyrus                             0fe32cca-d111-42b6-9b93-b…
+#>  5 fovea centralis                                    100c44ed-f754-4d45-8649-d…
+#>  6 blood                                              1042ba0a-98c5-4816-897d-e…
+#>  7 telencephalon                                      3fe53a40-38ff-4f25-b33b-e…
+#>  8 kidney                                             69b67eef-43fd-40ff-8fd3-e…
+#>  9 blood                                              6a044711-8df7-4f88-bad7-f…
+#> 10 heart left ventricle                               6a579758-a4b4-4f64-be54-4…
+#> # … with more rows
 ```
 
 ``` r
@@ -239,7 +269,7 @@ get_metadata() |>
   theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1))
 ```
 
-<img src="inst/NCAM1_figure.png" width="629" />
+<img src="man/figures/NCAM1_figure.png" width="629" />
 
 # Cell metadata
 
@@ -277,7 +307,7 @@ present in the original CELLxGENE metadata
 
 - `tissue_harmonised`: a coarser tissue name for better filtering
 - `age_days`: the number of days corresponding to the age
-- `cell_type_harmonised`: the consensus call identiti (for immune cells)
+- `cell_type_harmonised`: the consensus call identity (for immune cells)
   using the original and three novel annotations using Seurat Azimuth
   and SingleR
 - `confidence_class`: an ordinal class of how confident
@@ -297,7 +327,16 @@ present in the original CELLxGENE metadata
 
 The `raw` assay includes RNA abundance in the positive real scale (not
 transformed with non-linear functions, e.g. log sqrt). Originally
-CELLxGENE include a mix of scales and tranformations specified in the
+CELLxGENE include a mix of scales and transformations specified in the
 `x_normalization` column.
 
 The `cpm` assay includes counts per million.
+
+------------------------------------------------------------------------
+
+This project has been funded by
+
+- *Silicon Valley Foundation* CZF2019-002443
+- *Bioconductor core funding* NIH NHGRI 5U24HG004059-18
+- *Victoria Cancer Agency* ECRF21036
+- *Australian National Health and Medical Research Council* 1116955
