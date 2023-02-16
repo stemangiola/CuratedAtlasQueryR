@@ -11,6 +11,7 @@ assay_map <- c(
 )
 
 REMOTE_URL <- "https://swift.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
+COUNTS_VERSION <- "0.2"
 
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object
 #' corresponding to the samples in that data frame
@@ -81,7 +82,8 @@ get_SingleCellExperiment <- function(
     inherits(raw_data, "tbl") |> assert_that()
     has_name(raw_data, c("_cell", "file_id_db")) |> assert_that()
 
-    cache_directory |> dir.create(showWarnings = FALSE)
+    versioned_cache_directory = file.path(cache_directory, COUNTS_VERSION)
+    versioned_cache_directory |> dir.create(showWarnings = FALSE, recursive = TRUE)
 
     subdirs <- assay_map[assays]
 
@@ -100,7 +102,7 @@ get_SingleCellExperiment <- function(
             as.character() |>
             sync_assay_files(
                 url = parsed_repo,
-                cache_dir = cache_directory,
+                cache_dir = versioned_cache_directory,
                 files = _,
                 subdirs = subdirs
             )
@@ -111,7 +113,7 @@ get_SingleCellExperiment <- function(
         imap(function(current_subdir, current_assay) {
             # Build up an SCE for each assay
             dir_prefix <- file.path(
-                cache_directory,
+                versioned_cache_directory,
                 current_subdir
             )
 
