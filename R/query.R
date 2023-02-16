@@ -18,7 +18,7 @@ aside <- function(x, ...) {
     x
 }
 
-REMOTE_URL <- "https://swift.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
+REMOTE_URL <- "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
 
 #' Given a data frame of HCA metadata, returns a SingleCellExperiment object
 #' corresponding to the samples in that data frame
@@ -374,7 +374,7 @@ get_seurat <- function(...) {
 #' @importFrom cli cli_alert_info
 #' @importFrom utils untar
 get_metadata <- function(
-    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.parquet",
+    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.2.parquet",
     cache_directory = get_default_cache_dir()
 ) {
     db_path <- file.path(cache_directory, "metadata.parquet")
