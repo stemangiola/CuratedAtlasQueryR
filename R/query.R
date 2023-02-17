@@ -370,6 +370,41 @@ get_seurat <- function(...) {
 #' @importFrom dplyr tbl
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info
+#' 
+#' @description 
+#' 
+#' The metadata was collected from the Bioconductor package `cellxgenedp`. it's vignette `using_cellxgenedp` provides an overview of the columns in the metadata.
+#' The data for which the column `organism_name` included "Homo sapiens" was collected collected from `cellxgenedp`.
+#' 
+#' The columns `dataset_id` and `file_id` link the datasets explorable through `CuratedAtlasQueryR` and `cellxgenedp`to the CELLxGENE portal.
+#' 
+#'  Our representation, harmonises the metadata at dataset, sample and cell levels, in a unique coherent database table.
+#' 
+#' Dataset-specific columns (definitions available at cellxgene.cziscience.com)
+#' `cell_count`, `collection_id`, `created_at.x`, `created_at.y`, `dataset_deployments`, `dataset_id`, `file_id`, `filename`, `filetype`, `is_primary_data.y`, `is_valid`, `linked_genesets`, `mean_genes_per_cell`, `name`, `published`, `published_at`, `revised_at`, `revision`, `s3_uri`, `schema_version`, `tombstone`, `updated_at.x`, `updated_at.y`, `user_submitted`, `x_normalization`
+#' 
+#' Sample-specific columns (definitions available at cellxgene.cziscience.com)
+#' 
+#' `.sample`, `.sample_name`, `age_days`, `assay`, `assay_ontology_term_id`, `development_stage`, `development_stage_ontology_term_id`, `ethnicity`, `ethnicity_ontology_term_id`, `experiment___`, `organism`, `organism_ontology_term_id`, `sample_placeholder`, `sex`, `sex_ontology_term_id`, `tissue`, `tissue_harmonised`, `tissue_ontology_term_id`, `disease`, `disease_ontology_term_id`, `is_primary_data.x`
+#' 
+#' Cell-specific columns (definitions available at cellxgene.cziscience.com)
+#' 
+#' `.cell`, `cell_type`, `cell_type_ontology_term_idm`, `cell_type_harmonised`, `confidence_class`, `cell_annotation_azimuth_l2`, `cell_annotation_blueprint_singler` 
+#' 
+#' Through harmonisation and curation we introduced custom column, not present in the original CELLxGENE metadata
+#' 
+#' - `tissue_harmonised`: a coarser tissue name for better filtering
+#' - `age_days`: the number of days corresponding to the age
+#' - `cell_type_harmonised`: the consensus call identity (for immune cells) using the original and three novel annotations using Seurat Azimuth and SingleR
+#' - `confidence_class`: an ordinal class of how confident `cell_type_harmonised` is. 1 is complete consensus, 2 is 3 out of four and so on.             
+#' - `cell_annotation_azimuth_l2`: Azimuth cell annotation
+#' - `cell_annotation_blueprint_singler`: SingleR cell annotation using Blueprint reference
+#' - `cell_annotation_blueprint_monaco`: SingleR cell annotation using Monaco reference
+#' - `sample_id_db`: Sample subdivision for internal use
+#' - `file_id_db`: File subdivision for internal use
+#' - `.sample`: Sample ID
+#' - `.sample_name`: How samples were defined
+#' 
 get_metadata <- function(
     remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.2.parquet",
     cache_directory = get_default_cache_dir()

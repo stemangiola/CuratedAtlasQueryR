@@ -13,7 +13,7 @@ sample, or dataset levels based on filtering criteria.
 
 <img src="man/figures/logo.png" width="120x" height="139px" />
 
-<img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" />
+<img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" /><img src="man/figures/nectar_logo.png" width="210px" height="58px" />
 
 [website](https://stemangiola.github.io/CuratedAtlasQueryR)
 
@@ -80,7 +80,7 @@ get_metadata() |>
 #>  7 cortex of kidney        2fe625b6-8c85-4818-a9c5-1189303f6e2b
 #>  8 fimbria of uterine tube 3044b5dd-a499-456e-86d9-94769bc3b63e
 #>  9 ampulla of uterine tube 3044b5dd-a499-456e-86d9-94769bc3b63e
-#> 10 temporal cortex         4e4bbb2d-f341-4523-a5a0-5407d8b03e0e
+#> 10 pancreas                53329245-06f3-45a4-bf15-ed61f628ff83
 #> # … with more rows
 ```
 
@@ -250,15 +250,13 @@ get_metadata() |>
     
   # Filter and subset
   filter(cell_type_harmonised=="nk") |> 
-  select(.cell, file_id_db, disease, file_id, tissue_harmonised) |> 
+  select(.cell, file_id_db, dataset_id, tissue_harmonised) |> 
   
   # Get counts per million for NCAM1 gene 
   get_SingleCellExperiment(assays = "cpm", features = "NCAM1") |> 
 
-    # Get transcriptional abundance for plotting with `tidySingleCellExperiment`
-  join_features("NCAM1", shape = "wide") |> 
-    
     # Plot
+  join_features("NCAM1", shape = "wide") |> 
   ggplot(aes( tissue_harmonised, NCAM1,color = file_id)) +
   geom_jitter(shape=".") +
     
