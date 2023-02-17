@@ -25,6 +25,12 @@ it is recommended that you use \code{stringr::str_like} to filter character
 columns, as \code{stringr::str_match} will not work.
 }
 \description{
+Downloads a parquet database of the Human Cell Atlas metadata to a local
+cache, and then opens it as a data frame. It can then be filtered and
+passed into \code{\link[=get_SingleCellExperiment]{get_SingleCellExperiment()}}
+to obtain a \code{\link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment}}
+}
+\details{
 The metadata was collected from the Bioconductor package \code{cellxgenedp}. it's vignette \code{using_cellxgenedp} provides an overview of the columns in the metadata.
 The data for which the column \code{organism_name} included "Homo sapiens" was collected collected from \code{cellxgenedp}.
 
@@ -57,12 +63,6 @@ Through harmonisation and curation we introduced custom column, not present in t
 \item \code{.sample}: Sample ID
 \item \code{.sample_name}: How samples were defined
 }
-}
-\details{
-Downloads a parquet database of the Human Cell Atlas metadata to a local
-cache, and then opens it as a data frame. It can then be filtered and
-passed into \code{\link[=get_SingleCellExperiment]{get_SingleCellExperiment()}}
-to obtain a \code{\link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment}}
 }
 \examples{
 library(dplyr)
