@@ -85,7 +85,7 @@ get_SingleCellExperiment <- function(
     inherits(raw_data, "tbl") |> assert_that()
     has_name(raw_data, c("_cell", "file_id_db")) |> assert_that()
 
-    versioned_cache_directory = file.path(cache_directory, COUNTS_VERSION)
+    versioned_cache_directory <- file.path(cache_directory, COUNTS_VERSION)
     versioned_cache_directory |> dir.create(showWarnings = FALSE, recursive = TRUE)
 
     subdirs <- assay_map[assays]
