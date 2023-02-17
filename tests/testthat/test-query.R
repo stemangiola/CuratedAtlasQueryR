@@ -2,7 +2,7 @@ library(CuratedAtlasQueryR)
 
 test_that("get_SingleCellExperiment() correctly handles duplicate cell IDs", {
     meta <- get_metadata() |>
-        dplyr::filter(.cell == "868417_1") |>
+        dplyr::filter(`_cell` == "868417_1") |>
         dplyr::collect()
     sce <- get_SingleCellExperiment(meta)
     # This query should return multiple cells, despite querying only 1 cell ID

@@ -11,15 +11,19 @@ assay_map <- c(
 )
 
 REMOTE_URL <- "https://swift.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
+COUNTS_VERSION <- "0.2"
 
-#' Given a data frame of HCA metadata, returns a SingleCellExperiment object
-#' corresponding to the samples in that data frame
+#' Gets a SingleCellExperiment from curated metadata
+#'
+#' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
+#' returns a [`SingleCellExperiment::SingleCellExperiment-class`] object corresponding to the samples in that
+#' data frame
 #'
 #' @param data A data frame containing, at minimum, a `.sample` column, which
 #'   corresponds to a single cell sample ID. This can be obtained from the
 #'   [get_metadata()] function.
-#' @param assays A character vector whose elements must be either "counts" and/or
-#'   "cpm", representing the corresponding assay(s) you want to request.
+#' @param assays A character vector whose elements must be either "counts"
+#'   and/or "cpm", representing the corresponding assay(s) you want to request.
 #' @param repository A character vector of length one. If provided, it should be
 #'   an HTTP URL pointing to the location where the single cell data is stored.
 #' @param cache_directory An optional character vector of length one. If
@@ -51,7 +55,7 @@ REMOTE_URL <- "https://swift.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3e
 #'
 #' @export
 #'
-#'
+#' 
 get_SingleCellExperiment <- function(
     data,
     assays = c("counts", "cpm"),
@@ -79,9 +83,10 @@ get_SingleCellExperiment <- function(
     cli_alert_info("Realising metadata.")
     raw_data <- collect(data)
     inherits(raw_data, "tbl") |> assert_that()
-    has_name(raw_data, c(".cell", "file_id_db")) |> assert_that()
+    has_name(raw_data, c("_cell", "file_id_db")) |> assert_that()
 
-    cache_directory |> dir.create(showWarnings = FALSE)
+    versioned_cache_directory = file.path(cache_directory, COUNTS_VERSION)
+    versioned_cache_directory |> dir.create(showWarnings = FALSE, recursive = TRUE)
 
     subdirs <- assay_map[assays]
 
@@ -100,7 +105,7 @@ get_SingleCellExperiment <- function(
             as.character() |>
             sync_assay_files(
                 url = parsed_repo,
-                cache_dir = cache_directory,
+                cache_dir = versioned_cache_directory,
                 files = _,
                 subdirs = subdirs
             )
@@ -111,7 +116,7 @@ get_SingleCellExperiment <- function(
         imap(function(current_subdir, current_assay) {
             # Build up an SCE for each assay
             dir_prefix <- file.path(
-                cache_directory,
+                versioned_cache_directory,
                 current_subdir
             )
 
@@ -172,14 +177,14 @@ group_to_sce <- function(i, df, dir_prefix, features) {
     sce <- loadHDF5SummarizedExperiment(sce_path)
     # The cells we select here are those that are both available in the SCE
     # object, and requested for this particular file
-    cells <- colnames(sce) |> intersect(df$.cell)
+    cells <- colnames(sce) |> intersect(df$`_cell`)
     # We need to make the cell names globally unique, which we can guarantee
     # by adding a suffix that is derived from file_id_db, which is the grouping
     # variable
     new_cellnames <- paste0(cells, "_", i)
     new_coldata <- df |>
-        mutate(original_cell_id = .data$.cell, .cell = new_cellnames) |>
-        column_to_rownames(".cell") |>
+        mutate(original_cell_id = .data$`_cell`, `_cell` = new_cellnames) |>
+        column_to_rownames("_cell") |>
         as("DataFrame")
 
     features |>
@@ -333,10 +338,12 @@ get_seurat <- function(...) {
     get_SingleCellExperiment(...) |> as.Seurat(data = NULL)
 }
 
+#' Gets the Curated Atlas metadata as a data frame.
+#' 
 #' Downloads a parquet database of the Human Cell Atlas metadata to a local 
 #' cache, and then opens it as a data frame. It can then be filtered and 
 #' passed into [get_SingleCellExperiment()] 
-#' to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)
+#' to obtain a [`SingleCellExperiment::SingleCellExperiment-class`]
 #'
 #' @param remote_url Optional character vector of length 1. An HTTP URL pointing
 #'   to the location of the parquet database.
@@ -364,10 +371,10 @@ get_seurat <- function(...) {
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info
 get_metadata <- function(
-    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.parquet",
+    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.2.parquet",
     cache_directory = get_default_cache_dir()
 ) {
-    db_path <- file.path(cache_directory, "metadata.parquet")
+    db_path <- file.path(cache_directory, "metadata.0.2.2.parquet")
     sync_remote_file(
         remote_url,
         db_path,

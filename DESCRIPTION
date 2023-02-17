@@ -1,7 +1,7 @@
 Type: Package
 Package: CuratedAtlasQueryR
 Title: Queries the Human Cell Atlas
-Version: 0.3.1
+Version: 0.4.0
 Authors@R: c(
     person(
         "Stefano",
@@ -126,3 +126,4 @@ LazyDataCompression: xz
 URL: https://github.com/stemangiola/CuratedAtlasQueryR
 BugReports: https://github.com/stemangiola/CuratedAtlasQueryR/issues
 VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
