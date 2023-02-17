@@ -182,6 +182,9 @@ group_to_sce <- function(i, df, dir_prefix, features) {
     # by adding a suffix that is derived from file_id_db, which is the grouping
     # variable
     new_cellnames <- paste0(cells, "_", i)
+    if (length(new_cellnames) != nrow(df)){
+        browser()
+    }
     new_coldata <- df |>
         mutate(original_cell_id = .data$`_cell`, `_cell` = new_cellnames) |>
         column_to_rownames("_cell") |>
