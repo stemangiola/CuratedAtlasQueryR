@@ -6,6 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CuratedAtlasQueryR • CuratedAtlasQueryR</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
@@ -13,6 +19,7 @@
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="CuratedAtlasQueryR">
 <meta property="og:description" content="CuratedAtlasQueryR">
+<meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -33,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CuratedAtlasQueryR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -95,8 +102,8 @@ programmatic exploration and retrieval of the harmonised, curated and
 reannotated CELLxGENE single-cell human cell atlas. Data can be
 retrieved at cell, sample, or dataset levels based on filtering
 criteria.</p>
-<p><img src="../inst/logo.png" width="120x" height="139px"></p>
-<p><img src="../inst/svcf_logo.jpeg" width="155x" height="58px"><img src="../inst/czi_logo.png" width="129px" height="58px"><img src="../inst/bioconductor_logo.jpg" width="202px" height="58px"><img src="../inst/vca_logo.png" width="219px" height="58px"></p>
+<p><img src="../reference/figures/logo.png" width="120x" height="139px"></p>
+<p><img src="../reference/figures/svcf_logo.jpeg" width="155x" height="58px"><img src="../reference/figures/czi_logo.png" width="129px" height="58px"><img src="../reference/figures/bioconductor_logo.jpg" width="202px" height="58px"><img src="../reference/figures/vca_logo.png" width="219px" height="58px"></p>
 <div class="section level2">
 <h2 id="query-interface">Query interface<a class="anchor" aria-label="anchor" href="#query-interface"></a>
 </h2>
@@ -174,15 +181,14 @@ queries.</p>
 <span></span>
 <span><span class="va">single_cell_counts</span></span>
 <span><span class="co">#&gt; class: SingleCellExperiment </span></span>
-<span><span class="co">#&gt; dim: 60661 1571 </span></span>
+<span><span class="co">#&gt; dim: 35615 1571 </span></span>
 <span><span class="co">#&gt; metadata(0):</span></span>
 <span><span class="co">#&gt; assays(2): counts cpm</span></span>
-<span><span class="co">#&gt; rownames(60661): TSPAN6 TNMD ... RP11-175I6.6 PRSS43P</span></span>
+<span><span class="co">#&gt; rownames(35615): TSPAN6 TNMD ... LNCDAT HRURF</span></span>
 <span><span class="co">#&gt; rowData names(0):</span></span>
 <span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
 <span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
-<span><span class="co">#&gt; colData names(56): sample_id_db .sample ... n_tissue_in_cell_type</span></span>
-<span><span class="co">#&gt;   original_cell_id</span></span>
+<span><span class="co">#&gt; colData names(56): _sample cell_type ... updated_at_y original_cell_id</span></span>
 <span><span class="co">#&gt; reducedDimNames(0):</span></span>
 <span><span class="co">#&gt; mainExpName: NULL</span></span>
 <span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
@@ -209,15 +215,14 @@ compared across samples.</p>
 <span></span>
 <span><span class="va">single_cell_counts</span></span>
 <span><span class="co">#&gt; class: SingleCellExperiment </span></span>
-<span><span class="co">#&gt; dim: 60661 1571 </span></span>
+<span><span class="co">#&gt; dim: 35615 1571 </span></span>
 <span><span class="co">#&gt; metadata(0):</span></span>
 <span><span class="co">#&gt; assays(1): cpm</span></span>
-<span><span class="co">#&gt; rownames(60661): TSPAN6 TNMD ... RP11-175I6.6 PRSS43P</span></span>
+<span><span class="co">#&gt; rownames(35615): TSPAN6 TNMD ... LNCDAT HRURF</span></span>
 <span><span class="co">#&gt; rowData names(0):</span></span>
 <span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
 <span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
-<span><span class="co">#&gt; colData names(56): sample_id_db .sample ... n_tissue_in_cell_type</span></span>
-<span><span class="co">#&gt;   original_cell_id</span></span>
+<span><span class="co">#&gt; colData names(56): _sample cell_type ... updated_at_y original_cell_id</span></span>
 <span><span class="co">#&gt; reducedDimNames(0):</span></span>
 <span><span class="co">#&gt; mainExpName: NULL</span></span>
 <span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
@@ -249,8 +254,7 @@ compared across samples.</p>
 <span><span class="co">#&gt; rowData names(0):</span></span>
 <span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
 <span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
-<span><span class="co">#&gt; colData names(56): sample_id_db .sample ... n_tissue_in_cell_type</span></span>
-<span><span class="co">#&gt;   original_cell_id</span></span>
+<span><span class="co">#&gt; colData names(56): _sample cell_type ... updated_at_y original_cell_id</span></span>
 <span><span class="co">#&gt; reducedDimNames(0):</span></span>
 <span><span class="co">#&gt; mainExpName: NULL</span></span>
 <span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
@@ -275,13 +279,13 @@ are requesting.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Synchronising files</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Reading files.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Compiling Single Cell Experiment.</span></span>
-<span><span class="co">#&gt; Warning: Feature names cannot have underscores ('_'), replacing with dashes</span></span>
-<span><span class="co">#&gt; ('-')</span></span>
+<span><span class="co">#&gt; Warning: Non-unique features (rownames) present in the input matrix, making</span></span>
+<span><span class="co">#&gt; unique</span></span>
 <span></span>
 <span><span class="va">single_cell_counts</span></span>
 <span><span class="co">#&gt; An object of class Seurat </span></span>
-<span><span class="co">#&gt; 60661 features across 1571 samples within 1 assay </span></span>
-<span><span class="co">#&gt; Active assay: originalexp (60661 features, 0 variable features)</span></span></code></pre></div>
+<span><span class="co">#&gt; 35615 features across 1571 samples within 1 assay </span></span>
+<span><span class="co">#&gt; Active assay: originalexp (35615 features, 0 variable features)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -314,7 +318,7 @@ CD56 (NCAM1) across all tissues</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">60</span>, vjust <span class="op">=</span> <span class="fl">1</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="../inst/NCAM1_figure.png" width="314"></p>
+<p><img src="../reference/figures/NCAM1_figure.png" width="314"></p>
 </div>
 </div>
 <div class="section level2">

@@ -6,6 +6,12 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Queries the Human Cell Atlas • CuratedAtlasQueryR</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="apple-touch-icon-60x60.png">
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
@@ -18,6 +24,7 @@
     type, and patient ethnicity. Usage involves first querying the metadata
     table for cells of interest, and then downloading the corresponding cells 
     into a SingleCellExperiment object. ">
+<meta property="og:image" content="/logo.png">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -38,7 +45,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">CuratedAtlasQueryR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.3.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
       </span>
     </div>
 
@@ -89,8 +96,8 @@
 <!-- badges: start -->
 
 <p><code>CuratedAtlasQuery</code> is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria.</p>
-<p><img src="inst/logo.png" width="120x" height="139px"></p>
-<p><img src="inst/svcf_logo.jpeg" width="155x" height="58px"><img src="inst/czi_logo.png" width="129px" height="58px"><img src="inst/bioconductor_logo.jpg" width="202px" height="58px"><img src="inst/vca_logo.png" width="219px" height="58px"></p>
+<p><img src="reference/figures/logo.png" width="120x" height="139px"></p>
+<p><img src="reference/figures/svcf_logo.jpeg" width="155x" height="58px"><img src="reference/figures/czi_logo.png" width="129px" height="58px"><img src="reference/figures/bioconductor_logo.jpg" width="202px" height="58px"><img src="reference/figures/vca_logo.png" width="219px" height="58px"></p>
 <p><a href="https://stemangiola.github.io/CuratedAtlasQueryR" class="external-link">website</a></p>
 </div>
 <div class="section level1">
@@ -148,18 +155,18 @@
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">tissue</span>, <span class="va">file_id</span><span class="op">)</span> </span>
 <span><span class="co">#&gt; # Source:   SQL [?? x 2]</span></span>
 <span><span class="co">#&gt; # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]</span></span>
-<span><span class="co">#&gt;    tissue              file_id                             </span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;               &lt;chr&gt;                               </span></span>
-<span><span class="co">#&gt;  1 blood               07beec85-51be-4d73-bb80-8f85b7b643d5</span></span>
-<span><span class="co">#&gt;  2 blood               3431ab62-b11d-445f-a461-1408d2b29f8c</span></span>
-<span><span class="co">#&gt;  3 blood               5500774a-6ebe-4ddf-adce-90302b7cd007</span></span>
-<span><span class="co">#&gt;  4 blood               550760cb-ede9-4e6b-b6ab-7152f2ce29e1</span></span>
-<span><span class="co">#&gt;  5 blood               a0396bf6-cd6d-42d9-b1b5-c66b19d312ae</span></span>
-<span><span class="co">#&gt;  6 cortex of kidney    a1035da5-137b-4fac-8435-d1e4af20851c</span></span>
-<span><span class="co">#&gt;  7 blood               a139b1d6-eba0-484d-860c-4fb810e17615</span></span>
-<span><span class="co">#&gt;  8 prefrontal cortex   27e51147-93c7-40c5-a6a3-da4b203e05ba</span></span>
-<span><span class="co">#&gt;  9 macula lutea proper 28d54b40-7a92-40cf-b164-a6c3158f55f6</span></span>
-<span><span class="co">#&gt; 10 fovea centralis     28d54b40-7a92-40cf-b164-a6c3158f55f6</span></span>
+<span><span class="co">#&gt;    tissue                                             file_id                   </span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                                              &lt;chr&gt;                     </span></span>
+<span><span class="co">#&gt;  1 epithelial cell of alveolus of lung (cell culture) 0e8f9ce4-46e5-434e-9ca0-e…</span></span>
+<span><span class="co">#&gt;  2 peripheral zone of prostate                        0f017e66-9c70-4d29-9435-2…</span></span>
+<span><span class="co">#&gt;  3 transition zone of prostate                        0f017e66-9c70-4d29-9435-2…</span></span>
+<span><span class="co">#&gt;  4 superior frontal gyrus                             0fe32cca-d111-42b6-9b93-b…</span></span>
+<span><span class="co">#&gt;  5 fovea centralis                                    100c44ed-f754-4d45-8649-d…</span></span>
+<span><span class="co">#&gt;  6 blood                                              1042ba0a-98c5-4816-897d-e…</span></span>
+<span><span class="co">#&gt;  7 telencephalon                                      3fe53a40-38ff-4f25-b33b-e…</span></span>
+<span><span class="co">#&gt;  8 kidney                                             69b67eef-43fd-40ff-8fd3-e…</span></span>
+<span><span class="co">#&gt;  9 blood                                              6a044711-8df7-4f88-bad7-f…</span></span>
+<span><span class="co">#&gt; 10 heart left ventricle                               6a579758-a4b4-4f64-be54-4…</span></span>
 <span><span class="co">#&gt; # … with more rows</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#&gt; # Source:     SQL [?? x 2]</span></span>
@@ -340,7 +347,7 @@
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_log10</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">theme</a></span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_text</a></span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">60</span>, vjust <span class="op">=</span> <span class="fl">1</span>, hjust <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="inst/NCAM1_figure.png" width="629"></p>
+<p><img src="reference/figures/NCAM1_figure.png" width="629"></p>
 </div>
 </div>
 <div class="section level1">
