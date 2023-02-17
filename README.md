@@ -13,7 +13,7 @@ sample, or dataset levels based on filtering criteria.
 
 <img src="man/figures/logo.png" width="120x" height="139px" />
 
-<img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" /><img src="man/figures/nectar_logo.png" width="210px" height="58px" />
+<img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" /><img src="man/figures/nectar_logo.png" width="180px" height="58px" />
 
 [website](https://stemangiola.github.io/CuratedAtlasQueryR)
 
@@ -71,16 +71,16 @@ get_metadata() |>
 #> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
 #>    tissue                  file_id                             
 #>    <chr>                   <chr>                               
-#>  1 cortex of kidney        2977b3fa-e4d6-4929-8540-ae12d33a3c53
-#>  2 entorhinal cortex       29d5d028-6f90-4943-91f7-fa3f93731de8
-#>  3 middle temporal gyrus   2a689fda-d335-4ac0-81b1-a356fdf939db
-#>  4 respiratory airway      2c2d5bea-8be7-4227-8a56-f2a85d57fa56
-#>  5 thymus                  2ec94470-8171-4825-8346-34d77383438b
-#>  6 ileum                   2f893c30-c91b-487b-b1f8-b386a4ef91a3
-#>  7 cortex of kidney        2fe625b6-8c85-4818-a9c5-1189303f6e2b
-#>  8 fimbria of uterine tube 3044b5dd-a499-456e-86d9-94769bc3b63e
-#>  9 ampulla of uterine tube 3044b5dd-a499-456e-86d9-94769bc3b63e
-#> 10 pancreas                53329245-06f3-45a4-bf15-ed61f628ff83
+#>  1 blood                   07beec85-51be-4d73-bb80-8f85b7b643d5
+#>  2 lymph node              39b6cc45-8c5c-4f7b-944c-58f66da5efb1
+#>  3 middle temporal gyrus   39bbfb98-79d8-41a3-89f4-d82fde8eade1
+#>  4 middle temporal gyrus   3ac0ac73-ef77-416c-8e04-27d083bb7cd9
+#>  5 liver                   3ae36927-c188-4511-88cc-572ee1edf906
+#>  6 cerebellum              5c1cc788-2645-45fb-b1d9-2f43d368bba8
+#>  7 interventricular septum 967fda08-9a6d-4ad7-aeac-ec9dd3bd8cfa
+#>  8 apex of heart           967fda08-9a6d-4ad7-aeac-ec9dd3bd8cfa
+#>  9 left cardiac atrium     967fda08-9a6d-4ad7-aeac-ec9dd3bd8cfa
+#> 10 heart left ventricle    967fda08-9a6d-4ad7-aeac-ec9dd3bd8cfa
 #> # … with more rows
 ```
 

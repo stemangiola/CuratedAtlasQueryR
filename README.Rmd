@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 knitr::include_graphics(c("man/figures/logo.png"))
 ```
 
-```{r, echo=FALSE, out.height = c("58px"), out.width = c("155x", "129px", "202px", "219px", "210px")}
+```{r, echo=FALSE, out.height = c("58px"), out.width = c("155x", "129px", "202px", "219px", "180px")}
 knitr::include_graphics(c(
   "man/figures/svcf_logo.jpeg", 
   "man/figures/czi_logo.png", 
