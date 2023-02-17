@@ -126,3 +126,4 @@ LazyDataCompression: xz
 URL: https://github.com/stemangiola/CuratedAtlasQueryR
 BugReports: https://github.com/stemangiola/CuratedAtlasQueryR/issues
 VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)

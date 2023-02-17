@@ -2,14 +2,11 @@
 % Please edit documentation in R/query.R
 \name{get_metadata}
 \alias{get_metadata}
-\title{Downloads a parquet database of the Human Cell Atlas metadata to a local 
-cache, and then opens it as a data frame. It can then be filtered and 
-passed into [get_SingleCellExperiment()] 
-to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)}
+\title{Gets the Curated Atlas metadata as a data frame.}
 \usage{
 get_metadata(
   remote_url =
-    "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata-sqlite/metadata.parquet",
+    "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.2.parquet",
   cache_directory = get_default_cache_dir()
 )
 }
@@ -23,15 +20,15 @@ metadata.parquet}
 }
 \value{
 A lazy data.frame subclass containing the metadata. You can interact
-  with this object using most standard dplyr functions. For string matching,
-  it is recommended that you use `stringr::str_like` to filter character
-  columns, as `stringr::str_match` will not work.
+with this object using most standard dplyr functions. For string matching,
+it is recommended that you use \code{stringr::str_like} to filter character
+columns, as \code{stringr::str_match} will not work.
 }
 \description{
-Downloads a parquet database of the Human Cell Atlas metadata to a local 
-cache, and then opens it as a data frame. It can then be filtered and 
-passed into [get_SingleCellExperiment()] 
-to obtain a [`SingleCellExperiment`](SingleCellExperiment::SingleCellExperiment-class)
+Downloads a parquet database of the Human Cell Atlas metadata to a local
+cache, and then opens it as a data frame. It can then be filtered and
+passed into \code{\link[=get_SingleCellExperiment]{get_SingleCellExperiment()}}
+to obtain a \code{\link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment}}
 }
 \examples{
 library(dplyr)
