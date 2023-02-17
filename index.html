@@ -155,18 +155,18 @@
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">tissue</span>, <span class="va">file_id</span><span class="op">)</span> </span>
 <span><span class="co">#&gt; # Source:   SQL [?? x 2]</span></span>
 <span><span class="co">#&gt; # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]</span></span>
-<span><span class="co">#&gt;    tissue                                             file_id                   </span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;                                              &lt;chr&gt;                     </span></span>
-<span><span class="co">#&gt;  1 epithelial cell of alveolus of lung (cell culture) 0e8f9ce4-46e5-434e-9ca0-e…</span></span>
-<span><span class="co">#&gt;  2 peripheral zone of prostate                        0f017e66-9c70-4d29-9435-2…</span></span>
-<span><span class="co">#&gt;  3 transition zone of prostate                        0f017e66-9c70-4d29-9435-2…</span></span>
-<span><span class="co">#&gt;  4 superior frontal gyrus                             0fe32cca-d111-42b6-9b93-b…</span></span>
-<span><span class="co">#&gt;  5 fovea centralis                                    100c44ed-f754-4d45-8649-d…</span></span>
-<span><span class="co">#&gt;  6 blood                                              1042ba0a-98c5-4816-897d-e…</span></span>
-<span><span class="co">#&gt;  7 telencephalon                                      3fe53a40-38ff-4f25-b33b-e…</span></span>
-<span><span class="co">#&gt;  8 kidney                                             69b67eef-43fd-40ff-8fd3-e…</span></span>
-<span><span class="co">#&gt;  9 blood                                              6a044711-8df7-4f88-bad7-f…</span></span>
-<span><span class="co">#&gt; 10 heart left ventricle                               6a579758-a4b4-4f64-be54-4…</span></span>
+<span><span class="co">#&gt;    tissue                  file_id                             </span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                   &lt;chr&gt;                               </span></span>
+<span><span class="co">#&gt;  1 cortex of kidney        2977b3fa-e4d6-4929-8540-ae12d33a3c53</span></span>
+<span><span class="co">#&gt;  2 entorhinal cortex       29d5d028-6f90-4943-91f7-fa3f93731de8</span></span>
+<span><span class="co">#&gt;  3 middle temporal gyrus   2a689fda-d335-4ac0-81b1-a356fdf939db</span></span>
+<span><span class="co">#&gt;  4 respiratory airway      2c2d5bea-8be7-4227-8a56-f2a85d57fa56</span></span>
+<span><span class="co">#&gt;  5 thymus                  2ec94470-8171-4825-8346-34d77383438b</span></span>
+<span><span class="co">#&gt;  6 ileum                   2f893c30-c91b-487b-b1f8-b386a4ef91a3</span></span>
+<span><span class="co">#&gt;  7 cortex of kidney        2fe625b6-8c85-4818-a9c5-1189303f6e2b</span></span>
+<span><span class="co">#&gt;  8 fimbria of uterine tube 3044b5dd-a499-456e-86d9-94769bc3b63e</span></span>
+<span><span class="co">#&gt;  9 ampulla of uterine tube 3044b5dd-a499-456e-86d9-94769bc3b63e</span></span>
+<span><span class="co">#&gt; 10 temporal cortex         4e4bbb2d-f341-4523-a5a0-5407d8b03e0e</span></span>
 <span><span class="co">#&gt; # … with more rows</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#&gt; # Source:     SQL [?? x 2]</span></span>
@@ -294,7 +294,7 @@
 <div class="section level3">
 <h3 id="extract-the-counts-as-a-seurat-object">Extract the counts as a Seurat object<a class="anchor" aria-label="anchor" href="#extract-the-counts-as-a-seurat-object"></a>
 </h3>
-<p>This convert the H5 SingleCellExperiment to Seurat so it might take long time and occupy a lot of memory dependeing on how many cells you are requesting.</p>
+<p>This convert the H5 SingleCellExperiment to Seurat so it might take long time and occupy a lot of memory depending on how many cells you are requesting.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
 <span>    <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
