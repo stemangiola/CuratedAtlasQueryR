@@ -98,6 +98,30 @@ with this object using most standard dplyr functions. For string matching,
 it is recommended that you use <code><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">stringr::str_like</a></code> to filter character
 columns, as <code><a href="https://stringr.tidyverse.org/reference/str_match.html" class="external-link">stringr::str_match</a></code> will not work.</p>
     </div>
+    <div id="details">
+    <h2>Details</h2>
+    <p>The metadata was collected from the Bioconductor package <code>cellxgenedp</code>. it's vignette <code>using_cellxgenedp</code> provides an overview of the columns in the metadata.
+The data for which the column <code>organism_name</code> included "Homo sapiens" was collected collected from <code>cellxgenedp</code>.</p>
+<p>The columns <code>dataset_id</code> and <code>file_id</code> link the datasets explorable through <code>CuratedAtlasQueryR</code> and <code>cellxgenedp</code>to the CELLxGENE portal.</p>
+<p>Our representation, harmonises the metadata at dataset, sample and cell levels, in a unique coherent database table.</p>
+<p>Dataset-specific columns (definitions available at cellxgene.cziscience.com)
+<code>cell_count</code>, <code>collection_id</code>, <code>created_at.x</code>, <code>created_at.y</code>, <code>dataset_deployments</code>, <code>dataset_id</code>, <code>file_id</code>, <code>filename</code>, <code>filetype</code>, <code>is_primary_data.y</code>, <code>is_valid</code>, <code>linked_genesets</code>, <code>mean_genes_per_cell</code>, <code>name</code>, <code>published</code>, <code>published_at</code>, <code>revised_at</code>, <code>revision</code>, <code>s3_uri</code>, <code>schema_version</code>, <code>tombstone</code>, <code>updated_at.x</code>, <code>updated_at.y</code>, <code>user_submitted</code>, <code>x_normalization</code></p>
+<p>Sample-specific columns (definitions available at cellxgene.cziscience.com)</p>
+<p><code>.sample</code>, <code>.sample_name</code>, <code>age_days</code>, <code>assay</code>, <code>assay_ontology_term_id</code>, <code>development_stage</code>, <code>development_stage_ontology_term_id</code>, <code>ethnicity</code>, <code>ethnicity_ontology_term_id</code>, <code>experiment___</code>, <code>organism</code>, <code>organism_ontology_term_id</code>, <code>sample_placeholder</code>, <code>sex</code>, <code>sex_ontology_term_id</code>, <code>tissue</code>, <code>tissue_harmonised</code>, <code>tissue_ontology_term_id</code>, <code>disease</code>, <code>disease_ontology_term_id</code>, <code>is_primary_data.x</code></p>
+<p>Cell-specific columns (definitions available at cellxgene.cziscience.com)</p>
+<p><code>.cell</code>, <code>cell_type</code>, <code>cell_type_ontology_term_idm</code>, <code>cell_type_harmonised</code>, <code>confidence_class</code>, <code>cell_annotation_azimuth_l2</code>, <code>cell_annotation_blueprint_singler</code></p>
+<p>Through harmonisation and curation we introduced custom column, not present in the original CELLxGENE metadata</p><ul><li><p><code>tissue_harmonised</code>: a coarser tissue name for better filtering</p></li>
+<li><p><code>age_days</code>: the number of days corresponding to the age</p></li>
+<li><p><code>cell_type_harmonised</code>: the consensus call identity (for immune cells) using the original and three novel annotations using Seurat Azimuth and SingleR</p></li>
+<li><p><code>confidence_class</code>: an ordinal class of how confident <code>cell_type_harmonised</code> is. 1 is complete consensus, 2 is 3 out of four and so on.</p></li>
+<li><p><code>cell_annotation_azimuth_l2</code>: Azimuth cell annotation</p></li>
+<li><p><code>cell_annotation_blueprint_singler</code>: SingleR cell annotation using Blueprint reference</p></li>
+<li><p><code>cell_annotation_blueprint_monaco</code>: SingleR cell annotation using Monaco reference</p></li>
+<li><p><code>sample_id_db</code>: Sample subdivision for internal use</p></li>
+<li><p><code>file_id_db</code>: File subdivision for internal use</p></li>
+<li><p><code>.sample</code>: Sample ID</p></li>
+<li><p><code>.sample_name</code>: How samples were defined</p></li>
+</ul></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
