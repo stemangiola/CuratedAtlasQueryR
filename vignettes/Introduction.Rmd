@@ -197,7 +197,7 @@ get_metadata() |>
   theme_bw() +
   theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1)) + 
   xlab("Disease") + 
-  ggtitle("HLA-A in CD14 monocytes. Coloured by dataset") 
+  ggtitle("HLA-A in CD14 monocytes by disease") 
 
 # Plot by tissue
 get_metadata() |>
@@ -224,8 +224,8 @@ get_metadata() |>
   scale_y_log10() +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1)) + 
-  xlab("Disease") + 
-  ggtitle("HLA-A in CD14 monocytes. Coloured by dataset") 
+  xlab("Tissue") + 
+  ggtitle("HLA-A in CD14 monocytes by tissue") 
 
 ```
 
