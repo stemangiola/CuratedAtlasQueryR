@@ -28,11 +28,11 @@ knitr::include_graphics(c("../man/figures/logo.png"))
 
 ```{r, echo=FALSE, out.height = c("58px"), out.width = c("155x", "129px", "202px", "219px", "180px")}
 knitr::include_graphics(c(
-  "man/figures/svcf_logo.jpeg", 
-  "man/figures/czi_logo.png", 
-  "man/figures/bioconductor_logo.jpg",
-    "man/figures/vca_logo.png",
-  "man/figures/nectar_logo.png"
+  "../man/figures/svcf_logo.jpeg", 
+  "../man/figures/czi_logo.png", 
+  "../man/figures/bioconductor_logo.jpg",
+    "../man/figures/vca_logo.png",
+  "../man/figures/nectar_logo.png"
 ))
 ```
 
@@ -247,7 +247,7 @@ get_metadata() |>
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("man/figures/HLA_A_disease_plot.png")
+knitr::include_graphics("../man/figures/HLA_A_disease_plot.png")
 ```
 
 ```{r, eval=FALSE}
@@ -268,7 +268,7 @@ get_metadata() |>
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("man/figures/HLA_A_tissue_plot.png")
+knitr::include_graphics("../man/figures/HLA_A_tissue_plot.png")
 ```
 
 # Cell metadata
