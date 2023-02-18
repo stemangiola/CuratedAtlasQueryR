@@ -371,7 +371,7 @@ get_seurat <- function(...) {
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info
 #' 
-#' @description 
+#' @details 
 #' 
 #' The metadata was collected from the Bioconductor package `cellxgenedp`. it's vignette `using_cellxgenedp` provides an overview of the columns in the metadata.
 #' The data for which the column `organism_name` included "Homo sapiens" was collected collected from `cellxgenedp`.
