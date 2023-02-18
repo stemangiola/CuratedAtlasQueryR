@@ -39,67 +39,49 @@ library(stringr)
 
 ``` r
 get_metadata()
-#> # Source:   table</stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.parquet> [?? x 56]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    .cell   sampl…¹ .sample .samp…² assay assay…³ file_…⁴ cell_…⁵ cell_…⁶ devel…⁷
-#>    <chr>   <chr>   <chr>   <chr>   <chr> <chr>   <chr>   <chr>   <chr>   <chr>  
-#>  1 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  2 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  3 AAACCT… 02eb2e… 5f20d7… D17PrP… 10x … EFO:00… 30f754… lumina… CL:000… 31-yea…
-#>  4 AAACCT… 02eb2e… 5f20d7… D17PrP… 10x … EFO:00… 30f754… lumina… CL:000… 31-yea…
-#>  5 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  6 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  7 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  8 AAACGG… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  9 AAACGG… 02eb2e… 5f20d7… D17PrP… 10x … EFO:00… 30f754… lumina… CL:000… 31-yea…
-#> 10 AAACGG… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#> # … with more rows, 46 more variables:
+#> # Source:   table</stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.0.2.2.parquet> [?? x 56]
+#> # Database: DuckDB 0.7.0 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
+#>    `_cell`       _samp…¹ cell_…² cell_…³ confi…⁴ cell_…⁵ cell_…⁶ cell_…⁷ sampl…⁸
+#>    <chr>         <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>  
+#>  1 AAACCTGAGAGA… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  2 AAACCTGAGTTG… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  3 AAACCTGCAGTC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938…
+#>  4 AAACCTGCAGTT… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938…
+#>  5 AAACCTGGTCTA… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  6 AAACCTGTCGTA… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  7 AAACCTGTCTTG… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  8 AAACGGGAGTAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  9 AAACGGGAGTAG… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938…
+#> 10 AAACGGGAGTGG… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#> # … with more rows, 47 more variables: `_sample_name` <chr>, assay <chr>,
+#> #   assay_ontology_term_id <chr>, file_id_db <chr>,
+#> #   cell_type_ontology_term_id <chr>, development_stage <chr>,
 #> #   development_stage_ontology_term_id <chr>, disease <chr>,
 #> #   disease_ontology_term_id <chr>, ethnicity <chr>,
-#> #   ethnicity_ontology_term_id <chr>, file_id <chr>, is_primary_data.x <chr>,
-#> #   organism <chr>, organism_ontology_term_id <chr>, sample_placeholder <chr>,
-#> #   sex <chr>, sex_ontology_term_id <chr>, tissue <chr>,
-#> #   tissue_ontology_term_id <chr>, tissue_harmonised <chr>, age_days <dbl>, …
+#> #   ethnicity_ontology_term_id <chr>, experiment___ <chr>, file_id <chr>,
+#> #   is_primary_data_x <chr>, organism <chr>, organism_ontology_term_id <chr>, …
 ```
 
-### Explore the tissue
+### Explore the number of datasets per tissue
 
 ``` r
 get_metadata() |>
-    dplyr::distinct(tissue, file_id) 
+  dplyr::distinct(tissue, dataset_id) |> 
+  dplyr::count(tissue)
 #> # Source:   SQL [?? x 2]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    tissue                  file_id                             
-#>    <chr>                   <chr>                               
-#>  1 blood                   07beec85-51be-4d73-bb80-8f85b7b643d5
-#>  2 lymph node              39b6cc45-8c5c-4f7b-944c-58f66da5efb1
-#>  3 middle temporal gyrus   39bbfb98-79d8-41a3-89f4-d82fde8eade1
-#>  4 middle temporal gyrus   3ac0ac73-ef77-416c-8e04-27d083bb7cd9
-#>  5 liver                   3ae36927-c188-4511-88cc-572ee1edf906
-#>  6 cerebellum              5c1cc788-2645-45fb-b1d9-2f43d368bba8
-#>  7 interventricular septum 967fda08-9a6d-4ad7-aeac-ec9dd3bd8cfa
-#>  8 apex of heart           967fda08-9a6d-4ad7-aeac-ec9dd3bd8cfa
-#>  9 left cardiac atrium     967fda08-9a6d-4ad7-aeac-ec9dd3bd8cfa
-#> 10 heart left ventricle    967fda08-9a6d-4ad7-aeac-ec9dd3bd8cfa
-#> # … with more rows
-```
-
-``` r
-#> # Source:     SQL [?? x 2]
-#> # Database:   sqlite 3.40.0 [public_access@zki3lfhznsa.db.cloud.edu.au:5432/metadata]
-#> # Ordered by: desc(n)
-#>    tissue                      n
-#>    <chr>                 <int64>
-#>  1 blood                      47
-#>  2 heart left ventricle       46
-#>  3 cortex of kidney           31
-#>  4 renal medulla              29
-#>  5 lung                       27
-#>  6 liver                      24
-#>  7 middle temporal gyrus      24
-#>  8 kidney                     19
-#>  9 intestine                  18
-#> 10 thymus                     17
+#> # Database: DuckDB 0.7.0 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
+#>    tissue                          n
+#>    <chr>                       <dbl>
+#>  1 peripheral zone of prostate    10
+#>  2 transition zone of prostate    10
+#>  3 blood                          47
+#>  4 intestine                      18
+#>  5 middle temporal gyrus          24
+#>  6 heart left ventricle           46
+#>  7 apex of heart                  16
+#>  8 heart right ventricle          16
+#>  9 left cardiac atrium             7
+#> 10 interventricular septum        16
 #> # … with more rows
 ```
 
@@ -125,15 +107,14 @@ single_cell_counts =
 
 single_cell_counts
 #> class: SingleCellExperiment 
-#> dim: 60661 1571 
+#> dim: 35615 1571 
 #> metadata(0):
 #> assays(2): counts cpm
-#> rownames(60661): TSPAN6 TNMD ... RP11-175I6.6 PRSS43P
+#> rownames(35615): TSPAN6 TNMD ... LNCDAT HRURF
 #> rowData names(0):
 #> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
 #>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
-#> colData names(56): sample_id_db .sample ... n_tissue_in_cell_type
-#>   original_cell_id
+#> colData names(56): _sample cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
 #> altExpNames(0):
@@ -161,15 +142,14 @@ single_cell_counts =
 
 single_cell_counts
 #> class: SingleCellExperiment 
-#> dim: 60661 1571 
+#> dim: 35615 1571 
 #> metadata(0):
 #> assays(1): cpm
-#> rownames(60661): TSPAN6 TNMD ... RP11-175I6.6 PRSS43P
+#> rownames(35615): TSPAN6 TNMD ... LNCDAT HRURF
 #> rowData names(0):
 #> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
 #>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
-#> colData names(56): sample_id_db .sample ... n_tissue_in_cell_type
-#>   original_cell_id
+#> colData names(56): _sample cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
 #> altExpNames(0):
@@ -201,8 +181,7 @@ single_cell_counts
 #> rowData names(0):
 #> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
 #>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
-#> colData names(56): sample_id_db .sample ... n_tissue_in_cell_type
-#>   original_cell_id
+#> colData names(56): _sample cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
 #> altExpNames(0):
@@ -228,13 +207,13 @@ single_cell_counts =
 #> ℹ Synchronising files
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
-#> Warning: Feature names cannot have underscores ('_'), replacing with dashes
-#> ('-')
+#> Warning: Non-unique features (rownames) present in the input matrix, making
+#> unique
 
 single_cell_counts
 #> An object of class Seurat 
-#> 60661 features across 1571 samples within 1 assay 
-#> Active assay: originalexp (60661 features, 0 variable features)
+#> 35615 features across 1571 samples within 1 assay 
+#> Active assay: originalexp (35615 features, 0 variable features)
 ```
 
 ## Visualise gene transcription
@@ -246,28 +225,38 @@ We can gather all natural killer cells and plot the distribution of CD56
 library(tidySingleCellExperiment)
 library(ggplot2)
 
+get_metadata() |>
+  # Filter and subset
+  filter(cell_type_harmonised=="cd14 mono") |>
+
+  # Get counts per million for NCAM1 gene
+  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  
+  # Plot
+  join_features("HLA-A", shape = "wide") |> 
+  ggplot(aes( disease, `HLA.A`,color = file_id)) +
+  geom_jitter(shape=".") 
+```
+
+<img src="man/figures/HLA_A_disease_plot.png" width="497" />
+
+``` r
+
 get_metadata() |> 
     
   # Filter and subset
   filter(cell_type_harmonised=="nk") |> 
-  select(.cell, file_id_db, dataset_id, tissue_harmonised) |> 
-  
+
   # Get counts per million for NCAM1 gene 
   get_SingleCellExperiment(assays = "cpm", features = "NCAM1") |> 
 
     # Plot
   join_features("NCAM1", shape = "wide") |> 
   ggplot(aes( tissue_harmonised, NCAM1,color = file_id)) +
-  geom_jitter(shape=".") +
-    
-    # Style
-  guides(color="none") +
-  scale_y_log10() +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1))
+  geom_jitter(shape=".") 
 ```
 
-<img src="man/figures/NCAM1_figure.png" width="629" />
+<img src="man/figures/HLA_A_tissue_plot.png" width="499" />
 
 # Cell metadata
 
