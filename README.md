@@ -39,27 +39,27 @@ library(stringr)
 
 ``` r
 get_metadata()
-#> # Source:   table</stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.parquet> [?? x 56]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    .cell   sampl…¹ .sample .samp…² assay assay…³ file_…⁴ cell_…⁵ cell_…⁶ devel…⁷
-#>    <chr>   <chr>   <chr>   <chr>   <chr> <chr>   <chr>   <chr>   <chr>   <chr>  
-#>  1 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  2 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  3 AAACCT… 02eb2e… 5f20d7… D17PrP… 10x … EFO:00… 30f754… lumina… CL:000… 31-yea…
-#>  4 AAACCT… 02eb2e… 5f20d7… D17PrP… 10x … EFO:00… 30f754… lumina… CL:000… 31-yea…
-#>  5 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  6 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  7 AAACCT… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  8 AAACGG… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#>  9 AAACGG… 02eb2e… 5f20d7… D17PrP… 10x … EFO:00… 30f754… lumina… CL:000… 31-yea…
-#> 10 AAACGG… 8a0fe0… 5f20d7… D17PrP… 10x … EFO:00… 1e334b… basal … CL:000… 31-yea…
-#> # … with more rows, 46 more variables:
+#> # Source:   table</stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.0.2.2.parquet> [?? x 56]
+#> # Database: DuckDB 0.7.0 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
+#>    `_cell`       _samp…¹ cell_…² cell_…³ confi…⁴ cell_…⁵ cell_…⁶ cell_…⁷ sampl…⁸
+#>    <chr>         <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>  
+#>  1 AAACCTGAGAGA… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  2 AAACCTGAGTTG… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  3 AAACCTGCAGTC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938…
+#>  4 AAACCTGCAGTT… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938…
+#>  5 AAACCTGGTCTA… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  6 AAACCTGTCGTA… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  7 AAACCTGTCTTG… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  8 AAACGGGAGTAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#>  9 AAACGGGAGTAG… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938…
+#> 10 AAACGGGAGTGG… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
+#> # … with more rows, 47 more variables: `_sample_name` <chr>, assay <chr>,
+#> #   assay_ontology_term_id <chr>, file_id_db <chr>,
+#> #   cell_type_ontology_term_id <chr>, development_stage <chr>,
 #> #   development_stage_ontology_term_id <chr>, disease <chr>,
 #> #   disease_ontology_term_id <chr>, ethnicity <chr>,
-#> #   ethnicity_ontology_term_id <chr>, file_id <chr>, is_primary_data.x <chr>,
-#> #   organism <chr>, organism_ontology_term_id <chr>, sample_placeholder <chr>,
-#> #   sex <chr>, sex_ontology_term_id <chr>, tissue <chr>,
-#> #   tissue_ontology_term_id <chr>, tissue_harmonised <chr>, age_days <dbl>, …
+#> #   ethnicity_ontology_term_id <chr>, experiment___ <chr>, file_id <chr>,
+#> #   is_primary_data_x <chr>, organism <chr>, organism_ontology_term_id <chr>, …
 ```
 
 ### Explore the tissue
@@ -68,19 +68,19 @@ get_metadata()
 get_metadata() |>
     dplyr::distinct(tissue, file_id) 
 #> # Source:   SQL [?? x 2]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    tissue                  file_id                             
-#>    <chr>                   <chr>                               
-#>  1 cortex of kidney        2977b3fa-e4d6-4929-8540-ae12d33a3c53
-#>  2 entorhinal cortex       29d5d028-6f90-4943-91f7-fa3f93731de8
-#>  3 middle temporal gyrus   2a689fda-d335-4ac0-81b1-a356fdf939db
-#>  4 respiratory airway      2c2d5bea-8be7-4227-8a56-f2a85d57fa56
-#>  5 thymus                  2ec94470-8171-4825-8346-34d77383438b
-#>  6 ileum                   2f893c30-c91b-487b-b1f8-b386a4ef91a3
-#>  7 cortex of kidney        2fe625b6-8c85-4818-a9c5-1189303f6e2b
-#>  8 fimbria of uterine tube 3044b5dd-a499-456e-86d9-94769bc3b63e
-#>  9 ampulla of uterine tube 3044b5dd-a499-456e-86d9-94769bc3b63e
-#> 10 temporal cortex         4e4bbb2d-f341-4523-a5a0-5407d8b03e0e
+#> # Database: DuckDB 0.7.0 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
+#>    tissue           file_id                             
+#>    <chr>            <chr>                               
+#>  1 renal medulla    52cb5191-2976-4077-ba88-47c76692bef0
+#>  2 pancreas         53329245-06f3-45a4-bf15-ed61f628ff83
+#>  3 blood            5500774a-6ebe-4ddf-adce-90302b7cd007
+#>  4 blood            550760cb-ede9-4e6b-b6ab-7152f2ce29e1
+#>  5 intestine        556bb449-bbef-43d3-9487-87031fc0decb
+#>  6 lung             56e0359f-ee8d-4ba5-a51d-159a183643e5
+#>  7 adrenal gland    56e0359f-ee8d-4ba5-a51d-159a183643e5
+#>  8 pleural effusion 56e0359f-ee8d-4ba5-a51d-159a183643e5
+#>  9 liver            56e0359f-ee8d-4ba5-a51d-159a183643e5
+#> 10 lymph node       56e0359f-ee8d-4ba5-a51d-159a183643e5
 #> # … with more rows
 ```
 
@@ -125,15 +125,14 @@ single_cell_counts =
 
 single_cell_counts
 #> class: SingleCellExperiment 
-#> dim: 60661 1571 
+#> dim: 35615 1571 
 #> metadata(0):
 #> assays(2): counts cpm
-#> rownames(60661): TSPAN6 TNMD ... RP11-175I6.6 PRSS43P
+#> rownames(35615): TSPAN6 TNMD ... LNCDAT HRURF
 #> rowData names(0):
 #> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
 #>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
-#> colData names(56): sample_id_db .sample ... n_tissue_in_cell_type
-#>   original_cell_id
+#> colData names(56): _sample cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
 #> altExpNames(0):
@@ -161,15 +160,14 @@ single_cell_counts =
 
 single_cell_counts
 #> class: SingleCellExperiment 
-#> dim: 60661 1571 
+#> dim: 35615 1571 
 #> metadata(0):
 #> assays(1): cpm
-#> rownames(60661): TSPAN6 TNMD ... RP11-175I6.6 PRSS43P
+#> rownames(35615): TSPAN6 TNMD ... LNCDAT HRURF
 #> rowData names(0):
 #> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
 #>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
-#> colData names(56): sample_id_db .sample ... n_tissue_in_cell_type
-#>   original_cell_id
+#> colData names(56): _sample cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
 #> altExpNames(0):
@@ -201,8 +199,7 @@ single_cell_counts
 #> rowData names(0):
 #> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
 #>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
-#> colData names(56): sample_id_db .sample ... n_tissue_in_cell_type
-#>   original_cell_id
+#> colData names(56): _sample cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
 #> altExpNames(0):
@@ -228,13 +225,13 @@ single_cell_counts =
 #> ℹ Synchronising files
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
-#> Warning: Feature names cannot have underscores ('_'), replacing with dashes
-#> ('-')
+#> Warning: Non-unique features (rownames) present in the input matrix, making
+#> unique
 
 single_cell_counts
 #> An object of class Seurat 
-#> 60661 features across 1571 samples within 1 assay 
-#> Active assay: originalexp (60661 features, 0 variable features)
+#> 35615 features across 1571 samples within 1 assay 
+#> Active assay: originalexp (35615 features, 0 variable features)
 ```
 
 ## Visualise gene transcription
@@ -250,7 +247,7 @@ get_metadata() |>
     
   # Filter and subset
   filter(cell_type_harmonised=="nk") |> 
-  select(.cell, file_id_db, disease, file_id, tissue_harmonised) |> 
+  select(cell_, file_id_db, disease, file_id, tissue_harmonised) |> 
   
   # Get counts per million for NCAM1 gene 
   get_SingleCellExperiment(assays = "cpm", features = "NCAM1") |> 
@@ -286,9 +283,8 @@ cellxgene.cziscience.com)
 Sample-specific columns (definitions available at
 cellxgene.cziscience.com)
 
-`.sample`, `.sample_name`, `age_days`, `assay`,
-`assay_ontology_term_id`, `development_stage`,
-`development_stage_ontology_term_id`, `ethnicity`,
+`sample_`, `sample_name`, `age_days`, `assay`, `assay_ontology_term_id`,
+`development_stage`, `development_stage_ontology_term_id`, `ethnicity`,
 `ethnicity_ontology_term_id`, `experiment___`, `organism`,
 `organism_ontology_term_id`, `sample_placeholder`, `sex`,
 `sex_ontology_term_id`, `tissue`, `tissue_harmonised`,
@@ -298,7 +294,7 @@ cellxgene.cziscience.com)
 Cell-specific columns (definitions available at
 cellxgene.cziscience.com)
 
-`.cell`, `cell_type`, `cell_type_ontology_term_idm`,
+`cell_`, `cell_type`, `cell_type_ontology_term_idm`,
 `cell_type_harmonised`, `confidence_class`,
 `cell_annotation_azimuth_l2`, `cell_annotation_blueprint_singler`
 
@@ -320,8 +316,8 @@ present in the original CELLxGENE metadata
   Monaco reference
 - `sample_id_db`: Sample subdivision for internal use
 - `file_id_db`: File subdivision for internal use
-- `.sample`: Sample ID
-- `.sample_name`: How samples were defined
+- `sample_`: Sample ID
+- `sample_name`: How samples were defined
 
 # RNA abundance
 
