@@ -177,13 +177,13 @@ group_to_sce <- function(i, df, dir_prefix, features) {
     sce <- loadHDF5SummarizedExperiment(sce_path)
     # The cells we select here are those that are both available in the SCE
     # object, and requested for this particular file
-    cells <- colnames(sce) |> intersect(df$`cell_`)
+    cells <- colnames(sce) |> intersect(df$cell_)
     # We need to make the cell names globally unique, which we can guarantee
     # by adding a suffix that is derived from file_id_db, which is the grouping
     # variable
     new_cellnames <- paste0(cells, "_", i)
     new_coldata <- df |>
-        mutate(original_cell_id = .data$`cell_`, `cell_` = new_cellnames) |>
+        mutate(original_cell_id = .data$cell_, cell_ = new_cellnames) |>
         column_to_rownames("cell_") |>
         as("DataFrame")
 
