@@ -45,7 +45,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">CuratedAtlasQueryR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.1</span>
       </span>
     </div>
 
@@ -168,6 +168,7 @@
 <span><span class="co">#&gt;  8 heart right ventricle          16</span></span>
 <span><span class="co">#&gt;  9 left cardiac atrium             7</span></span>
 <span><span class="co">#&gt; 10 interventricular septum        16</span></span>
+<span></span>
 <span><span class="co">#&gt; # … with more rows</span></span></code></pre></div>
 </div>
 </div>
@@ -342,9 +343,9 @@
 <p>Dataset-specific columns (definitions available at cellxgene.cziscience.com)</p>
 <p><code>cell_count</code>, <code>collection_id</code>, <code>created_at.x</code>, <code>created_at.y</code>, <code>dataset_deployments</code>, <code>dataset_id</code>, <code>file_id</code>, <code>filename</code>, <code>filetype</code>, <code>is_primary_data.y</code>, <code>is_valid</code>, <code>linked_genesets</code>, <code>mean_genes_per_cell</code>, <code>name</code>, <code>published</code>, <code>published_at</code>, <code>revised_at</code>, <code>revision</code>, <code>s3_uri</code>, <code>schema_version</code>, <code>tombstone</code>, <code>updated_at.x</code>, <code>updated_at.y</code>, <code>user_submitted</code>, <code>x_normalization</code></p>
 <p>Sample-specific columns (definitions available at cellxgene.cziscience.com)</p>
-<p><code>.sample</code>, <code>.sample_name</code>, <code>age_days</code>, <code>assay</code>, <code>assay_ontology_term_id</code>, <code>development_stage</code>, <code>development_stage_ontology_term_id</code>, <code>ethnicity</code>, <code>ethnicity_ontology_term_id</code>, <code>experiment___</code>, <code>organism</code>, <code>organism_ontology_term_id</code>, <code>sample_placeholder</code>, <code>sex</code>, <code>sex_ontology_term_id</code>, <code>tissue</code>, <code>tissue_harmonised</code>, <code>tissue_ontology_term_id</code>, <code>disease</code>, <code>disease_ontology_term_id</code>, <code>is_primary_data.x</code></p>
+<p><code>sample_</code>, <code>sample_name</code>, <code>age_days</code>, <code>assay</code>, <code>assay_ontology_term_id</code>, <code>development_stage</code>, <code>development_stage_ontology_term_id</code>, <code>ethnicity</code>, <code>ethnicity_ontology_term_id</code>, <code>experiment___</code>, <code>organism</code>, <code>organism_ontology_term_id</code>, <code>sample_placeholder</code>, <code>sex</code>, <code>sex_ontology_term_id</code>, <code>tissue</code>, <code>tissue_harmonised</code>, <code>tissue_ontology_term_id</code>, <code>disease</code>, <code>disease_ontology_term_id</code>, <code>is_primary_data.x</code></p>
 <p>Cell-specific columns (definitions available at cellxgene.cziscience.com)</p>
-<p><code>.cell</code>, <code>cell_type</code>, <code>cell_type_ontology_term_idm</code>, <code>cell_type_harmonised</code>, <code>confidence_class</code>, <code>cell_annotation_azimuth_l2</code>, <code>cell_annotation_blueprint_singler</code></p>
+<p><code>cell_</code>, <code>cell_type</code>, <code>cell_type_ontology_term_idm</code>, <code>cell_type_harmonised</code>, <code>confidence_class</code>, <code>cell_annotation_azimuth_l2</code>, <code>cell_annotation_blueprint_singler</code></p>
 <p>Through harmonisation and curation we introduced custom column, not present in the original CELLxGENE metadata</p>
 <ul>
 <li>
@@ -367,9 +368,9 @@
 <li>
 <code>file_id_db</code>: File subdivision for internal use</li>
 <li>
-<code>.sample</code>: Sample ID</li>
+<code>sample_</code>: Sample ID</li>
 <li>
-<code>.sample_name</code>: How samples were defined</li>
+<code>sample_name</code>: How samples were defined</li>
 </ul>
 </div>
 <div class="section level1">

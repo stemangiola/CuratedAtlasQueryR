@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CuratedAtlasQueryR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.1</span>
       </span>
     </div>
 
@@ -188,7 +188,7 @@ queries.</p>
 <span><span class="co">#&gt; rowData names(0):</span></span>
 <span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
 <span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
-<span><span class="co">#&gt; colData names(56): _sample cell_type ... updated_at_y original_cell_id</span></span>
+<span><span class="co">#&gt; colData names(56): sample_ cell_type ... updated_at_y original_cell_id</span></span>
 <span><span class="co">#&gt; reducedDimNames(0):</span></span>
 <span><span class="co">#&gt; mainExpName: NULL</span></span>
 <span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
@@ -222,7 +222,7 @@ compared across samples.</p>
 <span><span class="co">#&gt; rowData names(0):</span></span>
 <span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
 <span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
-<span><span class="co">#&gt; colData names(56): _sample cell_type ... updated_at_y original_cell_id</span></span>
+<span><span class="co">#&gt; colData names(56): sample_ cell_type ... updated_at_y original_cell_id</span></span>
 <span><span class="co">#&gt; reducedDimNames(0):</span></span>
 <span><span class="co">#&gt; mainExpName: NULL</span></span>
 <span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
@@ -254,7 +254,7 @@ compared across samples.</p>
 <span><span class="co">#&gt; rowData names(0):</span></span>
 <span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
 <span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
-<span><span class="co">#&gt; colData names(56): _sample cell_type ... updated_at_y original_cell_id</span></span>
+<span><span class="co">#&gt; colData names(56): sample_ cell_type ... updated_at_y original_cell_id</span></span>
 <span><span class="co">#&gt; reducedDimNames(0):</span></span>
 <span><span class="co">#&gt; mainExpName: NULL</span></span>
 <span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
@@ -344,7 +344,7 @@ cellxgene.cziscience.com)</p>
 <code>user_submitted</code>, <code>x_normalization</code></p>
 <p>Sample-specific columns (definitions available at
 cellxgene.cziscience.com)</p>
-<p><code>.sample</code>, <code>.sample_name</code>,
+<p><code>sample_</code>, <code>sample_name</code>,
 <code>age_days</code>, <code>assay</code>,
 <code>assay_ontology_term_id</code>, <code>development_stage</code>,
 <code>development_stage_ontology_term_id</code>, <code>ethnicity</code>,
@@ -357,7 +357,7 @@ cellxgene.cziscience.com)</p>
 <code>is_primary_data.x</code></p>
 <p>Cell-specific columns (definitions available at
 cellxgene.cziscience.com)</p>
-<p><code>.cell</code>, <code>cell_type</code>,
+<p><code>cell_</code>, <code>cell_type</code>,
 <code>cell_type_ontology_term_idm</code>,
 <code>cell_type_harmonised</code>, <code>confidence_class</code>,
 <code>cell_annotation_azimuth_l2</code>,
@@ -394,7 +394,7 @@ annotation using Monaco reference</li>
 <li>
 <code>file_id_db</code>: File subdivision for internal use</li>
 <li>
-<code>.sample</code>: Sample ID</li>
+<code>sample_</code>: Sample ID</li>
 <li>
 <code>.sample_name</code>: How samples were defined</li>
 </ul>
