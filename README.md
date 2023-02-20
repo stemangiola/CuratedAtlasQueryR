@@ -13,7 +13,7 @@ sample, or dataset levels based on filtering criteria.
 
 <img src="man/figures/logo.png" width="120x" height="139px" />
 
-<img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" />
+<img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" /><img src="man/figures/nectar_logo.png" width="180px" height="58px" />
 
 [website](https://stemangiola.github.io/CuratedAtlasQueryR)
 
@@ -62,44 +62,27 @@ get_metadata()
 #> #   is_primary_data_x <chr>, organism <chr>, organism_ontology_term_id <chr>, …
 ```
 
-### Explore the tissue
+### Explore the number of datasets per tissue
 
 ``` r
 get_metadata() |>
-    dplyr::distinct(tissue, file_id) 
+  dplyr::distinct(tissue, dataset_id) |> 
+  dplyr::count(tissue)
 #> # Source:   SQL [?? x 2]
 #> # Database: DuckDB 0.7.0 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    tissue           file_id                             
-#>    <chr>            <chr>                               
-#>  1 renal medulla    52cb5191-2976-4077-ba88-47c76692bef0
-#>  2 pancreas         53329245-06f3-45a4-bf15-ed61f628ff83
-#>  3 blood            5500774a-6ebe-4ddf-adce-90302b7cd007
-#>  4 blood            550760cb-ede9-4e6b-b6ab-7152f2ce29e1
-#>  5 intestine        556bb449-bbef-43d3-9487-87031fc0decb
-#>  6 lung             56e0359f-ee8d-4ba5-a51d-159a183643e5
-#>  7 adrenal gland    56e0359f-ee8d-4ba5-a51d-159a183643e5
-#>  8 pleural effusion 56e0359f-ee8d-4ba5-a51d-159a183643e5
-#>  9 liver            56e0359f-ee8d-4ba5-a51d-159a183643e5
-#> 10 lymph node       56e0359f-ee8d-4ba5-a51d-159a183643e5
-#> # … with more rows
-```
+#>    tissue                          n
+#>    <chr>                       <dbl>
+#>  1 peripheral zone of prostate    10
+#>  2 transition zone of prostate    10
+#>  3 blood                          47
+#>  4 intestine                      18
+#>  5 middle temporal gyrus          24
+#>  6 heart left ventricle           46
+#>  7 apex of heart                  16
+#>  8 heart right ventricle          16
+#>  9 left cardiac atrium             7
+#> 10 interventricular septum        16
 
-``` r
-#> # Source:     SQL [?? x 2]
-#> # Database:   sqlite 3.40.0 [public_access@zki3lfhznsa.db.cloud.edu.au:5432/metadata]
-#> # Ordered by: desc(n)
-#>    tissue                      n
-#>    <chr>                 <int64>
-#>  1 blood                      47
-#>  2 heart left ventricle       46
-#>  3 cortex of kidney           31
-#>  4 renal medulla              29
-#>  5 lung                       27
-#>  6 liver                      24
-#>  7 middle temporal gyrus      24
-#>  8 kidney                     19
-#>  9 intestine                  18
-#> 10 thymus                     17
 #> # … with more rows
 ```
 
@@ -243,30 +226,38 @@ We can gather all natural killer cells and plot the distribution of CD56
 library(tidySingleCellExperiment)
 library(ggplot2)
 
+get_metadata() |>
+  # Filter and subset
+  filter(cell_type_harmonised=="cd14 mono") |>
+
+  # Get counts per million for NCAM1 gene
+  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  
+  # Plot
+  join_features("HLA-A", shape = "wide") |> 
+  ggplot(aes( disease, `HLA.A`,color = file_id)) +
+  geom_jitter(shape=".") 
+```
+
+<img src="man/figures/HLA_A_disease_plot.png" width="497" />
+
+``` r
+
 get_metadata() |> 
     
   # Filter and subset
   filter(cell_type_harmonised=="nk") |> 
-  select(cell_, file_id_db, disease, file_id, tissue_harmonised) |> 
-  
+
   # Get counts per million for NCAM1 gene 
   get_SingleCellExperiment(assays = "cpm", features = "NCAM1") |> 
 
-    # Get transcriptional abundance for plotting with `tidySingleCellExperiment`
-  join_features("NCAM1", shape = "wide") |> 
-    
     # Plot
+  join_features("NCAM1", shape = "wide") |> 
   ggplot(aes( tissue_harmonised, NCAM1,color = file_id)) +
-  geom_jitter(shape=".") +
-    
-    # Style
-  guides(color="none") +
-  scale_y_log10() +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1))
+  geom_jitter(shape=".") 
 ```
 
-<img src="man/figures/NCAM1_figure.png" width="629" />
+<img src="man/figures/HLA_A_tissue_plot.png" width="499" />
 
 # Cell metadata
 
