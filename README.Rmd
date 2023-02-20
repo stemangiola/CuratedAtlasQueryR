@@ -23,12 +23,13 @@ knitr::opts_chunk$set(
 knitr::include_graphics(c("man/figures/logo.png"))
 ```
 
-```{r, echo=FALSE, out.height = c("58px"), out.width = c("155x", "129px", "202px", "219px")}
+```{r, echo=FALSE, out.height = c("58px"), out.width = c("155x", "129px", "202px", "219px", "180px")}
 knitr::include_graphics(c(
   "man/figures/svcf_logo.jpeg", 
   "man/figures/czi_logo.png", 
   "man/figures/bioconductor_logo.jpg",
-    "man/figures/vca_logo.png"
+    "man/figures/vca_logo.png",
+  "man/figures/nectar_logo.png"
 ))
 ```
 
@@ -58,31 +59,14 @@ library(stringr)
 get_metadata()
 ```
 
-### Explore the tissue 
+### Explore the number of datasets per tissue
 
 ```{r}
 get_metadata() |>
-    dplyr::distinct(tissue, file_id) 
+  dplyr::distinct(tissue, dataset_id) |> 
+  dplyr::count(tissue)
 ```
 
-```{r}
-#> # Source:     SQL [?? x 2]
-#> # Database:   sqlite 3.40.0 [public_access@zki3lfhznsa.db.cloud.edu.au:5432/metadata]
-#> # Ordered by: desc(n)
-#>    tissue                      n
-#>    <chr>                 <int64>
-#>  1 blood                      47
-#>  2 heart left ventricle       46
-#>  3 cortex of kidney           31
-#>  4 renal medulla              29
-#>  5 lung                       27
-#>  6 liver                      24
-#>  7 middle temporal gyrus      24
-#>  8 kidney                     19
-#>  9 intestine                  18
-#> 10 thymus                     17
-#> # … with more rows
-```
 
 
 ## Download single-cell RNA sequencing counts 
@@ -161,36 +145,110 @@ single_cell_counts
 
 We can gather all natural killer cells and plot the distribution of CD56 (NCAM1) across all tissues
 
+```{r, eval=FALSE, echo=FALSE}
+library(tidySingleCellExperiment)
+library(ggplot2)
+
+# Plots with styling
+
+# Plot by disease
+get_metadata() |>
+  # Filter and subset
+  filter(cell_type_harmonised=="cd14 mono") |>
+  filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
+  
+  # Get counts per million for NCAM1 gene
+  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  
+  # Add feature to table
+  join_features("HLA-A", shape = "wide") |> 
+    
+  # Rank x axis
+  as_tibble() |> 
+  with_groups(disease, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
+  
+  # Plot
+  ggplot(aes( fct_reorder(disease, median_count,.desc = TRUE), `HLA.A`,color = file_id)) +
+  geom_jitter(shape=".") +
+    
+  # Style
+  guides(color="none") +
+  scale_y_log10() +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1)) + 
+  xlab("Disease") + 
+  ggtitle("HLA-A in CD14 monocytes by disease") 
+
+# Plot by tissue
+get_metadata() |>
+  # Filter and subset
+  filter(cell_type_harmonised=="cd14 mono") |>
+  filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
+  
+  # Get counts per million for NCAM1 gene
+  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  
+  # Add feature to table
+  join_features("HLA-A", shape = "wide") |> 
+    
+  # Rank x axis
+  as_tibble() |> 
+  with_groups(tissue_harmonised, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
+  
+  # Plot
+  ggplot(aes( fct_reorder(tissue_harmonised, median_count,.desc = TRUE), `HLA.A`,color = file_id)) +
+  geom_jitter(shape=".") +
+    
+  # Style
+  guides(color="none") +
+  scale_y_log10() +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1)) + 
+  xlab("Tissue") + 
+  ggtitle("HLA-A in CD14 monocytes by tissue") 
+
+```
+
 ```{r, eval=FALSE}
 library(tidySingleCellExperiment)
 library(ggplot2)
+
+get_metadata() |>
+  # Filter and subset
+  filter(cell_type_harmonised=="cd14 mono") |>
+
+  # Get counts per million for NCAM1 gene
+  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  
+  # Plot
+  join_features("HLA-A", shape = "wide") |> 
+  ggplot(aes( disease, `HLA.A`,color = file_id)) +
+  geom_jitter(shape=".") 
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::include_graphics("man/figures/HLA_A_disease_plot.png")
+```
+
+```{r, eval=FALSE}
 
 get_metadata() |> 
     
   # Filter and subset
   filter(cell_type_harmonised=="nk") |> 
-  select(cell_, file_id_db, disease, file_id, tissue_harmonised) |> 
-  
+
   # Get counts per million for NCAM1 gene 
   get_SingleCellExperiment(assays = "cpm", features = "NCAM1") |> 
 
-	# Get transcriptional abundance for plotting with `tidySingleCellExperiment`
-  join_features("NCAM1", shape = "wide") |> 
-	
 	# Plot
+  join_features("NCAM1", shape = "wide") |> 
   ggplot(aes( tissue_harmonised, NCAM1,color = file_id)) +
-  geom_jitter(shape=".") +
-	
-	# Style
-  guides(color="none") +
-  scale_y_log10() +
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1))
+  geom_jitter(shape=".") 
 
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("man/figures/NCAM1_figure.png")
+knitr::include_graphics("man/figures/HLA_A_tissue_plot.png")
 ```
 
 # Cell metadata
