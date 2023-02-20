@@ -83,7 +83,7 @@ get_SingleCellExperiment <- function(
     cli_alert_info("Realising metadata.")
     raw_data <- collect(data)
     inherits(raw_data, "tbl") |> assert_that()
-    has_name(raw_data, c("_cell", "file_id_db")) |> assert_that()
+    has_name(raw_data, c("cell_", "file_id_db")) |> assert_that()
 
     versioned_cache_directory = file.path(cache_directory, COUNTS_VERSION)
     versioned_cache_directory |> dir.create(showWarnings = FALSE, recursive = TRUE)
@@ -177,14 +177,14 @@ group_to_sce <- function(i, df, dir_prefix, features) {
     sce <- loadHDF5SummarizedExperiment(sce_path)
     # The cells we select here are those that are both available in the SCE
     # object, and requested for this particular file
-    cells <- colnames(sce) |> intersect(df$`_cell`)
+    cells <- colnames(sce) |> intersect(df$cell_)
     # We need to make the cell names globally unique, which we can guarantee
     # by adding a suffix that is derived from file_id_db, which is the grouping
     # variable
     new_cellnames <- paste0(cells, "_", i)
     new_coldata <- df |>
-        mutate(original_cell_id = .data$`_cell`, `_cell` = new_cellnames) |>
-        column_to_rownames("_cell") |>
+        mutate(original_cell_id = .data$cell_, cell_ = new_cellnames) |>
+        column_to_rownames("cell_") |>
         as("DataFrame")
 
     features |>
@@ -406,10 +406,10 @@ get_seurat <- function(...) {
 #' - `.sample_name`: How samples were defined
 #' 
 get_metadata <- function(
-    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.2.parquet",
+    remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.3.parquet",
     cache_directory = get_default_cache_dir()
 ) {
-    db_path <- file.path(cache_directory, "metadata.0.2.2.parquet")
+    db_path <- file.path(cache_directory, "metadata.0.2.3.parquet")
     sync_remote_file(
         remote_url,
         db_path,

@@ -82,6 +82,7 @@ get_metadata() |>
 #>  8 heart right ventricle          16
 #>  9 left cardiac atrium             7
 #> 10 interventricular septum        16
+
 #> # … with more rows
 ```
 
@@ -273,9 +274,8 @@ cellxgene.cziscience.com)
 Sample-specific columns (definitions available at
 cellxgene.cziscience.com)
 
-`.sample`, `.sample_name`, `age_days`, `assay`,
-`assay_ontology_term_id`, `development_stage`,
-`development_stage_ontology_term_id`, `ethnicity`,
+`sample_`, `sample_name`, `age_days`, `assay`, `assay_ontology_term_id`,
+`development_stage`, `development_stage_ontology_term_id`, `ethnicity`,
 `ethnicity_ontology_term_id`, `experiment___`, `organism`,
 `organism_ontology_term_id`, `sample_placeholder`, `sex`,
 `sex_ontology_term_id`, `tissue`, `tissue_harmonised`,
@@ -285,7 +285,7 @@ cellxgene.cziscience.com)
 Cell-specific columns (definitions available at
 cellxgene.cziscience.com)
 
-`.cell`, `cell_type`, `cell_type_ontology_term_idm`,
+`cell_`, `cell_type`, `cell_type_ontology_term_idm`,
 `cell_type_harmonised`, `confidence_class`,
 `cell_annotation_azimuth_l2`, `cell_annotation_blueprint_singler`
 
@@ -307,8 +307,8 @@ present in the original CELLxGENE metadata
   Monaco reference
 - `sample_id_db`: Sample subdivision for internal use
 - `file_id_db`: File subdivision for internal use
-- `.sample`: Sample ID
-- `.sample_name`: How samples were defined
+- `sample_`: Sample ID
+- `sample_name`: How samples were defined
 
 # RNA abundance
 
