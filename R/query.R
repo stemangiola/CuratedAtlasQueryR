@@ -374,7 +374,7 @@ get_metadata <- function(
     remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.2.parquet",
     cache_directory = get_default_cache_dir()
 ) {
-    db_path <- file.path(cache_directory, "metadata.0.2.2.parquet")
+    db_path <- file.path(cache_directory, "metadata.0.2.3.parquet")
     sync_remote_file(
         remote_url,
         db_path,
