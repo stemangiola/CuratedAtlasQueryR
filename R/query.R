@@ -129,10 +129,10 @@ get_SingleCellExperiment <- function(
                     dir_prefix,
                     features
                 ))) |>
-                dplyr::pull(sces) #|>
+                dplyr::pull(sces) |>
                 # Combine each sce by column, since each sce has a different set
                 # of cells
-               # do.call(combineCols, args = _)
+                do.call(cbind, args = _)
         })
 
     cli_alert_info("Compiling Single Cell Experiment.")
