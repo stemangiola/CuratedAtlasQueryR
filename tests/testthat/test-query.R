@@ -2,7 +2,7 @@ library(dplyr)
 
 test_that("get_SingleCellExperiment() correctly handles duplicate cell IDs", {
     meta <- get_metadata() |>
-        dplyr::filter(`_cell` == "868417_1") |>
+        dplyr::filter(cell_ == "868417_1") |>
         dplyr::collect()
     sce <- get_SingleCellExperiment(meta)
     # This query should return multiple cells, despite querying only 1 cell ID
@@ -146,7 +146,7 @@ test_that("get_SingleCellExperiment() assigns the right cell ID to each cell", {
         colnames() |>
         tibble::tibble(
             file_id_db = id,
-            `_cell` = _
+            cell_ = _
         ) |>
         arrange(-row_number()) |>
         get_SingleCellExperiment(assays = "counts") |>
