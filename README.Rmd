@@ -56,13 +56,15 @@ library(stringr)
 ### Load the metadata
 
 ```{r}
-get_metadata()
+metadata  = get_metadata()
+
+metadata
 ```
 
 ### Explore the number of datasets per tissue
 
 ```{r}
-get_metadata() |>
+metadata |>
   dplyr::distinct(tissue, dataset_id) |> 
   dplyr::count(tissue)
 ```
@@ -76,7 +78,7 @@ get_metadata() |>
 ```{r}
 
 single_cell_counts = 
-	get_metadata() |>
+	metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -94,7 +96,7 @@ This is helpful if just few genes are of interest, as they can be compared acros
 
 ```{r}
 single_cell_counts = 
-	get_metadata() |>
+	metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -110,7 +112,7 @@ single_cell_counts
 
 ```{r}
 single_cell_counts = 
-	get_metadata() |>
+	metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -129,7 +131,7 @@ This convert the H5 SingleCellExperiment to Seurat so it might take long time an
 
 ```{r}
 single_cell_counts = 
-	get_metadata() |>
+	metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -152,7 +154,7 @@ library(ggplot2)
 # Plots with styling
 
 # Plot by disease
-get_metadata() |>
+metadata |>
   # Filter and subset
   filter(cell_type_harmonised=="cd14 mono") |>
   filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
@@ -180,7 +182,7 @@ get_metadata() |>
   ggtitle("HLA-A in CD14 monocytes by disease") 
 
 # Plot by tissue
-get_metadata() |>
+metadata |>
   # Filter and subset
   filter(cell_type_harmonised=="cd14 mono") |>
   filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
@@ -213,7 +215,7 @@ get_metadata() |>
 library(tidySingleCellExperiment)
 library(ggplot2)
 
-get_metadata() |>
+metadata |>
   # Filter and subset
   filter(cell_type_harmonised=="cd14 mono") |>
 
@@ -232,7 +234,7 @@ knitr::include_graphics("man/figures/HLA_A_disease_plot.png")
 
 ```{r, eval=FALSE}
 
-get_metadata() |> 
+metadata |> 
     
   # Filter and subset
   filter(cell_type_harmonised=="nk") |> 

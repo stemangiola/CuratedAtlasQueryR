@@ -38,7 +38,9 @@ library(stringr)
 ### Load the metadata
 
 ``` r
-get_metadata()
+metadata  = get_metadata()
+
+metadata
 #> # Source:   table</stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.0.2.2.parquet> [?? x 56]
 #> # Database: DuckDB 0.7.0 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
 #>    `_cell`       _samp…¹ cell_…² cell_…³ confi…⁴ cell_…⁵ cell_…⁶ cell_…⁷ sampl…⁸
@@ -65,7 +67,7 @@ get_metadata()
 ### Explore the number of datasets per tissue
 
 ``` r
-get_metadata() |>
+metadata |>
   dplyr::distinct(tissue, dataset_id) |> 
   dplyr::count(tissue)
 #> # Source:   SQL [?? x 2]
@@ -82,7 +84,6 @@ get_metadata() |>
 #>  8 heart right ventricle          16
 #>  9 left cardiac atrium             7
 #> 10 interventricular septum        16
-
 #> # … with more rows
 ```
 
@@ -93,7 +94,7 @@ get_metadata() |>
 ``` r
 
 single_cell_counts = 
-    get_metadata() |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -128,7 +129,7 @@ compared across samples.
 
 ``` r
 single_cell_counts = 
-    get_metadata() |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -160,7 +161,7 @@ single_cell_counts
 
 ``` r
 single_cell_counts = 
-    get_metadata() |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -196,7 +197,7 @@ requesting.
 
 ``` r
 single_cell_counts = 
-    get_metadata() |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -226,7 +227,7 @@ We can gather all natural killer cells and plot the distribution of CD56
 library(tidySingleCellExperiment)
 library(ggplot2)
 
-get_metadata() |>
+metadata |>
   # Filter and subset
   filter(cell_type_harmonised=="cd14 mono") |>
 
@@ -239,11 +240,11 @@ get_metadata() |>
   geom_jitter(shape=".") 
 ```
 
-<img src="man/figures/HLA_A_disease_plot.png" width="497" />
+<img src="man/figures/HLA_A_disease_plot.png" width="525" />
 
 ``` r
 
-get_metadata() |> 
+metadata |> 
     
   # Filter and subset
   filter(cell_type_harmonised=="nk") |> 
@@ -257,7 +258,7 @@ get_metadata() |>
   geom_jitter(shape=".") 
 ```
 
-<img src="man/figures/HLA_A_tissue_plot.png" width="499" />
+<img src="man/figures/HLA_A_tissue_plot.png" width="525" />
 
 # Cell metadata
 
