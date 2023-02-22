@@ -40,7 +40,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CuratedAtlasQueryR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.2</span>
       </span>
     </div>
 
@@ -128,15 +128,15 @@ criteria.</p>
 <h4 id="load-the-metadata">Load the metadata<a class="anchor" aria-label="anchor" href="#load-the-metadata"></a>
 </h4>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">meta</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>The <code>meta</code> variable can then be re-used for all subsequent
-queries.</p>
+<code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>The <code>metadata</code> variable can then be re-used for all
+subsequent queries.</p>
 </div>
 <div class="section level4">
 <h4 id="explore-the-tissue">Explore the tissue<a class="anchor" aria-label="anchor" href="#explore-the-tissue"></a>
 </h4>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">meta</span> <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">tissue</span>, <span class="va">file_id</span><span class="op">)</span> </span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#&gt; # Source:     SQL [?? x 2]</span></span>
@@ -166,7 +166,7 @@ queries.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
-<span>    <span class="va">meta</span> <span class="op">|&gt;</span></span>
+<span>    <span class="va">metadata</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">ethnicity</span> <span class="op">==</span> <span class="st">"African"</span> <span class="op">&amp;</span></span>
 <span>        <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">str_like</a></span><span class="op">(</span><span class="va">assay</span>, <span class="st">"%10x%"</span><span class="op">)</span> <span class="op">&amp;</span></span>
@@ -181,10 +181,10 @@ queries.</p>
 <span></span>
 <span><span class="va">single_cell_counts</span></span>
 <span><span class="co">#&gt; class: SingleCellExperiment </span></span>
-<span><span class="co">#&gt; dim: 35615 1571 </span></span>
+<span><span class="co">#&gt; dim: 36229 1571 </span></span>
 <span><span class="co">#&gt; metadata(0):</span></span>
 <span><span class="co">#&gt; assays(2): counts cpm</span></span>
-<span><span class="co">#&gt; rownames(35615): TSPAN6 TNMD ... LNCDAT HRURF</span></span>
+<span><span class="co">#&gt; rownames(36229): A1BG A1BG-AS1 ... ZZEF1 ZZZ3</span></span>
 <span><span class="co">#&gt; rowData names(0):</span></span>
 <span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
 <span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
@@ -200,7 +200,7 @@ queries.</p>
 compared across samples.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
-<span>    <span class="va">meta</span> <span class="op">|&gt;</span></span>
+<span>    <span class="va">metadata</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">ethnicity</span> <span class="op">==</span> <span class="st">"African"</span> <span class="op">&amp;</span></span>
 <span>        <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">str_like</a></span><span class="op">(</span><span class="va">assay</span>, <span class="st">"%10x%"</span><span class="op">)</span> <span class="op">&amp;</span></span>
@@ -215,10 +215,10 @@ compared across samples.</p>
 <span></span>
 <span><span class="va">single_cell_counts</span></span>
 <span><span class="co">#&gt; class: SingleCellExperiment </span></span>
-<span><span class="co">#&gt; dim: 35615 1571 </span></span>
+<span><span class="co">#&gt; dim: 36229 1571 </span></span>
 <span><span class="co">#&gt; metadata(0):</span></span>
 <span><span class="co">#&gt; assays(1): cpm</span></span>
-<span><span class="co">#&gt; rownames(35615): TSPAN6 TNMD ... LNCDAT HRURF</span></span>
+<span><span class="co">#&gt; rownames(36229): A1BG A1BG-AS1 ... ZZEF1 ZZZ3</span></span>
 <span><span class="co">#&gt; rowData names(0):</span></span>
 <span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
 <span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
@@ -232,7 +232,7 @@ compared across samples.</p>
 </h4>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
-<span>    <span class="va">meta</span> <span class="op">|&gt;</span></span>
+<span>    <span class="va">metadata</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">ethnicity</span> <span class="op">==</span> <span class="st">"African"</span> <span class="op">&amp;</span></span>
 <span>        <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">str_like</a></span><span class="op">(</span><span class="va">assay</span>, <span class="st">"%10x%"</span><span class="op">)</span> <span class="op">&amp;</span></span>
@@ -267,7 +267,7 @@ long time and occupy a lot of memory depending on how many cells you are
 requesting.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
-<span>    <span class="va">meta</span> <span class="op">|&gt;</span></span>
+<span>    <span class="va">metadata</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">ethnicity</span> <span class="op">==</span> <span class="st">"African"</span> <span class="op">&amp;</span></span>
 <span>        <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">str_like</a></span><span class="op">(</span><span class="va">assay</span>, <span class="st">"%10x%"</span><span class="op">)</span> <span class="op">&amp;</span></span>
@@ -279,13 +279,11 @@ requesting.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Synchronising files</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Reading files.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Compiling Single Cell Experiment.</span></span>
-<span><span class="co">#&gt; Warning: Non-unique features (rownames) present in the input matrix, making</span></span>
-<span><span class="co">#&gt; unique</span></span>
 <span></span>
 <span><span class="va">single_cell_counts</span></span>
 <span><span class="co">#&gt; An object of class Seurat </span></span>
-<span><span class="co">#&gt; 35615 features across 1571 samples within 1 assay </span></span>
-<span><span class="co">#&gt; Active assay: originalexp (35615 features, 0 variable features)</span></span></code></pre></div>
+<span><span class="co">#&gt; 36229 features across 1571 samples within 1 assay </span></span>
+<span><span class="co">#&gt; Active assay: originalexp (36229 features, 0 variable features)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -297,7 +295,7 @@ CD56 (NCAM1) across all tissues</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stemangiola/tidySingleCellExperiment" class="external-link">tidySingleCellExperiment</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">metadata</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># Filter and subset</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">cell_type_harmonised</span><span class="op">==</span><span class="st">"cd14 mono"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span></span>
@@ -311,7 +309,7 @@ CD56 (NCAM1) across all tissues</p>
 <p><img src="../reference/figures/HLA_A_disease_plot.png" width="262"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="va">metadata</span> <span class="op">|&gt;</span> </span>
 <span>    </span>
 <span>  <span class="co"># Filter and subset</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">cell_type_harmonised</span><span class="op">==</span><span class="st">"nk"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
