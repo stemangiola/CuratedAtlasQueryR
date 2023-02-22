@@ -1,4 +1,4 @@
-library(CuratedAtlasQueryR)
+library(dplyr)
 
 test_that("get_SingleCellExperiment() correctly handles duplicate cell IDs", {
     meta <- get_metadata() |>
@@ -118,5 +118,41 @@ test_that("get_seurat() returns the appropriate data in Seurat format", {
     expect_equal(
         rownames(sce),
         rownames(seurat)
+    )
+})
+
+test_that("get_SingleCellExperiment() assigns the right cell ID to each cell", {
+    id = "3214d8f8986c1e33a85be5322f2db4a9"
+    
+    # Force the file to be cached
+    get_metadata() |>
+        filter(file_id_db == id) |>
+        get_SingleCellExperiment()
+    
+    # Load the SCE from cache directly
+    assay_1 = CuratedAtlasQueryR:::get_default_cache_dir() |>
+        file.path("0.2/original", id) |>
+        HDF5Array::loadHDF5SummarizedExperiment() |>
+        assay("X") |>
+        as.matrix()
+    
+    # Make a SCE that has the right column names, but reversed
+    assay_2 = 
+        assay_1 |>
+        colnames() |>
+        tibble::tibble(
+            file_id_db = id,
+            cell_ = _
+        ) |>
+        arrange(-row_number()) |>
+        get_SingleCellExperiment(assays = "counts") |>
+        assay("counts") |>
+        as.matrix()
+        
+    colnames(assay_2) = sub("_1", "", x=colnames(assay_2))
+
+    expect_equal(
+        assay_1,
+        assay_2[, colnames(assay_1)]
     )
 })

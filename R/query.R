@@ -44,7 +44,7 @@ COUNTS_VERSION <- "0.2"
 #' @importFrom glue glue
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment HDF5RealizationSink
 #'   loadHDF5SummarizedExperiment
-#' @importFrom SingleCellExperiment SingleCellExperiment simplifyToSCE
+#' @importFrom SingleCellExperiment SingleCellExperiment combineCols
 #' @importFrom SummarizedExperiment colData assayNames<-
 #' @importFrom httr parse_url
 #' @importFrom assertthat assert_that has_name
@@ -85,7 +85,7 @@ get_SingleCellExperiment <- function(
     inherits(raw_data, "tbl") |> assert_that()
     has_name(raw_data, c("cell_", "file_id_db")) |> assert_that()
 
-    versioned_cache_directory = file.path(cache_directory, COUNTS_VERSION)
+    versioned_cache_directory <- file.path(cache_directory, COUNTS_VERSION)
     versioned_cache_directory |> dir.create(showWarnings = FALSE, recursive = TRUE)
 
     subdirs <- assay_map[assays]
@@ -152,11 +152,13 @@ get_SingleCellExperiment <- function(
 #' @param dir_prefix The path to the single cell experiment, minus the final segment
 #' @param features The list of genes/rows of interest
 #' @return A SingleCellExperiment object
-#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate filter
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment
 #' @importFrom SummarizedExperiment colData<-
 #' @importFrom tibble column_to_rownames
 #' @importFrom utils head
+#' @importFrom cli cli_alert_warning cli_abort
+#' @importFrom glue glue
 #' @noRd
 group_to_sce <- function(i, df, dir_prefix, features) {
     sce_path <- df$file_id_db |>
@@ -178,26 +180,36 @@ group_to_sce <- function(i, df, dir_prefix, features) {
     # The cells we select here are those that are both available in the SCE
     # object, and requested for this particular file
     cells <- colnames(sce) |> intersect(df$cell_)
-    # We need to make the cell names globally unique, which we can guarantee
-    # by adding a suffix that is derived from file_id_db, which is the grouping
-    # variable
-    new_cellnames <- paste0(cells, "_", i)
+
+    if (length(cells) < nrow(df)){
+        cli_alert_warning("Some cells were filtered out because of extremely low counts. The number of cells in the SingleCellExperiment will be less than the number of cells you have selected from the metadata.")
+        df = filter(df, .data$cell_ %in% cells)
+    }
+    else if (length(cells) > nrow(df)){
+        cli_abort("This should never happen")
+    }
+    
+    # Fix for https://github.com/tidyverse/dplyr/issues/6746
+    force(i)
+    
     new_coldata <- df |>
-        mutate(original_cell_id = .data$cell_, cell_ = new_cellnames) |>
+        # We need to make the cell names globally unique, which we can guarantee
+        # by adding a suffix that is derived from file_id_db, which is the grouping
+        # variable
+        mutate(original_cell_id = .data$cell_, cell_ = glue("{cell_}_{i}")) |>
         column_to_rownames("cell_") |>
         as("DataFrame")
-
-    features |>
-        is.null() |>
-        {
-            `if`
-        }(
-            sce[, cells], {
+    
+    `if`(
+            is.null(features),
+            sce[, new_coldata$original_cell_id],
+            {
                 # Optionally subset the genes
                 genes <- rownames(sce) |> intersect(features)
-                sce[genes, cells]
-        }) |>
-        `colnames<-`(new_cellnames) |>
+                sce[genes, new_coldata$original_cell_id]
+            }
+    ) |>
+        `colnames<-`(new_coldata$cell_) |>
         `colData<-`(value = new_coldata)
 }
 
