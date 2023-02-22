@@ -292,11 +292,11 @@ The `cpm` assay includes counts per million.
 ```{r, eval=FALSE}
 get_metadata()
 
-Error in `db_query_fields.DBIConnection()`:
-! Can't query fields.
-Caused by error:
-! Parser Error: syntax error at or near "/"
-LINE 2: FROM /Users/mariadoyle/Library/Cach...
+# Error in `db_query_fields.DBIConnection()`:
+# ! Can't query fields.
+# Caused by error:
+# ! Parser Error: syntax error at or near "/"
+# LINE 2: FROM /Users/bob/Library/Cach...
 ```
 
 **Solution:** Setup custom cache path (e.g. user home directory)
