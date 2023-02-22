@@ -318,6 +318,36 @@ CELLxGENE include a mix of scales and transformations specified in the
 
 The `cpm` assay includes counts per million.
 
+# Installation and getting-started problems
+
+**Problem:** Default R cache path including non-standard characters
+(e.g. dash)
+
+``` r
+get_metadata()
+
+Error in `db_query_fields.DBIConnection()`:
+! Can't query fields.
+Caused by error:
+! Parser Error: syntax error at or near "/"
+LINE 2: FROM /Users/mariadoyle/Library/Cach...
+```
+
+**Solution:** Setup custom cache path (e.g. user home directory)
+
+``` r
+get_metadata(cache_directory = path.expand('~'))
+```
+
+**Problem:** namespace ‘dbplyr’ 2.2.1 is being loaded, but \>= 2.3.0 is
+required
+
+**Solution:** Install new dbplyr
+
+``` r
+install.packages("dbplyr")
+```
+
 ------------------------------------------------------------------------
 
 This project has been funded by
