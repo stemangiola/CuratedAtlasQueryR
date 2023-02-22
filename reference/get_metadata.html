@@ -107,9 +107,9 @@ The data for which the column <code>organism_name</code> included "Homo sapiens"
 <p>Dataset-specific columns (definitions available at cellxgene.cziscience.com)
 <code>cell_count</code>, <code>collection_id</code>, <code>created_at.x</code>, <code>created_at.y</code>, <code>dataset_deployments</code>, <code>dataset_id</code>, <code>file_id</code>, <code>filename</code>, <code>filetype</code>, <code>is_primary_data.y</code>, <code>is_valid</code>, <code>linked_genesets</code>, <code>mean_genes_per_cell</code>, <code>name</code>, <code>published</code>, <code>published_at</code>, <code>revised_at</code>, <code>revision</code>, <code>s3_uri</code>, <code>schema_version</code>, <code>tombstone</code>, <code>updated_at.x</code>, <code>updated_at.y</code>, <code>user_submitted</code>, <code>x_normalization</code></p>
 <p>Sample-specific columns (definitions available at cellxgene.cziscience.com)</p>
-<p><code>.sample</code>, <code>.sample_name</code>, <code>age_days</code>, <code>assay</code>, <code>assay_ontology_term_id</code>, <code>development_stage</code>, <code>development_stage_ontology_term_id</code>, <code>ethnicity</code>, <code>ethnicity_ontology_term_id</code>, <code>experiment___</code>, <code>organism</code>, <code>organism_ontology_term_id</code>, <code>sample_placeholder</code>, <code>sex</code>, <code>sex_ontology_term_id</code>, <code>tissue</code>, <code>tissue_harmonised</code>, <code>tissue_ontology_term_id</code>, <code>disease</code>, <code>disease_ontology_term_id</code>, <code>is_primary_data.x</code></p>
+<p><code>sample_</code>, <code>.sample_name</code>, <code>age_days</code>, <code>assay</code>, <code>assay_ontology_term_id</code>, <code>development_stage</code>, <code>development_stage_ontology_term_id</code>, <code>ethnicity</code>, <code>ethnicity_ontology_term_id</code>, <code>experiment___</code>, <code>organism</code>, <code>organism_ontology_term_id</code>, <code>sample_placeholder</code>, <code>sex</code>, <code>sex_ontology_term_id</code>, <code>tissue</code>, <code>tissue_harmonised</code>, <code>tissue_ontology_term_id</code>, <code>disease</code>, <code>disease_ontology_term_id</code>, <code>is_primary_data.x</code></p>
 <p>Cell-specific columns (definitions available at cellxgene.cziscience.com)</p>
-<p><code>.cell</code>, <code>cell_type</code>, <code>cell_type_ontology_term_idm</code>, <code>cell_type_harmonised</code>, <code>confidence_class</code>, <code>cell_annotation_azimuth_l2</code>, <code>cell_annotation_blueprint_singler</code></p>
+<p><code>cell_</code>, <code>cell_type</code>, <code>cell_type_ontology_term_idm</code>, <code>cell_type_harmonised</code>, <code>confidence_class</code>, <code>cell_annotation_azimuth_l2</code>, <code>cell_annotation_blueprint_singler</code></p>
 <p>Through harmonisation and curation we introduced custom column, not present in the original CELLxGENE metadata</p><ul><li><p><code>tissue_harmonised</code>: a coarser tissue name for better filtering</p></li>
 <li><p><code>age_days</code>: the number of days corresponding to the age</p></li>
 <li><p><code>cell_type_harmonised</code>: the consensus call identity (for immune cells) using the original and three novel annotations using Seurat Azimuth and SingleR</p></li>
@@ -119,9 +119,18 @@ The data for which the column <code>organism_name</code> included "Homo sapiens"
 <li><p><code>cell_annotation_blueprint_monaco</code>: SingleR cell annotation using Monaco reference</p></li>
 <li><p><code>sample_id_db</code>: Sample subdivision for internal use</p></li>
 <li><p><code>file_id_db</code>: File subdivision for internal use</p></li>
-<li><p><code>.sample</code>: Sample ID</p></li>
+<li><p><code>sample_</code>: Sample ID</p></li>
 <li><p><code>.sample_name</code>: How samples were defined</p></li>
-</ul></div>
+</ul><p><strong>Possible cache path issues</strong></p>
+<p>If your default R cache path includes non-standard characters (e.g. dash because of your user or organisation name), the following error can manifest</p>
+<p>Error in <code>db_query_fields.DBIConnection()</code>:
+! Can't query fields.
+Caused by error:
+! Parser Error: syntax error at or near "/"
+LINE 2: FROM /Users/bob/Library/Cach...</p>
+<p>The solution is to choose a different cache, for example</p>
+<p>get_metadata(cache_directory = path.expand('~'))</p>
+    </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
