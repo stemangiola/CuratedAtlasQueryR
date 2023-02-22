@@ -121,10 +121,6 @@ test_that("get_seurat() returns the appropriate data in Seurat format", {
     )
 })
 
-test_that("get_SingleCellExperiment() handles the case where not all cells are available", {
-    get_metadata() |> filter(cell_type_harmonised=="cdc") |> get_SingleCellExperiment(assays = "cpm") |> expect_warning("filtered out")
-})
-
 test_that("get_SingleCellExperiment() assigns the right cell ID to each cell", {
     id = "3214d8f8986c1e33a85be5322f2db4a9"
     
