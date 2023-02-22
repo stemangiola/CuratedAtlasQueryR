@@ -47,8 +47,6 @@ devtools::install_github("stemangiola/CuratedAtlasQueryR")
 
 ```{r, message=FALSE, warning=FALSE}
 library(CuratedAtlasQueryR)
-library(dplyr)
-library(stringr)
 ```
 
 ## Load and explore the metadata
