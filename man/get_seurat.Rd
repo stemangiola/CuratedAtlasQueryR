@@ -11,7 +11,7 @@ get_seurat(...)
 \item{...}{
   Arguments passed on to \code{\link[=get_SingleCellExperiment]{get_SingleCellExperiment}}
   \describe{
-    \item{\code{data}}{A data frame containing, at minimum, a \code{.sample} column, which
+    \item{\code{data}}{A data frame containing, at minimum, a \code{sample_} column, which
 corresponds to a single cell sample ID. This can be obtained from the
 \code{\link[=get_metadata]{get_metadata()}} function.}
     \item{\code{assays}}{A character vector whose elements must be either "counts"

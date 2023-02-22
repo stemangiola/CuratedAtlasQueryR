@@ -43,11 +43,11 @@ Dataset-specific columns (definitions available at cellxgene.cziscience.com)
 
 Sample-specific columns (definitions available at cellxgene.cziscience.com)
 
-\code{.sample}, \code{.sample_name}, \code{age_days}, \code{assay}, \code{assay_ontology_term_id}, \code{development_stage}, \code{development_stage_ontology_term_id}, \code{ethnicity}, \code{ethnicity_ontology_term_id}, \code{experiment___}, \code{organism}, \code{organism_ontology_term_id}, \code{sample_placeholder}, \code{sex}, \code{sex_ontology_term_id}, \code{tissue}, \code{tissue_harmonised}, \code{tissue_ontology_term_id}, \code{disease}, \code{disease_ontology_term_id}, \code{is_primary_data.x}
+\code{sample_}, \code{.sample_name}, \code{age_days}, \code{assay}, \code{assay_ontology_term_id}, \code{development_stage}, \code{development_stage_ontology_term_id}, \code{ethnicity}, \code{ethnicity_ontology_term_id}, \code{experiment___}, \code{organism}, \code{organism_ontology_term_id}, \code{sample_placeholder}, \code{sex}, \code{sex_ontology_term_id}, \code{tissue}, \code{tissue_harmonised}, \code{tissue_ontology_term_id}, \code{disease}, \code{disease_ontology_term_id}, \code{is_primary_data.x}
 
 Cell-specific columns (definitions available at cellxgene.cziscience.com)
 
-\code{.cell}, \code{cell_type}, \code{cell_type_ontology_term_idm}, \code{cell_type_harmonised}, \code{confidence_class}, \code{cell_annotation_azimuth_l2}, \code{cell_annotation_blueprint_singler}
+\code{cell_}, \code{cell_type}, \code{cell_type_ontology_term_idm}, \code{cell_type_harmonised}, \code{confidence_class}, \code{cell_annotation_azimuth_l2}, \code{cell_annotation_blueprint_singler}
 
 Through harmonisation and curation we introduced custom column, not present in the original CELLxGENE metadata
 \itemize{
@@ -60,9 +60,23 @@ Through harmonisation and curation we introduced custom column, not present in t
 \item \code{cell_annotation_blueprint_monaco}: SingleR cell annotation using Monaco reference
 \item \code{sample_id_db}: Sample subdivision for internal use
 \item \code{file_id_db}: File subdivision for internal use
-\item \code{.sample}: Sample ID
+\item \code{sample_}: Sample ID
 \item \code{.sample_name}: How samples were defined
 }
+
+\strong{Possible cache path issues}
+
+If your default R cache path includes non-standard characters (e.g. dash because of your user or organisation name), the following error can manifest
+
+Error in \code{db_query_fields.DBIConnection()}:
+! Can't query fields.
+Caused by error:
+! Parser Error: syntax error at or near "/"
+LINE 2: FROM /Users/bob/Library/Cach...
+
+The solution is to choose a different cache, for example
+
+get_metadata(cache_directory = path.expand('~'))
 }
 \examples{
 library(dplyr)

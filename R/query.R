@@ -19,7 +19,7 @@ COUNTS_VERSION <- "0.2"
 #' returns a [`SingleCellExperiment::SingleCellExperiment-class`] object corresponding to the samples in that
 #' data frame
 #'
-#' @param data A data frame containing, at minimum, a `.sample` column, which
+#' @param data A data frame containing, at minimum, a `sample_` column, which
 #'   corresponds to a single cell sample ID. This can be obtained from the
 #'   [get_metadata()] function.
 #' @param assays A character vector whose elements must be either "counts"
@@ -397,11 +397,11 @@ get_seurat <- function(...) {
 #' 
 #' Sample-specific columns (definitions available at cellxgene.cziscience.com)
 #' 
-#' `.sample`, `.sample_name`, `age_days`, `assay`, `assay_ontology_term_id`, `development_stage`, `development_stage_ontology_term_id`, `ethnicity`, `ethnicity_ontology_term_id`, `experiment___`, `organism`, `organism_ontology_term_id`, `sample_placeholder`, `sex`, `sex_ontology_term_id`, `tissue`, `tissue_harmonised`, `tissue_ontology_term_id`, `disease`, `disease_ontology_term_id`, `is_primary_data.x`
+#' `sample_`, `.sample_name`, `age_days`, `assay`, `assay_ontology_term_id`, `development_stage`, `development_stage_ontology_term_id`, `ethnicity`, `ethnicity_ontology_term_id`, `experiment___`, `organism`, `organism_ontology_term_id`, `sample_placeholder`, `sex`, `sex_ontology_term_id`, `tissue`, `tissue_harmonised`, `tissue_ontology_term_id`, `disease`, `disease_ontology_term_id`, `is_primary_data.x`
 #' 
 #' Cell-specific columns (definitions available at cellxgene.cziscience.com)
 #' 
-#' `.cell`, `cell_type`, `cell_type_ontology_term_idm`, `cell_type_harmonised`, `confidence_class`, `cell_annotation_azimuth_l2`, `cell_annotation_blueprint_singler` 
+#' `cell_`, `cell_type`, `cell_type_ontology_term_idm`, `cell_type_harmonised`, `confidence_class`, `cell_annotation_azimuth_l2`, `cell_annotation_blueprint_singler` 
 #' 
 #' Through harmonisation and curation we introduced custom column, not present in the original CELLxGENE metadata
 #' 
@@ -414,8 +414,23 @@ get_seurat <- function(...) {
 #' - `cell_annotation_blueprint_monaco`: SingleR cell annotation using Monaco reference
 #' - `sample_id_db`: Sample subdivision for internal use
 #' - `file_id_db`: File subdivision for internal use
-#' - `.sample`: Sample ID
+#' - `sample_`: Sample ID
 #' - `.sample_name`: How samples were defined
+#' 
+#' 
+#' **Possible cache path issues**
+#' 
+#' If your default R cache path includes non-standard characters (e.g. dash because of your user or organisation name), the following error can manifest
+#' 
+#' Error in `db_query_fields.DBIConnection()`:
+#' ! Can't query fields.
+#' Caused by error:
+#' ! Parser Error: syntax error at or near "/"
+#' LINE 2: FROM /Users/bob/Library/Cach...
+#' 
+#' The solution is to choose a different cache, for example
+#' 
+#' get_metadata(cache_directory = path.expand('~'))
 #' 
 get_metadata <- function(
     remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.3.parquet",
