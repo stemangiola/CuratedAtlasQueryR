@@ -377,6 +377,25 @@
 </h1>
 <p>The <code>raw</code> assay includes RNA abundance in the positive real scale (not transformed with non-linear functions, e.g. log sqrt). Originally CELLxGENE include a mix of scales and transformations specified in the <code>x_normalization</code> column.</p>
 <p>The <code>cpm</code> assay includes counts per million.</p>
+</div>
+<div class="section level1">
+<h1 id="installation-and-getting-started-problems">Installation and getting-started problems<a class="anchor" aria-label="anchor" href="#installation-and-getting-started-problems"></a>
+</h1>
+<p><strong>Problem:</strong> Default R cache path including non-standard characters (e.g. dash)</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_metadata</span>()</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>Error <span class="cf">in</span> <span class="st">`</span><span class="at">db_query_fields.DBIConnection()</span><span class="st">`</span><span class="sc">:</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="sc">!</span> Can<span class="st">'t query fields.</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="st">Caused by error:</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="st">! Parser Error: syntax error at or near "/"</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="st">LINE 2: FROM /Users/mariadoyle/Library/Cach...</span></span></code></pre></div>
+<p><strong>Solution:</strong> Setup custom cache path (e.g. user home directory)</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span>cache_directory <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/path.expand.html" class="external-link">path.expand</a></span><span class="op">(</span><span class="st">'~'</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><strong>Problem:</strong> namespace ‘dbplyr’ 2.2.1 is being loaded, but &gt;= 2.3.0 is required</p>
+<p><strong>Solution:</strong> Install new dbplyr</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"dbplyr"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 <p>This project has been funded by</p>
 <ul>
