@@ -39,21 +39,21 @@ library(CuratedAtlasQueryR)
 metadata  = get_metadata()
 
 metadata
-#> # Source:   table</stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.0.2.2.parquet> [?? x 56]
+#> # Source:   table</stornext/Home/data/allstaff/m/mangiola.s/.cache/R/CuratedAtlasQueryR/metadata.0.2.3.parquet> [?? x 56]
 #> # Database: DuckDB 0.7.0 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.0/:memory:]
-#>    `_cell`       _samp…¹ cell_…² cell_…³ confi…⁴ cell_…⁵ cell_…⁶ cell_…⁷ sampl…⁸
-#>    <chr>         <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>  
-#>  1 AAACCTGAGAGA… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
-#>  2 AAACCTGAGTTG… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
-#>  3 AAACCTGCAGTC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938…
-#>  4 AAACCTGCAGTT… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938…
-#>  5 AAACCTGGTCTA… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
-#>  6 AAACCTGTCGTA… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
-#>  7 AAACCTGTCTTG… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
-#>  8 AAACGGGAGTAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
-#>  9 AAACGGGAGTAG… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938…
-#> 10 AAACGGGAGTGG… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7…
-#> # … with more rows, 47 more variables: `_sample_name` <chr>, assay <chr>,
+#>    cell_ sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ _samp…⁸
+#>    <chr> <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  
+#>  1 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  2 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  3 AAAC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938… D17PrP…
+#>  4 AAAC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938… D17PrP…
+#>  5 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  6 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  7 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  8 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  9 AAAC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938… D17PrP…
+#> 10 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#> # … with more rows, 46 more variables: assay <chr>,
 #> #   assay_ontology_term_id <chr>, file_id_db <chr>,
 #> #   cell_type_ontology_term_id <chr>, development_stage <chr>,
 #> #   development_stage_ontology_term_id <chr>, disease <chr>,
@@ -114,7 +114,7 @@ single_cell_counts
 #> rowData names(0):
 #> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
 #>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
-#> colData names(56): _sample cell_type ... updated_at_y original_cell_id
+#> colData names(56): sample_ cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
 #> altExpNames(0):
@@ -149,7 +149,7 @@ single_cell_counts
 #> rowData names(0):
 #> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
 #>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
-#> colData names(56): _sample cell_type ... updated_at_y original_cell_id
+#> colData names(56): sample_ cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
 #> altExpNames(0):
@@ -181,7 +181,7 @@ single_cell_counts
 #> rowData names(0):
 #> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
 #>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
-#> colData names(56): _sample cell_type ... updated_at_y original_cell_id
+#> colData names(56): sample_ cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
 #> altExpNames(0):
@@ -218,8 +218,8 @@ single_cell_counts
 
 ## Visualise gene transcription
 
-We can gather all natural killer cells and plot the distribution of CD56
-(NCAM1) across all tissues
+We can gather all CD14 monicytes cells and plot the distribution of
+HLA-A across all tissues
 
 ``` r
 library(tidySingleCellExperiment)
@@ -229,10 +229,10 @@ metadata |>
   # Filter and subset
   filter(cell_type_harmonised=="cd14 mono") |>
 
-  # Get counts per million for NCAM1 gene
+  # Get counts per million for HCA-A gene
   get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
   
-  # Plot
+  # Plot (styling code have been omitted)
   join_features("HLA-A", shape = "wide") |> 
   ggplot(aes( disease, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") 
@@ -247,12 +247,12 @@ metadata |>
   # Filter and subset
   filter(cell_type_harmonised=="nk") |> 
 
-  # Get counts per million for NCAM1 gene 
-  get_SingleCellExperiment(assays = "cpm", features = "NCAM1") |> 
+  # Get counts per million for HCA-A gene 
+  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
 
-    # Plot
-  join_features("NCAM1", shape = "wide") |> 
-  ggplot(aes( tissue_harmonised, NCAM1,color = file_id)) +
+    # Plot (styling code have been omitted)
+  join_features("HLA-A", shape = "wide") |> 
+  ggplot(aes( tissue_harmonised, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") 
 ```
 
