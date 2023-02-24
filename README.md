@@ -218,7 +218,7 @@ single_cell_counts
 
 ## Visualise gene transcription
 
-We can gather all CD14 monicytes cells and plot the distribution of
+We can gather all CD14 monocytes cells and plot the distribution of
 HLA-A across all tissues
 
 ``` r
