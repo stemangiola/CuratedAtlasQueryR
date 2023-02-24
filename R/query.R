@@ -23,7 +23,9 @@ COUNTS_VERSION <- "0.2"
 #'   corresponds to a single cell sample ID. This can be obtained from the
 #'   [get_metadata()] function.
 #' @param assays A character vector whose elements must be either "counts"
-#'   and/or "cpm", representing the corresponding assay(s) you want to request.
+#'   and/or "cpm", representing the corresponding assay(s) you want to request. 
+#'   By default only the count assay is downloaded. If you are interested in comparing a limited amount of genes, 
+#'   the "cpm" assay is more appropriate.
 #' @param repository A character vector of length one. If provided, it should be
 #'   an HTTP URL pointing to the location where the single cell data is stored.
 #' @param cache_directory An optional character vector of length one. If
@@ -58,7 +60,7 @@ COUNTS_VERSION <- "0.2"
 #' 
 get_SingleCellExperiment <- function(
     data,
-    assays = c("counts", "cpm"),
+    assays = "counts",
     cache_directory = get_default_cache_dir(),
     repository = REMOTE_URL,
     features = NULL
