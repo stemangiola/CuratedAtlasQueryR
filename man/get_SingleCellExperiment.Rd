@@ -6,7 +6,7 @@
 \usage{
 get_SingleCellExperiment(
   data,
-  assays = c("counts", "cpm"),
+  assays = "counts",
   cache_directory = get_default_cache_dir(),
   repository = REMOTE_URL,
   features = NULL
@@ -18,7 +18,9 @@ corresponds to a single cell sample ID. This can be obtained from the
 \code{\link[=get_metadata]{get_metadata()}} function.}
 
 \item{assays}{A character vector whose elements must be either "counts"
-and/or "cpm", representing the corresponding assay(s) you want to request.}
+and/or "cpm", representing the corresponding assay(s) you want to request.
+By default only the count assay is downloaded. If you are interested in comparing a limited amount of genes,
+the "cpm" assay is more appropriate.}
 
 \item{cache_directory}{An optional character vector of length one. If
 provided, it should indicate a local file path where any remotely accessed
