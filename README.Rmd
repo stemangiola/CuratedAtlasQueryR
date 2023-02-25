@@ -143,7 +143,7 @@ single_cell_counts
 
 ## Visualise gene transcription
 
-We can gather all natural killer cells and plot the distribution of CD56 (NCAM1) across all tissues
+We can gather all CD14 monocytes cells and plot the distribution of HLA-A across all tissues
 
 ```{r, eval=FALSE, echo=FALSE}
 library(tidySingleCellExperiment)
@@ -157,7 +157,7 @@ metadata |>
   filter(cell_type_harmonised=="cd14 mono") |>
   filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
   
-  # Get counts per million for NCAM1 gene
+  # Get counts per million for HCA-A gene
   get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
   
   # Add feature to table
@@ -185,7 +185,7 @@ metadata |>
   filter(cell_type_harmonised=="cd14 mono") |>
   filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
   
-  # Get counts per million for NCAM1 gene
+  # Get counts per million for HCA-A gene
   get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
   
   # Add feature to table
@@ -217,10 +217,10 @@ metadata |>
   # Filter and subset
   filter(cell_type_harmonised=="cd14 mono") |>
 
-  # Get counts per million for NCAM1 gene
+  # Get counts per million for HCA-A gene
   get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
   
-  # Plot
+  # Plot (styling code have been omitted)
   join_features("HLA-A", shape = "wide") |> 
   ggplot(aes( disease, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") 
@@ -237,12 +237,12 @@ metadata |>
   # Filter and subset
   filter(cell_type_harmonised=="nk") |> 
 
-  # Get counts per million for NCAM1 gene 
-  get_SingleCellExperiment(assays = "cpm", features = "NCAM1") |> 
+  # Get counts per million for HCA-A gene 
+  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
 
-	# Plot
-  join_features("NCAM1", shape = "wide") |> 
-  ggplot(aes( tissue_harmonised, NCAM1,color = file_id)) +
+	# Plot (styling code have been omitted)
+  join_features("HLA-A", shape = "wide") |> 
+  ggplot(aes( tissue_harmonised, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") 
 
 ```
