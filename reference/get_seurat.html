@@ -20,7 +20,7 @@ the samples in that data frame"><meta property="og:image" content="/logo.png"><!
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CuratedAtlasQueryR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
       </span>
     </div>
 
@@ -81,7 +81,9 @@ corresponds to a single cell sample ID. This can be obtained from the
 
     <dt><code>assays</code></dt>
 <dd><p>A character vector whose elements must be either "counts"
-and/or "cpm", representing the corresponding assay(s) you want to request.</p></dd>
+and/or "cpm", representing the corresponding assay(s) you want to request.
+By default only the count assay is downloaded. If you are interested in comparing a limited amount of genes,
+the "cpm" assay is more appropriate.</p></dd>
 
     <dt><code>repository</code></dt>
 <dd><p>A character vector of length one. If provided, it should be
