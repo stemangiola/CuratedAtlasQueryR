@@ -216,6 +216,40 @@ single_cell_counts
 #> Active assay: originalexp (35615 features, 0 variable features)
 ```
 
+## Save your `SingleCellExperiment`
+
+The returned `SingleCellExperiment` can be saved with two modalities, as
+`.rds` or as `HDF5`.
+
+### Saving as RDS (fast saving, slow reading)
+
+Saving as `.rds` has the advantage that is very fast, the `.rds` file
+occupies very little disk space as it only stored the links for the
+files in your ache.
+
+However it has the disadvantage that for big `SingleCellExperiment`
+objects, which merge a lot of HDF5 from your `get_SingleCellExperiment`
+the display and manipulation is going to be slow.
+
+``` r
+single_cell_counts |> saveRDS("single_cell_counts.rds")
+```
+
+### Saving as HDF5 (slow saving, fast reading)
+
+Saving as `.rds` has the advantage that rewrites on disk a monolithic
+`HDF5` and so displaying and manipulating large `SingleCellExperiment`
+objects, which merge a lot of HDF5 from your `get_SingleCellExperiment`,
+is going to be fast.
+
+However it has the disadvantage that the files are going to be larger as
+they include the count information, and the saving process is going to
+be slow for large objects.
+
+``` r
+single_cell_counts |> saveHDF5SummarizedExperiment("single_cell_counts")
+```
+
 ## Visualise gene transcription
 
 We can gather all CD14 monocytes cells and plot the distribution of
@@ -356,3 +390,4 @@ This project has been funded by
 - *Bioconductor core funding* NIH NHGRI 5U24HG004059-18
 - *Victoria Cancer Agency* ECRF21036
 - *Australian National Health and Medical Research Council* 1116955
+- *The Lorenzo and Pamela Galli Medical Research Trust*
