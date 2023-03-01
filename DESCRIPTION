@@ -108,7 +108,8 @@ Suggests:
     tidySingleCellExperiment,
     ggplot2,
     basilisk,
-    arrow
+    arrow,
+    reticulate
 Biarch: true
 biocViews: 
     AssayDomain,
