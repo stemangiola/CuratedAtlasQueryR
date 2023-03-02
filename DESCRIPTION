@@ -106,7 +106,10 @@ Suggests:
     knitr,
     testthat,
     tidySingleCellExperiment,
-    ggplot2
+    ggplot2,
+    basilisk,
+    arrow,
+    reticulate
 Biarch: true
 biocViews: 
     AssayDomain,
