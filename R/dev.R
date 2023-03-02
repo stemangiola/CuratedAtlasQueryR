@@ -10,6 +10,11 @@
 #' @param credential_id The OpenStack application credential secret as a
 #'   character scalar
 #' @noRd
+#' @example 
+#' \dontrun{
+#'  metadata = CuratedAtlasQueryR::get_metadata() |> head(10) |> dplyr::collect()
+#'  update_database(metadata, "0.2.3", "rfypdlunhrfopdnkrs", "3q5lw3qntafptdfsrdh-wa4p8h")
+#' }
 update_database = function(metadata, version, credential_id = NULL, credential_secret = NULL){
     # These are optional dev packages
     rlang::check_installed(c("arrow", "glue", "basilisk"))
