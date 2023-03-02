@@ -14,6 +14,7 @@
 #' \dontrun{
 #'  metadata = CuratedAtlasQueryR::get_metadata() |> head(10) |> dplyr::collect()
 #'  update_database(metadata, "0.2.3", "rfypdlunhrfopdnkrs", "3q5lw3qntafptdfsrdh-wa4p8h")
+#'  # Prints "metadata.0.2.3.parquet" if successful
 #' }
 update_database = function(metadata, version, credential_id = NULL, credential_secret = NULL){
     # These are optional dev packages
