@@ -65,7 +65,7 @@ upload_swift = function(source, container, name = basename(source), credential_i
 #' @param version The version for the new metadata as a character scalar, e.g.
 #'   "0.2.3"
 #' @inheritDotParams upload_swift
-#' @example 
+#' @examples
 #' \dontrun{
 #'  metadata = CuratedAtlasQueryR::get_metadata() |> head(10) |> dplyr::collect()
 #'  update_database(metadata, "0.2.3", credential_id = "ABCDEFGHIJK", credential_secret = "ABCD1234EFGH-5678IJK")

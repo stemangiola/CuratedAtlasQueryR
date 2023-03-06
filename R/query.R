@@ -458,7 +458,13 @@ get_metadata <- function(
 #' @param dataset_ids A character vector, where each entry is a dataset ID
 #'  obtained from the `$dataset_id` column of the table returned from
 #'  [get_metadata()]
-#' @return
+#' @importFrom purrr map set_names
+#' @importFrom glue glue
+#' @importFrom DBI dbConnect
+#' @importFrom duckdb duckdb
+#' @importFrom dplyr tbl
+#' @return A named list, where each name is a dataset ID, and each value is
+#'  a "lazy data frame", ie a `tbl`.
 #' @export
 #' @examples
 #' dataset_id = "838ea006-2369-4e2c-b426-b2a744a2b02b"
@@ -474,11 +480,11 @@ get_unharmonised_metadata = function(
     unharmonised_root <- file.path(cache_directory, COUNTS_VERSION, "unharmonised")
     duck = duckdb() |> dbConnect(drv = _, read_only = TRUE)
     dataset_ids |> 
-        purrr::set_names() |>
-        purrr::map(function(dataset_id){
+        set_names() |>
+        map(function(dataset_id){
             file_name = glue::glue("{dataset_id}.parquet")
             local_path = file.path(unharmonised_root, file_name)
-            glue::glue("{remote_url}/{file_name}") |>
+            glue("{remote_url}/{file_name}") |>
                 sync_remote_file(
                 local_path,
                 progress(type = "down", con = stderr())

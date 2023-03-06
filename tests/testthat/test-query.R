@@ -162,12 +162,12 @@ test_that("get_unharmonised_metadata works with one ID", {
     unharmonised_meta = get_unharmonised_metadata(dataset_id)
     unharmonised_tbl = unharmonised_meta[[dataset_id]]
     
-    expect_s3_class(unharmonised_meta, "list")
+    expect_type(unharmonised_meta, "list")
     expect_s3_class(unharmonised_tbl, "tbl")
 })
 
 test_that("get_unharmonised_metadata works with multiple IDs", {
-    dataset_ids = c("838ea006-2369-4e2c-b426-b2a744a2b02b", "83b9cb97-9ee4-404d-8cdf-ccede8235356.parquet")
+    dataset_ids = c("838ea006-2369-4e2c-b426-b2a744a2b02b", "83b9cb97-9ee4-404d-8cdf-ccede8235356")
     unharmonised_meta = get_unharmonised_metadata(dataset_ids)
     
     expect_equal(names(unharmonised_meta), dataset_ids)
