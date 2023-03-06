@@ -448,3 +448,41 @@ get_metadata <- function(
         dbConnect(drv = _, read_only = TRUE) |>
         tbl(db_path)
 }
+
+#' Returns unharmonised metadata for selected datasets.
+#' 
+#' Various metadata fields are *not* common between datasets, so it does not make
+#' sense for these to live in the main metadata table. This function is a 
+#' utility that allows easy fetching of this data if necessary.
+#'
+#' @param dataset_ids A character vector, where each entry is a dataset ID
+#'  obtained from the `$dataset_id` column of the table returned from
+#'  [get_metadata()]
+#' @return
+#' @export
+#' @examples
+#' dataset_id = "838ea006-2369-4e2c-b426-b2a744a2b02b"
+#' harmonised_meta = get_metadata() |> dplyr::filter(dataset_id = dataset_id)
+#' unharmonised_meta = get_unharmonised_metadata(dataset_id)
+#' unharmonised_tbl = unharmonised_meta[[dataset_id]]
+#' dplyr::join(harmonised_meta, unharmonised_tbl, by=c("dataset_id", "cell_"))
+get_unharmonised_metadata = function(
+        dataset_ids,
+        remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/unharmonised_metadata",
+        cache_directory = get_default_cache_dir()
+        ){
+    unharmonised_root <- file.path(cache_directory, COUNTS_VERSION, "unharmonised")
+    duck = duckdb() |> dbConnect(drv = _, read_only = TRUE)
+    dataset_ids |> 
+        purrr::set_names() |>
+        purrr::map(function(dataset_id){
+            file_name = glue::glue("{dataset_id}.parquet")
+            local_path = file.path(unharmonised_root, file_name)
+            glue::glue("{remote_url}/{file_name}") |>
+                sync_remote_file(
+                local_path,
+                progress(type = "down", con = stderr())
+            )
+            tbl(duck, local_path)
+        })
+}
