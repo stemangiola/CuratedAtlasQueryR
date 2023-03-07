@@ -354,6 +354,67 @@ HLA-A across all tissues</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span>shape<span class="op">=</span><span class="st">"."</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="../reference/figures/HLA_A_tissue_plot.png" width="262"></p>
 </div>
+<div class="section level3">
+<h3 id="obtain-unharmonised-metadata">Obtain Unharmonised Metadata<a class="anchor" aria-label="anchor" href="#obtain-unharmonised-metadata"></a>
+</h3>
+<p>Various metadata fields are <em>not</em> common between datasets, so
+it does not make sense for these to live in the main metadata table.
+However, we can obtain it using the
+<code><a href="../reference/get_unharmonised_metadata.html">get_unharmonised_metadata()</a></code> function.</p>
+<p>Note how this table has additional columns that are not in the normal
+metadata:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">=</span> <span class="st">"838ea006-2369-4e2c-b426-b2a744a2b02b"</span></span>
+<span><span class="va">unharmonised_meta</span> <span class="op">=</span> <span class="fu"><a href="../reference/get_unharmonised_metadata.html">get_unharmonised_metadata</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span>
+<span><span class="va">unharmonised_tbl</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="va">unharmonised_meta</span><span class="op">[[</span><span class="va">dataset</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">unharmonised_tbl</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 168,860 × 23</span></span></span>
+<span><span class="co">#&gt;    cell_     file_id Neuro…¹ Class Subcl…² Super…³ Age.a…⁴ Years…⁵ Cogni…⁶ ADNC </span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> GGACGAAG… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 90+ ye… 16 to … Dement… High </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> TCACGGGA… 838ea0… FALSE   Neur… L4 IT   L4 IT_1 90+ ye… 12 to … Dement… Inte…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> TCAGTTTT… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 78 to … 16 to … No dem… Low  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> TCAGTCCT… 838ea0… FALSE   Neur… L4 IT   L4 IT_4 78 to … 16 to … Dement… Inte…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> AGCCACGC… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 78 to … 19 to … No dem… Inte…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> CCTCAACC… 838ea0… TRUE    Neur… L4 IT   L4 IT_2 Less t… Refere… Refere… Refe…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> CTCGACAA… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 78 to … 12 to … No dem… Inte…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> AGCTACAG… 838ea0… FALSE   Neur… L4 IT   L4 IT_4 90+ ye… 16 to … Dement… High </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> CTCGAGGG… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 65 to … 16 to … Dement… High </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> AGTGCCGT… 838ea0… FALSE   Neur… L4 IT   L4 IT_4 90+ ye… 16 to … Dement… High </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># … with 168,850 more rows, 13 more variables: Braak.stage &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   Thal.phase &lt;chr&gt;, CERAD.score &lt;chr&gt;, APOE4.status &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   Lewy.body.disease.pathology &lt;chr&gt;, LATE.NC.stage &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   Microinfarct.pathology &lt;chr&gt;, Specimen.ID &lt;chr&gt;, Donor.ID &lt;chr&gt;, PMI &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   Number.of.UMIs &lt;dbl&gt;, Genes.detected &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   Fraction.mitochrondrial.UMIs &lt;dbl&gt;, and abbreviated variable names</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ¹​Neurotypical.reference, ²​Subclass, ³​Supertype, ⁴​Age.at.death, …</span></span></span></code></pre></div>
+<p>If we have metadata from the normal metadata table that is from a
+single dataset, we can even join this additional metadata into one big
+data frame:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">harmonised_meta</span> <span class="op">=</span> <span class="fu"><a href="../reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">file_id</span> <span class="op">==</span> <span class="va">dataset</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">harmonised_meta</span>, <span class="va">unharmonised_tbl</span>, by<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"file_id"</span>, <span class="st">"cell_"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 168,860 × 77</span></span></span>
+<span><span class="co">#&gt;    cell_ sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ _samp…⁸</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> GGAC… f63cb4… L2/3-6… neuron        1 <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      168593… H21.33…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> TCAC… 0d4d1f… L2/3-6… neuron        1 <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      f7d747… H21.33…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> TCAG… 3e5a3b… L2/3-6… neuron        1 <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      3417a9… H20.33…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> TCAG… 7010a3… L2/3-6… neuron        1 <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      246a59… H20.33…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> AGCC… 82bb9a… L2/3-6… neuron        1 <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      7a8f35… H21.33…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> CCTC… a233eb… L2/3-6… neuron        1 <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      188243… H18.30…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> CTCG… 27f104… L2/3-6… neuron        1 <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      a62943… H20.33…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> AGCT… 0190a2… L2/3-6… neuron        1 <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      c508a8… H20.33…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> CTCG… 95d846… L2/3-6… neuron        1 <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      29285d… H21.33…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> AGTG… b0e1c5… L2/3-6… neuron        1 <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      <span style="color: #BB0000;">NA</span>      cd7823… H21.33…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># … with 168,850 more rows, 67 more variables: assay &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   assay_ontology_term_id &lt;chr&gt;, file_id_db &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   cell_type_ontology_term_id &lt;chr&gt;, development_stage &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   development_stage_ontology_term_id &lt;chr&gt;, disease &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   disease_ontology_term_id &lt;chr&gt;, ethnicity &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ethnicity_ontology_term_id &lt;chr&gt;, experiment___ &lt;chr&gt;, file_id &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   is_primary_data_x &lt;chr&gt;, organism &lt;chr&gt;, organism_ontology_term_id &lt;chr&gt;, …</span></span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="cell-metadata">Cell metadata<a class="anchor" aria-label="anchor" href="#cell-metadata"></a>

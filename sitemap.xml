@@ -31,6 +31,18 @@
     <loc>/reference/get_seurat.html</loc>
   </url>
   <url>
+    <loc>/reference/get_unharmonised_metadata.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/update_database.html</loc>
+  </url>
+  <url>
+    <loc>/reference/update_unharmonised.html</loc>
+  </url>
+  <url>
+    <loc>/reference/upload_swift.html</loc>
   </url>
 </urlset>
