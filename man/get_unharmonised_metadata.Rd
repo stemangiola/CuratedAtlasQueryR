@@ -15,20 +15,27 @@ get_unharmonised_metadata(
 \item{dataset_ids}{A character vector, where each entry is a dataset ID
 obtained from the \verb{$dataset_id} column of the table returned from
 \code{\link[=get_metadata]{get_metadata()}}}
+
+\item{remote_url}{Optional character vector of length 1. An HTTP URL pointing
+to the root URL under which all the unharmonised dataset files are located.}
+
+\item{cache_directory}{Optional character vector of length 1. A file path on
+your local system to a directory (not a file) that will be used to store
+the unharmonised metadata files.}
 }
 \value{
-A named list, where each name is a dataset ID, and each value is
-a "lazy data frame", ie a \code{tbl}.
+A named list, where each name is a dataset ID, and each value is a
+"lazy data frame", ie a \code{tbl}.
 }
 \description{
-Various metadata fields are \emph{not} common between datasets, so it does not make
-sense for these to live in the main metadata table. This function is a
+Various metadata fields are \emph{not} common between datasets, so it does not
+make sense for these to live in the main metadata table. This function is a
 utility that allows easy fetching of this data if necessary.
 }
 \examples{
-dataset_id = "838ea006-2369-4e2c-b426-b2a744a2b02b"
-harmonised_meta = get_metadata() |> dplyr::filter(dataset_id = dataset_id)
-unharmonised_meta = get_unharmonised_metadata(dataset_id)
-unharmonised_tbl = unharmonised_meta[[dataset_id]]
-dplyr::join(harmonised_meta, unharmonised_tbl, by=c("dataset_id", "cell_"))
+dataset = "838ea006-2369-4e2c-b426-b2a744a2b02b"
+harmonised_meta = get_metadata() |> dplyr::filter(file_id == dataset) |> dplyr::collect()
+unharmonised_meta = get_unharmonised_metadata(dataset)
+unharmonised_tbl = dplyr::collect(unharmonised_meta[[dataset]])
+dplyr::left_join(harmonised_meta, unharmonised_tbl, by=c("file_id", "cell_"))
 }
