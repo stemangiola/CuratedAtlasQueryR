@@ -456,7 +456,7 @@ get_metadata <- function(
 #' utility that allows easy fetching of this data if necessary.
 #'
 #' @param dataset_ids A character vector, where each entry is a dataset ID
-#'   obtained from the `$dataset_id` column of the table returned from
+#'   obtained from the `$file_id` column of the table returned from
 #'   [get_metadata()]
 #' @param remote_url Optional character vector of length 1. An HTTP URL pointing
 #'   to the root URL under which all the unharmonised dataset files are located.
@@ -468,8 +468,8 @@ get_metadata <- function(
 #' @importFrom DBI dbConnect
 #' @importFrom duckdb duckdb
 #' @importFrom dplyr tbl
-#' @return A named list, where each name is a dataset ID, and each value is a
-#'   "lazy data frame", ie a `tbl`.
+#' @return A named list, where each name is a dataset file ID, and each value is
+#'   a "lazy data frame", ie a `tbl`.
 #' @export
 #' @examples
 #' dataset = "838ea006-2369-4e2c-b426-b2a744a2b02b"

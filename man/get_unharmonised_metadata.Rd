@@ -13,7 +13,7 @@ get_unharmonised_metadata(
 }
 \arguments{
 \item{dataset_ids}{A character vector, where each entry is a dataset ID
-obtained from the \verb{$dataset_id} column of the table returned from
+obtained from the \verb{$file_id} column of the table returned from
 \code{\link[=get_metadata]{get_metadata()}}}
 
 \item{remote_url}{Optional character vector of length 1. An HTTP URL pointing
@@ -24,8 +24,8 @@ your local system to a directory (not a file) that will be used to store
 the unharmonised metadata files.}
 }
 \value{
-A named list, where each name is a dataset ID, and each value is a
-"lazy data frame", ie a \code{tbl}.
+A named list, where each name is a dataset file ID, and each value is
+a "lazy data frame", ie a \code{tbl}.
 }
 \description{
 Various metadata fields are \emph{not} common between datasets, so it does not
