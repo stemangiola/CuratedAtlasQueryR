@@ -13,6 +13,13 @@ down to some cells of interest}
 \item{...}{
   Arguments passed on to \code{\link[=get_unharmonised_dataset]{get_unharmonised_dataset}}
   \describe{
+    \item{\code{dataset_id}}{A character vector, where each entry is a dataset ID
+obtained from the \verb{$file_id} column of the table returned from
+\code{\link[=get_metadata]{get_metadata()}}}
+    \item{\code{cells}}{An optional character vector of cell IDs. If provided, only
+metadata for those cells will be returned.}
+    \item{\code{conn}}{An optional DuckDB connection object. If provided, it will re-use
+the existing connection instead of opening a new one.}
     \item{\code{remote_url}}{Optional character vector of length 1. An HTTP URL pointing
 to the root URL under which all the unharmonised dataset files are located.}
     \item{\code{cache_directory}}{Optional character vector of length 1. A file path on
