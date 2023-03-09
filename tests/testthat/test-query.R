@@ -157,18 +157,29 @@ test_that("get_SingleCellExperiment() assigns the right cell ID to each cell", {
     )
 })
 
-test_that("get_unharmonised_metadata works with one ID", {
+test_that("get_unharmonised_dataset works with one ID", {
     dataset_id = "838ea006-2369-4e2c-b426-b2a744a2b02b"
-    unharmonised_meta = get_unharmonised_metadata(dataset_id)
-    unharmonised_tbl = unharmonised_meta[[dataset_id]]
-    
-    expect_type(unharmonised_meta, "list")
-    expect_s3_class(unharmonised_tbl, "tbl")
+    unharmonised_meta = get_unharmonised_dataset(dataset_id)
+
+    expect_s3_class(unharmonised_meta, "tbl")
 })
 
-test_that("get_unharmonised_metadata works with multiple IDs", {
-    dataset_ids = c("838ea006-2369-4e2c-b426-b2a744a2b02b", "83b9cb97-9ee4-404d-8cdf-ccede8235356")
-    unharmonised_meta = get_unharmonised_metadata(dataset_ids)
+test_that("get_unharmonised_metadata() returns the appropriate data", {
+    harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
+    unharmonised <- get_unharmonised_metadata(harmonised)
     
-    expect_equal(names(unharmonised_meta), dataset_ids)
+    unharmonised |> is.data.frame() |> expect_true()
+    expect_setequal(colnames(unharmonised), c("file_id", "unharmonised"))
+    
+    # The number of cells in both harmonised and unharmonised should be the same
+    expect_equal(
+        dplyr::collect(harmonised) |> nrow(),
+        unharmonised$unharmonised |> purrr::map_int(function(df) dplyr::tally(df) |> dplyr::pull(n)) |> sum()
+    )
+    
+    # The number of datasets in both harmonised and unharmonised should be the same
+    expect_equal(
+        harmonised |> dplyr::group_by(file_id) |> dplyr::n_groups(),
+        nrow(unharmonised)
+    )
 })
