@@ -156,18 +156,18 @@
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">tissue</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # Source:   SQL [?? x 2]</span></span>
 <span><span class="co">#&gt; # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]</span></span>
-<span><span class="co">#&gt;    tissue                                           n</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;                                        &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 blood                                           47</span></span>
-<span><span class="co">#&gt;  2 respiratory airway                              16</span></span>
-<span><span class="co">#&gt;  3 mammary gland epithelial cell (cell culture)     1</span></span>
-<span><span class="co">#&gt;  4 colon                                            3</span></span>
-<span><span class="co">#&gt;  5 intestine                                       18</span></span>
-<span><span class="co">#&gt;  6 pleural effusion                                11</span></span>
-<span><span class="co">#&gt;  7 lymph node                                      15</span></span>
-<span><span class="co">#&gt;  8 lung                                            27</span></span>
-<span><span class="co">#&gt;  9 liver                                           24</span></span>
-<span><span class="co">#&gt; 10 axilla                                          10</span></span>
+<span><span class="co">#&gt;    tissue            n</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;         &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 cerebellum        3</span></span>
+<span><span class="co">#&gt;  2 telencephalon     2</span></span>
+<span><span class="co">#&gt;  3 heart             3</span></span>
+<span><span class="co">#&gt;  4 intestine        18</span></span>
+<span><span class="co">#&gt;  5 kidney           19</span></span>
+<span><span class="co">#&gt;  6 liver            24</span></span>
+<span><span class="co">#&gt;  7 lung             27</span></span>
+<span><span class="co">#&gt;  8 muscle organ      3</span></span>
+<span><span class="co">#&gt;  9 pancreas          5</span></span>
+<span><span class="co">#&gt; 10 placenta          3</span></span>
 <span><span class="co">#&gt; # … with more rows</span></span></code></pre></div>
 </div>
 </div>
@@ -358,57 +358,61 @@
 <div class="section level2">
 <h2 id="obtain-unharmonised-metadata">Obtain Unharmonised Metadata<a class="anchor" aria-label="anchor" href="#obtain-unharmonised-metadata"></a>
 </h2>
-<p>Various metadata fields are <em>not</em> common between datasets, so it does not make sense for these to live in the main metadata table. However, we can obtain it using the <code><a href="reference/get_unharmonised_metadata.html">get_unharmonised_metadata()</a></code> function.</p>
-<p>Note how this table has additional columns that are not in the normal metadata:</p>
+<p>Various metadata fields are <em>not</em> common between datasets, so it does not make sense for these to live in the main metadata table. However, we can obtain it using the <code><a href="reference/get_unharmonised_metadata.html">get_unharmonised_metadata()</a></code> function. This function returns a data frame with one row per dataset, including the <code>unharmonised</code> column which contains unharmnised metadata as a nested data frame.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dataset</span> <span class="op">=</span> <span class="st">"838ea006-2369-4e2c-b426-b2a744a2b02b"</span></span>
-<span><span class="va">unharmonised_meta</span> <span class="op">=</span> <span class="fu"><a href="reference/get_unharmonised_metadata.html">get_unharmonised_metadata</a></span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span>
-<span><span class="va">unharmonised_tbl</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="va">unharmonised_meta</span><span class="op">[[</span><span class="va">dataset</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">unharmonised_tbl</span></span>
-<span><span class="co">#&gt; # A tibble: 168,860 × 23</span></span>
-<span><span class="co">#&gt;    cell_     file_id Neuro…¹ Class Subcl…² Super…³ Age.a…⁴ Years…⁵ Cogni…⁶ ADNC </span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;   &lt;lgl&gt;   &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;</span></span>
-<span><span class="co">#&gt;  1 GGACGAAG… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 90+ ye… 16 to … Dement… High </span></span>
-<span><span class="co">#&gt;  2 TCACGGGA… 838ea0… FALSE   Neur… L4 IT   L4 IT_1 90+ ye… 12 to … Dement… Inte…</span></span>
-<span><span class="co">#&gt;  3 TCAGTTTT… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 78 to … 16 to … No dem… Low  </span></span>
-<span><span class="co">#&gt;  4 TCAGTCCT… 838ea0… FALSE   Neur… L4 IT   L4 IT_4 78 to … 16 to … Dement… Inte…</span></span>
-<span><span class="co">#&gt;  5 AGCCACGC… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 78 to … 19 to … No dem… Inte…</span></span>
-<span><span class="co">#&gt;  6 CCTCAACC… 838ea0… TRUE    Neur… L4 IT   L4 IT_2 Less t… Refere… Refere… Refe…</span></span>
-<span><span class="co">#&gt;  7 CTCGACAA… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 78 to … 12 to … No dem… Inte…</span></span>
-<span><span class="co">#&gt;  8 AGCTACAG… 838ea0… FALSE   Neur… L4 IT   L4 IT_4 90+ ye… 16 to … Dement… High </span></span>
-<span><span class="co">#&gt;  9 CTCGAGGG… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 65 to … 16 to … Dement… High </span></span>
-<span><span class="co">#&gt; 10 AGTGCCGT… 838ea0… FALSE   Neur… L4 IT   L4 IT_4 90+ ye… 16 to … Dement… High </span></span>
-<span><span class="co">#&gt; # … with 168,850 more rows, 13 more variables: Braak.stage &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   Thal.phase &lt;chr&gt;, CERAD.score &lt;chr&gt;, APOE4.status &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   Lewy.body.disease.pathology &lt;chr&gt;, LATE.NC.stage &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   Microinfarct.pathology &lt;chr&gt;, Specimen.ID &lt;chr&gt;, Donor.ID &lt;chr&gt;, PMI &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   Number.of.UMIs &lt;dbl&gt;, Genes.detected &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   Fraction.mitochrondrial.UMIs &lt;dbl&gt;, and abbreviated variable names</span></span>
-<span><span class="co">#&gt; #   ¹​Neurotypical.reference, ²​Subclass, ³​Supertype, ⁴​Age.at.death, …</span></span></code></pre></div>
-<p>If we have metadata from the normal metadata table that is from a single dataset, we can even join this additional metadata into one big data frame:</p>
+<code class="sourceCode R"><span><span class="va">harmonised</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">tissue</span> <span class="op">==</span> <span class="st">"kidney blood vessel"</span><span class="op">)</span></span>
+<span><span class="va">unharmonised</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_unharmonised_metadata.html">get_unharmonised_metadata</a></span><span class="op">(</span><span class="va">harmonised</span><span class="op">)</span></span>
+<span><span class="va">unharmonised</span></span>
+<span><span class="co">#&gt; # A tibble: 4 × 2</span></span>
+<span><span class="co">#&gt;   file_id                              unharmonised   </span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                                &lt;list&gt;         </span></span>
+<span><span class="co">#&gt; 1 63523aa3-0d04-4fc6-ac59-5cadd3e73a14 &lt;tbl_dck_[,17]&gt;</span></span>
+<span><span class="co">#&gt; 2 8fee7b82-178b-4c04-bf23-04689415690d &lt;tbl_dck_[,12]&gt;</span></span>
+<span><span class="co">#&gt; 3 dc9d8cdd-29ee-4c44-830c-6559cb3d0af6 &lt;tbl_dck_[,14]&gt;</span></span>
+<span><span class="co">#&gt; 4 f7e94dbb-8638-4616-aaf9-16e2212c369f &lt;tbl_dck_[,14]&gt;</span></span></code></pre></div>
+<p>Notice that the columns differ between each dataset’s data frame:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">harmonised_meta</span> <span class="op">=</span> <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">file_id</span> <span class="op">==</span> <span class="va">dataset</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">harmonised_meta</span>, <span class="va">unharmonised_tbl</span>, by<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"file_id"</span>, <span class="st">"cell_"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 168,860 × 77</span></span>
-<span><span class="co">#&gt;    cell_ sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ _samp…⁸</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  </span></span>
-<span><span class="co">#&gt;  1 GGAC… f63cb4… L2/3-6… neuron        1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    168593… H21.33…</span></span>
-<span><span class="co">#&gt;  2 TCAC… 0d4d1f… L2/3-6… neuron        1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    f7d747… H21.33…</span></span>
-<span><span class="co">#&gt;  3 TCAG… 3e5a3b… L2/3-6… neuron        1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    3417a9… H20.33…</span></span>
-<span><span class="co">#&gt;  4 TCAG… 7010a3… L2/3-6… neuron        1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    246a59… H20.33…</span></span>
-<span><span class="co">#&gt;  5 AGCC… 82bb9a… L2/3-6… neuron        1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    7a8f35… H21.33…</span></span>
-<span><span class="co">#&gt;  6 CCTC… a233eb… L2/3-6… neuron        1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    188243… H18.30…</span></span>
-<span><span class="co">#&gt;  7 CTCG… 27f104… L2/3-6… neuron        1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    a62943… H20.33…</span></span>
-<span><span class="co">#&gt;  8 AGCT… 0190a2… L2/3-6… neuron        1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    c508a8… H20.33…</span></span>
-<span><span class="co">#&gt;  9 CTCG… 95d846… L2/3-6… neuron        1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    29285d… H21.33…</span></span>
-<span><span class="co">#&gt; 10 AGTG… b0e1c5… L2/3-6… neuron        1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    cd7823… H21.33…</span></span>
-<span><span class="co">#&gt; # … with 168,850 more rows, 67 more variables: assay &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   assay_ontology_term_id &lt;chr&gt;, file_id_db &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   cell_type_ontology_term_id &lt;chr&gt;, development_stage &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   development_stage_ontology_term_id &lt;chr&gt;, disease &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   disease_ontology_term_id &lt;chr&gt;, ethnicity &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   ethnicity_ontology_term_id &lt;chr&gt;, experiment___ &lt;chr&gt;, file_id &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   is_primary_data_x &lt;chr&gt;, organism &lt;chr&gt;, organism_ontology_term_id &lt;chr&gt;, …</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">unharmonised</span>, <span class="va">unharmonised</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [[1]]</span></span>
+<span><span class="co">#&gt; # Source:   SQL [?? x 17]</span></span>
+<span><span class="co">#&gt; # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]</span></span>
+<span><span class="co">#&gt;    cell_ file_id donor…¹ donor…² libra…³ mappe…⁴ sampl…⁵ suspe…⁶ suspe…⁷ autho…⁸</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  </span></span>
+<span><span class="co">#&gt;  1 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  2 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  3 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  4 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  5 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  6 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  7 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  8 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  9 4602… 63523a… 19 mon… 463181… 671785… GENCOD… 125234… cell    c7485e… CD4 T …</span></span>
+<span><span class="co">#&gt; 10 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt; # … with more rows, 7 more variables: cell_state &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   reported_diseases &lt;chr&gt;, Short_Sample &lt;chr&gt;, Project &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   Experiment &lt;chr&gt;, compartment &lt;chr&gt;, broad_celltype &lt;chr&gt;, and abbreviated</span></span>
+<span><span class="co">#&gt; #   variable names ¹​donor_age, ²​donor_uuid, ³​library_uuid,</span></span>
+<span><span class="co">#&gt; #   ⁴​mapped_reference_annotation, ⁵​sample_uuid, ⁶​suspension_type,</span></span>
+<span><span class="co">#&gt; #   ⁷​suspension_uuid, ⁸​author_cell_type</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; [[2]]</span></span>
+<span><span class="co">#&gt; # Source:   SQL [?? x 12]</span></span>
+<span><span class="co">#&gt; # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]</span></span>
+<span><span class="co">#&gt;    cell_ file_id orig.…¹ nCoun…² nFeat…³ seura…⁴ Project donor…⁵ compa…⁶ broad…⁷</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  </span></span>
+<span><span class="co">#&gt;  1 1069  8fee7b… 4602ST…   16082 3997    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
+<span><span class="co">#&gt;  2 1214  8fee7b… 4602ST…    1037 606     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
+<span><span class="co">#&gt;  3 2583  8fee7b… 4602ST…    3028 1361    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
+<span><span class="co">#&gt;  4 2655  8fee7b… 4602ST…    1605 859     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
+<span><span class="co">#&gt;  5 3609  8fee7b… 4602ST…    1144 682     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
+<span><span class="co">#&gt;  6 3624  8fee7b… 4602ST…    1874 963     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
+<span><span class="co">#&gt;  7 3946  8fee7b… 4602ST…    1296 755     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
+<span><span class="co">#&gt;  8 5163  8fee7b… 4602ST…   11417 3255    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
+<span><span class="co">#&gt;  9 5446  8fee7b… 4602ST…    1769 946     19      Experi… Wilms2  lympho… CD4 T …</span></span>
+<span><span class="co">#&gt; 10 6275  8fee7b… 4602ST…    3750 1559    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
+<span><span class="co">#&gt; # … with more rows, 2 more variables: author_cell_type &lt;chr&gt;, Sample &lt;chr&gt;, and</span></span>
+<span><span class="co">#&gt; #   abbreviated variable names ¹​orig.ident, ²​nCount_RNA, ³​nFeature_RNA,</span></span>
+<span><span class="co">#&gt; #   ⁴​seurat_clusters, ⁵​donor_id, ⁶​compartment, ⁷​broad_celltype</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level1">
