@@ -63,7 +63,7 @@ get_unharmonised_metadata = function(metadata, ...){
         collect() |>
         group_by(file_id) |>
         summarise(
-            unharmonised = list(dataset_id=file_id[[1]], cells=cell_, conn=metadata$src$con) |>
+            unharmonised = list(dataset_id=file_id[[1]], cells=cell_, conn=dbplyr::remote_con(metadata)) |>
                 c(args) |> 
                 do.call(get_unharmonised_dataset, args=_) |> 
                 list()
