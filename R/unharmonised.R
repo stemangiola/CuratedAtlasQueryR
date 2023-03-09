@@ -25,11 +25,13 @@
 #' @return A named list, where each name is a dataset file ID, and each value is
 #'   a "lazy data frame", ie a `tbl`.
 #' @examples
+#' \dontrun{
 #' dataset = "838ea006-2369-4e2c-b426-b2a744a2b02b"
 #' harmonised_meta = get_metadata() |> dplyr::filter(file_id == dataset) |> dplyr::collect()
 #' unharmonised_meta = get_unharmonised_dataset(dataset)
 #' unharmonised_tbl = dplyr::collect(unharmonised_meta[[dataset]])
 #' dplyr::left_join(harmonised_meta, unharmonised_tbl, by=c("file_id", "cell_"))
+#' }
 get_unharmonised_dataset = function(
         dataset_id,
         cells = NULL,
@@ -60,6 +62,7 @@ get_unharmonised_dataset = function(
 #' @export
 #' @importFrom dplyr group_by summarise filter collect
 #' @importFrom rlang .data
+#' @importFrom dbplyr remote_con
 #' @examples
 #' harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
 #' unharmonised <- get_unharmonised_metadata(harmonised)
@@ -69,7 +72,11 @@ get_unharmonised_metadata = function(metadata, ...){
         collect() |>
         group_by(.data$file_id) |>
         summarise(
-            unharmonised = list(dataset_id=.data$file_id[[1]], cells=.data$cell_, conn=dbplyr::remote_con(metadata)) |>
+            unharmonised = list(
+              dataset_id=.data$file_id[[1]],
+              cells=.data$cell_,
+              conn=remote_con(metadata)
+            ) |>
                 c(args) |> 
                 do.call(get_unharmonised_dataset, args=_) |> 
                 list()

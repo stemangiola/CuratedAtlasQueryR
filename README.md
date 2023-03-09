@@ -70,18 +70,18 @@ metadata |>
   dplyr::count(tissue)
 #> # Source:   SQL [?? x 2]
 #> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
-#>    tissue                                           n
-#>    <chr>                                        <dbl>
-#>  1 blood                                           47
-#>  2 respiratory airway                              16
-#>  3 mammary gland epithelial cell (cell culture)     1
-#>  4 colon                                            3
-#>  5 intestine                                       18
-#>  6 pleural effusion                                11
-#>  7 lymph node                                      15
-#>  8 lung                                            27
-#>  9 liver                                           24
-#> 10 axilla                                          10
+#>    tissue            n
+#>    <chr>         <dbl>
+#>  1 cerebellum        3
+#>  2 telencephalon     2
+#>  3 heart             3
+#>  4 intestine        18
+#>  5 kidney           19
+#>  6 liver            24
+#>  7 lung             27
+#>  8 muscle organ      3
+#>  9 pancreas          5
+#> 10 placenta          3
 #> # … with more rows
 ```
 
@@ -294,65 +294,68 @@ metadata |>
 
 Various metadata fields are *not* common between datasets, so it does
 not make sense for these to live in the main metadata table. However, we
-can obtain it using the `get_unharmonised_metadata()` function.
-
-Note how this table has additional columns that are not in the normal
-metadata:
+can obtain it using the `get_unharmonised_metadata()` function. This
+function returns a data frame with one row per dataset, including the
+`unharmonised` column which contains unharmnised metadata as a nested
+data frame.
 
 ``` r
-dataset = "838ea006-2369-4e2c-b426-b2a744a2b02b"
-unharmonised_meta = get_unharmonised_metadata(dataset)
-unharmonised_tbl = dplyr::collect(unharmonised_meta[[dataset]])
-unharmonised_tbl
-#> # A tibble: 168,860 × 23
-#>    cell_     file_id Neuro…¹ Class Subcl…² Super…³ Age.a…⁴ Years…⁵ Cogni…⁶ ADNC 
-#>    <chr>     <chr>   <lgl>   <chr> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>
-#>  1 GGACGAAG… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 90+ ye… 16 to … Dement… High 
-#>  2 TCACGGGA… 838ea0… FALSE   Neur… L4 IT   L4 IT_1 90+ ye… 12 to … Dement… Inte…
-#>  3 TCAGTTTT… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 78 to … 16 to … No dem… Low  
-#>  4 TCAGTCCT… 838ea0… FALSE   Neur… L4 IT   L4 IT_4 78 to … 16 to … Dement… Inte…
-#>  5 AGCCACGC… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 78 to … 19 to … No dem… Inte…
-#>  6 CCTCAACC… 838ea0… TRUE    Neur… L4 IT   L4 IT_2 Less t… Refere… Refere… Refe…
-#>  7 CTCGACAA… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 78 to … 12 to … No dem… Inte…
-#>  8 AGCTACAG… 838ea0… FALSE   Neur… L4 IT   L4 IT_4 90+ ye… 16 to … Dement… High 
-#>  9 CTCGAGGG… 838ea0… FALSE   Neur… L4 IT   L4 IT_2 65 to … 16 to … Dement… High 
-#> 10 AGTGCCGT… 838ea0… FALSE   Neur… L4 IT   L4 IT_4 90+ ye… 16 to … Dement… High 
-#> # … with 168,850 more rows, 13 more variables: Braak.stage <chr>,
-#> #   Thal.phase <chr>, CERAD.score <chr>, APOE4.status <chr>,
-#> #   Lewy.body.disease.pathology <chr>, LATE.NC.stage <chr>,
-#> #   Microinfarct.pathology <chr>, Specimen.ID <chr>, Donor.ID <chr>, PMI <chr>,
-#> #   Number.of.UMIs <dbl>, Genes.detected <dbl>,
-#> #   Fraction.mitochrondrial.UMIs <dbl>, and abbreviated variable names
-#> #   ¹​Neurotypical.reference, ²​Subclass, ³​Supertype, ⁴​Age.at.death, …
+harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
+unharmonised <- get_unharmonised_metadata(harmonised)
+unharmonised
+#> # A tibble: 4 × 2
+#>   file_id                              unharmonised   
+#>   <chr>                                <list>         
+#> 1 63523aa3-0d04-4fc6-ac59-5cadd3e73a14 <tbl_dck_[,17]>
+#> 2 8fee7b82-178b-4c04-bf23-04689415690d <tbl_dck_[,12]>
+#> 3 dc9d8cdd-29ee-4c44-830c-6559cb3d0af6 <tbl_dck_[,14]>
+#> 4 f7e94dbb-8638-4616-aaf9-16e2212c369f <tbl_dck_[,14]>
 ```
 
-If we have metadata from the normal metadata table that is from a single
-dataset, we can even join this additional metadata into one big data
-frame:
+Notice that the columns differ between each dataset’s data frame:
 
 ``` r
-harmonised_meta = get_metadata() |> dplyr::filter(file_id == dataset) |> dplyr::collect()
-dplyr::left_join(harmonised_meta, unharmonised_tbl, by=c("file_id", "cell_"))
-#> # A tibble: 168,860 × 77
-#>    cell_ sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ _samp…⁸
-#>    <chr> <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  
-#>  1 GGAC… f63cb4… L2/3-6… neuron        1 <NA>    <NA>    <NA>    168593… H21.33…
-#>  2 TCAC… 0d4d1f… L2/3-6… neuron        1 <NA>    <NA>    <NA>    f7d747… H21.33…
-#>  3 TCAG… 3e5a3b… L2/3-6… neuron        1 <NA>    <NA>    <NA>    3417a9… H20.33…
-#>  4 TCAG… 7010a3… L2/3-6… neuron        1 <NA>    <NA>    <NA>    246a59… H20.33…
-#>  5 AGCC… 82bb9a… L2/3-6… neuron        1 <NA>    <NA>    <NA>    7a8f35… H21.33…
-#>  6 CCTC… a233eb… L2/3-6… neuron        1 <NA>    <NA>    <NA>    188243… H18.30…
-#>  7 CTCG… 27f104… L2/3-6… neuron        1 <NA>    <NA>    <NA>    a62943… H20.33…
-#>  8 AGCT… 0190a2… L2/3-6… neuron        1 <NA>    <NA>    <NA>    c508a8… H20.33…
-#>  9 CTCG… 95d846… L2/3-6… neuron        1 <NA>    <NA>    <NA>    29285d… H21.33…
-#> 10 AGTG… b0e1c5… L2/3-6… neuron        1 <NA>    <NA>    <NA>    cd7823… H21.33…
-#> # … with 168,850 more rows, 67 more variables: assay <chr>,
-#> #   assay_ontology_term_id <chr>, file_id_db <chr>,
-#> #   cell_type_ontology_term_id <chr>, development_stage <chr>,
-#> #   development_stage_ontology_term_id <chr>, disease <chr>,
-#> #   disease_ontology_term_id <chr>, ethnicity <chr>,
-#> #   ethnicity_ontology_term_id <chr>, experiment___ <chr>, file_id <chr>,
-#> #   is_primary_data_x <chr>, organism <chr>, organism_ontology_term_id <chr>, …
+dplyr::pull(unharmonised, unharmonised) |> head(2)
+#> [[1]]
+#> # Source:   SQL [?? x 17]
+#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
+#>    cell_ file_id donor…¹ donor…² libra…³ mappe…⁴ sampl…⁵ suspe…⁶ suspe…⁷ autho…⁸
+#>    <chr> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
+#>  1 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  2 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  3 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  4 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  5 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  6 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  7 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  8 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  9 4602… 63523a… 19 mon… 463181… 671785… GENCOD… 125234… cell    c7485e… CD4 T …
+#> 10 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#> # … with more rows, 7 more variables: cell_state <chr>,
+#> #   reported_diseases <chr>, Short_Sample <chr>, Project <chr>,
+#> #   Experiment <chr>, compartment <chr>, broad_celltype <chr>, and abbreviated
+#> #   variable names ¹​donor_age, ²​donor_uuid, ³​library_uuid,
+#> #   ⁴​mapped_reference_annotation, ⁵​sample_uuid, ⁶​suspension_type,
+#> #   ⁷​suspension_uuid, ⁸​author_cell_type
+#> 
+#> [[2]]
+#> # Source:   SQL [?? x 12]
+#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
+#>    cell_ file_id orig.…¹ nCoun…² nFeat…³ seura…⁴ Project donor…⁵ compa…⁶ broad…⁷
+#>    <chr> <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
+#>  1 1069  8fee7b… 4602ST…   16082 3997    25      Experi… Wilms3  non_PT  Pelvic…
+#>  2 1214  8fee7b… 4602ST…    1037 606     25      Experi… Wilms3  non_PT  Pelvic…
+#>  3 2583  8fee7b… 4602ST…    3028 1361    25      Experi… Wilms3  non_PT  Pelvic…
+#>  4 2655  8fee7b… 4602ST…    1605 859     25      Experi… Wilms3  non_PT  Pelvic…
+#>  5 3609  8fee7b… 4602ST…    1144 682     25      Experi… Wilms3  non_PT  Pelvic…
+#>  6 3624  8fee7b… 4602ST…    1874 963     25      Experi… Wilms3  non_PT  Pelvic…
+#>  7 3946  8fee7b… 4602ST…    1296 755     25      Experi… Wilms3  non_PT  Pelvic…
+#>  8 5163  8fee7b… 4602ST…   11417 3255    25      Experi… Wilms3  non_PT  Pelvic…
+#>  9 5446  8fee7b… 4602ST…    1769 946     19      Experi… Wilms2  lympho… CD4 T …
+#> 10 6275  8fee7b… 4602ST…    3750 1559    25      Experi… Wilms3  non_PT  Pelvic…
+#> # … with more rows, 2 more variables: author_cell_type <chr>, Sample <chr>, and
+#> #   abbreviated variable names ¹​orig.ident, ²​nCount_RNA, ³​nFeature_RNA,
+#> #   ⁴​seurat_clusters, ⁵​donor_id, ⁶​compartment, ⁷​broad_celltype
 ```
 
 # Cell metadata
