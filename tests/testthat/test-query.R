@@ -183,3 +183,10 @@ test_that("get_unharmonised_metadata() returns the appropriate data", {
         nrow(unharmonised)
     )
 })
+
+test_that("get_metadata() is cached", {
+    table = get_metadata()
+    table_2 = get_metadata()
+    
+    identical(table, table_2) |> expect_true()
+})
