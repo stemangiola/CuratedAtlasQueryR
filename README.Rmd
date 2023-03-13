@@ -28,7 +28,7 @@ knitr::include_graphics(c(
   "man/figures/svcf_logo.jpeg", 
   "man/figures/czi_logo.png", 
   "man/figures/bioconductor_logo.jpg",
-    "man/figures/vca_logo.png",
+  "man/figures/vca_logo.png",
   "man/figures/nectar_logo.png"
 ))
 ```
@@ -54,7 +54,7 @@ library(CuratedAtlasQueryR)
 ### Load the metadata
 
 ```{r}
-metadata  = get_metadata()
+metadata = get_metadata()
 
 metadata
 ```

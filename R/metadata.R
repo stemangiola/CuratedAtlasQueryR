@@ -101,6 +101,7 @@ get_metadata <- function(
         cached_connection
     }
     else {
+        report_file_sizes(remote_url)
         db_path <- file.path(cache_directory, "metadata.0.2.3.parquet")
         sync_remote_file(
             remote_url,

@@ -148,7 +148,6 @@ get_SingleCellExperiment <- function(
 }
 
 #' Converts a data frame into a single SCE
-#'
 #' @param i Suffix to be added to the column names, to make them unique
 #' @param df The data frame to be converted
 #' @param dir_prefix The path to the single cell experiment, minus the final segment
@@ -216,7 +215,6 @@ group_to_sce <- function(i, df, dir_prefix, features) {
 }
 
 #' Synchronises one or more remote assays with a local copy
-#'
 #' @param url A character vector of length one. The base HTTP URL from which to
 #'   obtain the files.
 #' @param cache_dir A character vector of length one. The local filepath to
@@ -226,14 +224,10 @@ group_to_sce <- function(i, df, dir_prefix, features) {
 #' @param files A character vector containing one or more file_id_db entries
 #' @returns A character vector consisting of file paths to all the newly
 #'   downloaded files
-#'
 #' @return A character vector of files that have been downloaded
-#' @importFrom purrr pmap_chr transpose
-#' @importFrom httr modify_url GET write_disk stop_for_status parse_url
-#' @importFrom dplyr tibble transmute filter full_join
-#' @importFrom glue glue
-#' @importFrom assertthat assert_that
-#' @importFrom cli cli_alert_success cli_alert_info cli_abort
+#' @importFrom purrr pmap_chr map_chr
+#' @importFrom httr modify_url
+#' @importFrom dplyr transmute filter
 #' @noRd
 #'
 sync_assay_files <- function(
@@ -244,7 +238,7 @@ sync_assay_files <- function(
 ) {
     # Find every combination of file name, sample id, and assay, since each
     # will be a separate file we need to download
-    expand.grid(
+    files = expand.grid(
         filename = c("assays.h5", "se.rds"),
         sample_id = files,
         subdir = subdirs,
@@ -261,7 +255,7 @@ sync_assay_files <- function(
                 .data$sample_id,
                 "/",
                 .data$filename
-            ) |> map(~ modify_url(url, path = .)),
+            ) |> map_chr(~ modify_url(url, path = .)),
 
             # Path to save the file on local disk (and its parent directory)
             # We use file.path since the file separator will differ on other OSs
@@ -281,14 +275,19 @@ sync_assay_files <- function(
             # proceed with the download if it has. However this is low
             # importance as the repository is not likely to change often
             !file.exists(.data$output_file)
-        ) |>
-        pmap_chr(function(full_url, output_dir, output_file) {
-            sync_remote_file(full_url, output_file)
-            output_file
-        }, .progress = list(name = "Downloading files"))
+        )
+    
+    report_file_sizes(files$full_url)
+    
+    pmap_chr(files, function(full_url, output_dir, output_file) {
+        sync_remote_file(full_url, output_file)
+        output_file
+    }, .progress = list(name = "Downloading files"))
 }
 
 #' Synchronises a single remote file with a local path
+#' @importFrom httr write_disk GET stop_for_status
+#' @importFrom cli cli_abort cli_alert_info
 #' @noRd
 sync_remote_file <- function(full_url, output_file, ...) {
     if (!file.exists(output_file)) {
