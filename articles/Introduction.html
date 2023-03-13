@@ -126,7 +126,8 @@ criteria.</p>
 <h4 id="load-the-metadata">Load the metadata<a class="anchor" aria-label="anchor" href="#load-the-metadata"></a>
 </h4>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Downloading 1 file, totalling 0.48 GB</span></span></code></pre></div>
 <p>The <code>metadata</code> variable can then be re-used for all
 subsequent queries.</p>
 </div>
@@ -162,8 +163,7 @@ subsequent queries.</p>
 <h4 id="query-raw-counts">Query raw counts<a class="anchor" aria-label="anchor" href="#query-raw-counts"></a>
 </h4>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
+<code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
 <span>    <span class="va">metadata</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">ethnicity</span> <span class="op">==</span> <span class="st">"African"</span> <span class="op">&amp;</span></span>
@@ -174,6 +174,7 @@ subsequent queries.</p>
 <span>    <span class="fu"><a href="../reference/get_SingleCellExperiment.html">get_SingleCellExperiment</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Realising metadata.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Synchronising files</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Downloading 0 files, totalling 0 GB</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Reading files.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Compiling Single Cell Experiment.</span></span>
 <span></span>
@@ -208,6 +209,7 @@ compared across samples.</p>
 <span>    <span class="fu"><a href="../reference/get_SingleCellExperiment.html">get_SingleCellExperiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Realising metadata.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Synchronising files</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Downloading 0 files, totalling 0 GB</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Reading files.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Compiling Single Cell Experiment.</span></span>
 <span></span>
@@ -240,6 +242,7 @@ compared across samples.</p>
 <span>    <span class="fu"><a href="../reference/get_SingleCellExperiment.html">get_SingleCellExperiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span>, features <span class="op">=</span> <span class="st">"PUM1"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Realising metadata.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Synchronising files</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Downloading 0 files, totalling 0 GB</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Reading files.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Compiling Single Cell Experiment.</span></span>
 <span></span>
@@ -275,6 +278,7 @@ requesting.</p>
 <span>    <span class="fu"><a href="../reference/get_seurat.html">get_seurat</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Realising metadata.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Synchronising files</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Downloading 0 files, totalling 0 GB</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Reading files.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Compiling Single Cell Experiment.</span></span>
 <span></span>
