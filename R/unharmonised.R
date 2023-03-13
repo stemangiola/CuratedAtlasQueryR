@@ -1,3 +1,14 @@
+# Functions that relate to unharmonised metadata
+
+#' @include utils.R
+NULL
+
+#' Base URL for all the unharmonised data
+UNHARMONISED_URL <- single_line_str(
+    "https://object-store.rc.nectar.org.au/v1/
+    AUTH_06d6e008e3e642da99d806ba3ea629c5/unharmonised_metadata"
+)
+
 #' Returns unharmonised metadata for selected datasets.
 #'
 #' Various metadata fields are *not* common between datasets, so it does not
@@ -25,23 +36,28 @@
 #' @return A named list, where each name is a dataset file ID, and each value is
 #'   a "lazy data frame", ie a `tbl`.
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' dataset = "838ea006-2369-4e2c-b426-b2a744a2b02b"
-#' harmonised_meta = get_metadata() |> dplyr::filter(file_id == dataset) |> dplyr::collect()
+#' harmonised_meta = get_metadata() |> 
+#'     dplyr::filter(file_id == dataset) |> dplyr::collect()
 #' unharmonised_meta = get_unharmonised_dataset(dataset)
 #' unharmonised_tbl = dplyr::collect(unharmonised_meta[[dataset]])
 #' dplyr::left_join(harmonised_meta, unharmonised_tbl, by=c("file_id", "cell_"))
 #' }
-get_unharmonised_dataset = function(
-        dataset_id,
-        cells = NULL,
-        conn = duckdb() |> dbConnect(drv = _, read_only = TRUE),
-        remote_url = "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/unharmonised_metadata",
-        cache_directory = get_default_cache_dir()
+get_unharmonised_dataset <- function(
+    dataset_id,
+    cells = NULL,
+    conn = duckdb() |> dbConnect(drv = _, read_only = TRUE),
+    remote_url = UNHARMONISED_URL,
+    cache_directory = get_default_cache_dir()
 ){
-    unharmonised_root <- file.path(cache_directory, COUNTS_VERSION, "unharmonised")
-    file_name = glue::glue("{dataset_id}.parquet")
-    local_path = file.path(unharmonised_root, file_name)
+    unharmonised_root <- file.path(
+      cache_directory,
+      COUNTS_VERSION,
+      "unharmonised"
+    )
+    file_name <- glue::glue("{dataset_id}.parquet")
+    local_path <- file.path(unharmonised_root, file_name)
     glue("{remote_url}/{file_name}") |>
         sync_remote_file(
             local_path,
@@ -54,17 +70,19 @@ get_unharmonised_dataset = function(
 #' Returns unharmonised metadata for a metadata query
 #' @inherit get_unharmonised_dataset description
 #' @param metadata A lazy data frame obtained from [get_metadata()], filtered
-#'  down to some cells of interest
+#'   down to some cells of interest
 #' @inheritDotParams get_unharmonised_dataset
 #' @return A tibble with two columns:
-#'  * `file_id`: the same `file_id` as the main metadata table obtained from [get_metadata()]
-#'  * `unharmonised`: a nested tibble, with one row per cell in the input `metadata`, containing unharmonised metadata
+#'  * `file_id`: the same `file_id` as the main metadata table obtained from
+#'    [get_metadata()]
+#'  * `unharmonised`: a nested tibble, with one row per cell in the input
+#'    `metadata`, containing unharmonised metadata
 #' @export
 #' @importFrom dplyr group_by summarise filter collect
 #' @importFrom rlang .data
 #' @importFrom dbplyr remote_con
 #' @examples
-#' harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
+#' harmonised <- dplyr::filter(get_metadata(), tissue == "kidney blood vessel")
 #' unharmonised <- get_unharmonised_metadata(harmonised)
 get_unharmonised_metadata = function(metadata, ...){
     args <- list(...)
