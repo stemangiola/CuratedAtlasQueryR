@@ -30,8 +30,10 @@ the unharmonised metadata files.}
 \value{
 A tibble with two columns:
 \itemize{
-\item \code{file_id}: the same \code{file_id} as the main metadata table obtained from \code{\link[=get_metadata]{get_metadata()}}
-\item \code{unharmonised}: a nested tibble, with one row per cell in the input \code{metadata}, containing unharmonised metadata
+\item \code{file_id}: the same \code{file_id} as the main metadata table obtained from
+\code{\link[=get_metadata]{get_metadata()}}
+\item \code{unharmonised}: a nested tibble, with one row per cell in the input
+\code{metadata}, containing unharmonised metadata
 }
 }
 \description{
@@ -40,6 +42,6 @@ make sense for these to live in the main metadata table. This function is a
 utility that allows easy fetching of this data if necessary.
 }
 \examples{
-harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
+harmonised <- dplyr::filter(get_metadata(), tissue == "kidney blood vessel")
 unharmonised <- get_unharmonised_metadata(harmonised)
 }
