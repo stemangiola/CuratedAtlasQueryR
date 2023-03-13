@@ -67,7 +67,7 @@ get_unharmonised_dataset = function(
 #' harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
 #' unharmonised <- get_unharmonised_metadata(harmonised)
 get_unharmonised_metadata = function(metadata, ...){
-    args = list(...)
+    args <- list(...)
     metadata |>
         collect() |>
         group_by(.data$file_id) |>

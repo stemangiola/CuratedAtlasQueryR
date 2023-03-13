@@ -3,6 +3,7 @@
 #' @return The file size of each of the files pointed to by the provided URL,
 #' in gigabytes, as double vector
 #' @importFrom purrr map_dbl
+#' @importFrom httr HEAD
 #' @keywords internal
 url_file_size = function(urls){
     map_dbl(urls, function(url){

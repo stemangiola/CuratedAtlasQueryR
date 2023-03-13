@@ -286,6 +286,8 @@ sync_assay_files <- function(
 }
 
 #' Synchronises a single remote file with a local path
+#' @importFrom httr write_disk GET stop_for_status
+#' @importFrom cli cli_abort cli_alert_info
 #' @noRd
 sync_remote_file <- function(full_url, output_file, ...) {
     if (!file.exists(output_file)) {
