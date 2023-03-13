@@ -148,7 +148,6 @@ get_SingleCellExperiment <- function(
 }
 
 #' Converts a data frame into a single SCE
-#'
 #' @param i Suffix to be added to the column names, to make them unique
 #' @param df The data frame to be converted
 #' @param dir_prefix The path to the single cell experiment, minus the final segment
@@ -216,7 +215,6 @@ group_to_sce <- function(i, df, dir_prefix, features) {
 }
 
 #' Synchronises one or more remote assays with a local copy
-#'
 #' @param url A character vector of length one. The base HTTP URL from which to
 #'   obtain the files.
 #' @param cache_dir A character vector of length one. The local filepath to
@@ -226,14 +224,10 @@ group_to_sce <- function(i, df, dir_prefix, features) {
 #' @param files A character vector containing one or more file_id_db entries
 #' @returns A character vector consisting of file paths to all the newly
 #'   downloaded files
-#'
 #' @return A character vector of files that have been downloaded
-#' @importFrom purrr pmap_chr transpose map_chr
-#' @importFrom httr modify_url GET write_disk stop_for_status parse_url HEAD
-#' @importFrom dplyr tibble transmute filter full_join rowwise ungroup
-#' @importFrom glue glue
-#' @importFrom assertthat assert_that
-#' @importFrom cli cli_alert_success cli_alert_info cli_abort
+#' @importFrom purrr pmap_chr map_chr
+#' @importFrom httr modify_url
+#' @importFrom dplyr transmute filter
 #' @noRd
 #'
 sync_assay_files <- function(
