@@ -6,7 +6,7 @@
     # "Connection is garbage-collected" messages
     cache$metadata_table |>
         as.list() |>
-        purrr::walk(function(table){
+        walk(function(table){
             table |>
                 remote_con() |>
                 dbDisconnect()
