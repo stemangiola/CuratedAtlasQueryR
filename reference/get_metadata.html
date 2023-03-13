@@ -57,7 +57,7 @@ to obtain a SingleCellExperiment::SingleCellExperiment"><meta property="og:image
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Gets the Curated Atlas metadata as a data frame.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/stemangiola/CuratedAtlasQueryR/blob/HEAD/R/query.R" class="external-link"><code>R/query.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/stemangiola/CuratedAtlasQueryR/blob/HEAD/R/metadata.R" class="external-link"><code>R/metadata.R</code></a></small>
     <div class="hidden name"><code>get_metadata.Rd</code></div>
     </div>
 
@@ -72,7 +72,8 @@ to obtain a <code><a href="https://rdrr.io/pkg/SingleCellExperiment/man/SingleCe
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_metadata</span><span class="op">(</span></span>
 <span>  remote_url <span class="op">=</span></span>
 <span>    <span class="st">"https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.3.parquet"</span>,</span>
-<span>  cache_directory <span class="op">=</span> <span class="fu">get_default_cache_dir</span><span class="op">(</span><span class="op">)</span></span>
+<span>  cache_directory <span class="op">=</span> <span class="fu">get_default_cache_dir</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  use_cache <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -87,6 +88,13 @@ to the location of the parquet database.</p></dd>
 <dd><p>Optional character vector of length 1. A file path on
 your local system to a directory (not a file) that will be used to store
 metadata.parquet</p></dd>
+
+
+<dt>use_cache</dt>
+<dd><p>Optional logical scalar. If <code>TRUE</code> (the default), and this
+function has been called before with the same parameters, then a cached
+reference to the table will be returned. If <code>FALSE</code>, a new connection will
+be created no matter what.</p></dd>
 
 </dl></div>
     <div id="value">
