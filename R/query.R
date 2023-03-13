@@ -228,9 +228,9 @@ group_to_sce <- function(i, df, dir_prefix, features) {
 #'   downloaded files
 #'
 #' @return A character vector of files that have been downloaded
-#' @importFrom purrr pmap_chr transpose
-#' @importFrom httr modify_url GET write_disk stop_for_status parse_url
-#' @importFrom dplyr tibble transmute filter full_join
+#' @importFrom purrr pmap_chr transpose map_chr
+#' @importFrom httr modify_url GET write_disk stop_for_status parse_url HEAD
+#' @importFrom dplyr tibble transmute filter full_join rowwise ungroup
 #' @importFrom glue glue
 #' @importFrom assertthat assert_that
 #' @importFrom cli cli_alert_success cli_alert_info cli_abort
@@ -244,7 +244,7 @@ sync_assay_files <- function(
 ) {
     # Find every combination of file name, sample id, and assay, since each
     # will be a separate file we need to download
-    expand.grid(
+    files = expand.grid(
         filename = c("assays.h5", "se.rds"),
         sample_id = files,
         subdir = subdirs,
@@ -261,7 +261,7 @@ sync_assay_files <- function(
                 .data$sample_id,
                 "/",
                 .data$filename
-            ) |> map(~ modify_url(url, path = .)),
+            ) |> map_chr(~ modify_url(url, path = .)),
 
             # Path to save the file on local disk (and its parent directory)
             # We use file.path since the file separator will differ on other OSs
@@ -281,11 +281,14 @@ sync_assay_files <- function(
             # proceed with the download if it has. However this is low
             # importance as the repository is not likely to change often
             !file.exists(.data$output_file)
-        ) |>
-        pmap_chr(function(full_url, output_dir, output_file) {
-            sync_remote_file(full_url, output_file)
-            output_file
-        }, .progress = list(name = "Downloading files"))
+        )
+    
+    report_file_sizes(files$full_url)
+    
+    pmap_chr(files, function(full_url, output_dir, output_file) {
+        sync_remote_file(full_url, output_file)
+        output_file
+    }, .progress = list(name = "Downloading files"))
 }
 
 #' Synchronises a single remote file with a local path

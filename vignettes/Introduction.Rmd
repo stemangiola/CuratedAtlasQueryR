@@ -31,7 +31,7 @@ knitr::include_graphics(c(
   "../man/figures/svcf_logo.jpeg", 
   "../man/figures/czi_logo.png", 
   "../man/figures/bioconductor_logo.jpg",
-    "../man/figures/vca_logo.png",
+  "../man/figures/vca_logo.png",
   "../man/figures/nectar_logo.png"
 ))
 ```
@@ -92,7 +92,6 @@ metadata |>
 ### Query raw counts
 
 ```{r}
-
 single_cell_counts = 
 	metadata |>
     dplyr::filter(
