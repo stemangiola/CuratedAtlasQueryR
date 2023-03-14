@@ -26,13 +26,23 @@ file.}
 character scalar}
   }}
 }
+\value{
+\code{NULL}, invisibly
+}
 \description{
 Update the metadata database in nectar using a newly created data frame
 }
 \examples{
 \dontrun{
- metadata = CuratedAtlasQueryR::get_metadata() |> head(10) |> dplyr::collect()
- update_database(metadata, "0.2.3", credential_id = "ABCDEFGHIJK", credential_secret = "ABCD1234EFGH-5678IJK")
+ metadata = CuratedAtlasQueryR::get_metadata() |>
+     head(10) |>
+     dplyr::collect()
+ update_database(
+     metadata, 
+     "0.2.3", 
+     credential_id = "ABCDEFGHIJK", 
+     credential_secret = "ABCD1234EFGH-5678IJK"
+ )
  # Prints "metadata.0.2.3.parquet" if successful
 }
 }

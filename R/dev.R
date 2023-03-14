@@ -13,14 +13,24 @@
 #'   `-openrc.sh` file instead of providing it here.
 #' @param credential_id The OpenStack application credential secret as a
 #'   character scalar
-#' @return NULL
+#' @return `NULL`, invisibly
 #' @keywords internal
-upload_swift = function(source, container, name = basename(source), credential_id = NULL, credential_secret = NULL){
+upload_swift <- function(
+    source,
+    container,
+    name = basename(source),
+    credential_id = NULL,
+    credential_secret = NULL
+) {
     # Create the basilisk environment
     swift_env <- basilisk::BasiliskEnvironment(
         envname="swift-nectar-upload",
         pkgname=packageName(),
-        packages=c("python-swiftclient==4.2.0", "python-keystoneclient==5.1.0", "python==3.10.9")
+        packages=c(
+          "python-swiftclient==4.2.0",
+          "python-keystoneclient==5.1.0",
+          "python==3.10.9"
+        )
     )
     proc <- basilisk::basiliskStart(swift_env)
     
@@ -38,7 +48,7 @@ upload_swift = function(source, container, name = basename(source), credential_i
     else {
         auth <- character()
     }
-    args = c(
+    args <- c(
         "-m", 
         "swiftclient.shell",
         "--os-auth-url",
@@ -67,12 +77,20 @@ upload_swift = function(source, container, name = basename(source), credential_i
 #' @inheritDotParams upload_swift
 #' @examples
 #' \dontrun{
-#'  metadata = CuratedAtlasQueryR::get_metadata() |> head(10) |> dplyr::collect()
-#'  update_database(metadata, "0.2.3", credential_id = "ABCDEFGHIJK", credential_secret = "ABCD1234EFGH-5678IJK")
+#'  metadata = CuratedAtlasQueryR::get_metadata() |>
+#'      head(10) |>
+#'      dplyr::collect()
+#'  update_database(
+#'      metadata, 
+#'      "0.2.3", 
+#'      credential_id = "ABCDEFGHIJK", 
+#'      credential_secret = "ABCD1234EFGH-5678IJK"
+#'  )
 #'  # Prints "metadata.0.2.3.parquet" if successful
 #' }
 #' @keywords internal
-update_database = function(metadata, version, ...){
+#' @inherit upload_swift return
+update_database <- function(metadata, version, ...){
     # These are optional dev packages
     rlang::check_installed(c("arrow", "glue", "basilisk"))
     
@@ -89,12 +107,22 @@ update_database = function(metadata, version, ...){
 #'   files, one for each dataset, e.g.
 #'   /vast/projects/cellxgene_curated/metadata_non_harmonised_parquet_0.2
 #' @inheritDotParams upload_swift
+#' @inherit upload_swift return
 #' @keywords internal
 #' @examples
 #' \dontrun{
-#' update_unharmonised("/vast/projects/cellxgene_curated/metadata_non_harmonised_parquet_0.2", credential_id = "ABCDEFGHIJK", credential_secret = "ABCD1234EFGH-5678IJK")
+#' update_unharmonised(
+#'     "/vast/projects/cellxgene_curated/metadata_non_harmonised_parquet_0.2", 
+#'     credential_id = "ABCDEFGHIJK", 
+#'     credential_secret = "ABCD1234EFGH-5678IJK"
+#' )
 #' }
-update_unharmonised = function(unharmonised_parquet_dir, ...){
+update_unharmonised <- function(unharmonised_parquet_dir, ...){
     # name="/" forces it have no prefix, ie be at the top level in the bucket
-    upload_swift(unharmonised_parquet_dir, container="unharmonised_metadata", name="/", ...)
+    upload_swift(
+        unharmonised_parquet_dir, 
+        container="unharmonised_metadata",
+        name="/", 
+        ...
+    )
 }

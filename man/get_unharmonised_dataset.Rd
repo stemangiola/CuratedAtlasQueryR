@@ -8,8 +8,7 @@ get_unharmonised_dataset(
   dataset_id,
   cells = NULL,
   conn = dbConnect(drv = duckdb(), read_only = TRUE),
-  remote_url =
-    "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/unharmonised_metadata",
+  remote_url = UNHARMONISED_URL,
   cache_directory = get_default_cache_dir()
 )
 }
@@ -41,9 +40,10 @@ make sense for these to live in the main metadata table. This function is a
 utility that allows easy fetching of this data if necessary.
 }
 \examples{
-\dontrun{
+\donttest{
 dataset = "838ea006-2369-4e2c-b426-b2a744a2b02b"
-harmonised_meta = get_metadata() |> dplyr::filter(file_id == dataset) |> dplyr::collect()
+harmonised_meta = get_metadata() |> 
+    dplyr::filter(file_id == dataset) |> dplyr::collect()
 unharmonised_meta = get_unharmonised_dataset(dataset)
 unharmonised_tbl = dplyr::collect(unharmonised_meta[[dataset]])
 dplyr::left_join(harmonised_meta, unharmonised_tbl, by=c("file_id", "cell_"))

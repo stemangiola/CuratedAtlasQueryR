@@ -93,7 +93,7 @@ metadata |>
 
 ```{r}
 single_cell_counts = 
-	metadata |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -111,7 +111,7 @@ This is helpful if just few genes are of interest, as they can be compared acros
 
 ```{r}
 single_cell_counts = 
-	metadata |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -127,7 +127,7 @@ single_cell_counts
 
 ```{r}
 single_cell_counts = 
-	metadata |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -146,7 +146,7 @@ This convert the H5 SingleCellExperiment to Seurat so it might take long time an
 
 ```{r}
 single_cell_counts = 
-	metadata |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -281,7 +281,7 @@ metadata |>
   # Get counts per million for HCA-A gene 
   get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
 
-	# Plot (styling code have been omitted)
+    # Plot (styling code have been omitted)
   join_features("HLA-A", shape = "wide") |> 
   ggplot(aes( tissue_harmonised, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") 

@@ -26,6 +26,9 @@ file.}
 \item{credential_id}{The OpenStack application credential secret as a
 character scalar}
 }
+\value{
+\code{NULL}, invisibly
+}
 \description{
 Upload a file to the Nectar object store
 }

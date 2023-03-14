@@ -1,7 +1,10 @@
-# These are hacks to force the above packages to be loaded, and also to
+# Functions that relate to downloading count data into SingleCellExperiments
+
+# We need to load utils now so it can be used at the top level
+#' @include utils.R
+# This is a hack to force Seurat packages to be loaded, and also to
 # satisfy R CMD check. We don't need to attach them at all.
-#' @import dbplyr 
-#' @import Seurat
+#' @importFrom Seurat as.SingleCellExperiment
 NULL
 
 # Maps user provided assay names to their corresponding paths in the repository
@@ -10,22 +13,28 @@ assay_map <- c(
     cpm = "cpm"
 )
 
-REMOTE_URL <- "https://swift.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
+#' Base URL pointing to the count data
+COUNTS_URL <- single_line_str(
+    "https://swift.rc.nectar.org.au/v1/
+    AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
+)
+#' Current version of the counts. This will be incremented when a newer
+#' version is released
 COUNTS_VERSION <- "0.2"
 
 #' Gets a SingleCellExperiment from curated metadata
 #'
 #' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
-#' returns a [`SingleCellExperiment::SingleCellExperiment-class`] object corresponding to the samples in that
-#' data frame
+#' returns a [`SingleCellExperiment::SingleCellExperiment-class`] object
+#' corresponding to the samples in that data frame
 #'
 #' @param data A data frame containing, at minimum, a `sample_` column, which
 #'   corresponds to a single cell sample ID. This can be obtained from the
 #'   [get_metadata()] function.
 #' @param assays A character vector whose elements must be either "counts"
-#'   and/or "cpm", representing the corresponding assay(s) you want to request. 
-#'   By default only the count assay is downloaded. If you are interested in comparing a limited amount of genes, 
-#'   the "cpm" assay is more appropriate.
+#'   and/or "cpm", representing the corresponding assay(s) you want to request.
+#'   By default only the count assay is downloaded. If you are interested in
+#'   comparing a limited amount of genes, the "cpm" assay is more appropriate.
 #' @param repository A character vector of length one. If provided, it should be
 #'   an HTTP URL pointing to the location where the single cell data is stored.
 #' @param cache_directory An optional character vector of length one. If
@@ -54,15 +63,12 @@ COUNTS_VERSION <- "0.2"
 #' @importFrom rlang .data
 #' @importFrom stats setNames
 #' @importFrom S4Vectors DataFrame
-#'
 #' @export
-#'
-#' 
 get_SingleCellExperiment <- function(
     data,
     assays = "counts",
     cache_directory = get_default_cache_dir(),
-    repository = REMOTE_URL,
+    repository = COUNTS_URL,
     features = NULL
 ) {
     # Parameter validation
@@ -88,7 +94,10 @@ get_SingleCellExperiment <- function(
     has_name(raw_data, c("cell_", "file_id_db")) |> assert_that()
 
     versioned_cache_directory <- file.path(cache_directory, COUNTS_VERSION)
-    versioned_cache_directory |> dir.create(showWarnings = FALSE, recursive = TRUE)
+    versioned_cache_directory |> dir.create(
+        showWarnings = FALSE,
+        recursive = TRUE
+    )
 
     subdirs <- assay_map[assays]
 
@@ -150,7 +159,8 @@ get_SingleCellExperiment <- function(
 #' Converts a data frame into a single SCE
 #' @param i Suffix to be added to the column names, to make them unique
 #' @param df The data frame to be converted
-#' @param dir_prefix The path to the single cell experiment, minus the final segment
+#' @param dir_prefix The path to the single cell experiment, minus the final
+#'   segment
 #' @param features The list of genes/rows of interest
 #' @return A SingleCellExperiment object
 #' @importFrom dplyr mutate filter
@@ -160,6 +170,7 @@ get_SingleCellExperiment <- function(
 #' @importFrom utils head
 #' @importFrom cli cli_alert_warning cli_abort
 #' @importFrom glue glue
+#' @importFrom stringr str_replace_all
 #' @noRd
 group_to_sce <- function(i, df, dir_prefix, features) {
     sce_path <- df$file_id_db |>
@@ -183,8 +194,12 @@ group_to_sce <- function(i, df, dir_prefix, features) {
     cells <- colnames(sce) |> intersect(df$cell_)
 
     if (length(cells) < nrow(df)){
-        cli_alert_warning("Some cells were filtered out because of extremely low counts. The number of cells in the SingleCellExperiment will be less than the number of cells you have selected from the metadata.")
-        df = filter(df, .data$cell_ %in% cells)
+        str_replace_all(
+            "Some cells were filtered out because of extremely low counts. The
+            number of cells in the SingleCellExperiment will be less than the
+            number of cells you have selected from the metadata."
+        )
+        df <- filter(df, .data$cell_ %in% cells)
     }
     else if (length(cells) > nrow(df)){
         cli_abort("This should never happen")
@@ -195,8 +210,8 @@ group_to_sce <- function(i, df, dir_prefix, features) {
     
     new_coldata <- df |>
         # We need to make the cell names globally unique, which we can guarantee
-        # by adding a suffix that is derived from file_id_db, which is the grouping
-        # variable
+        # by adding a suffix that is derived from file_id_db, which is the
+        # grouping variable
         mutate(original_cell_id = .data$cell_, cell_ = glue("{cell_}_{i}")) |>
         column_to_rownames("cell_") |>
         as("DataFrame")
@@ -231,14 +246,14 @@ group_to_sce <- function(i, df, dir_prefix, features) {
 #' @noRd
 #'
 sync_assay_files <- function(
-    url = parse_url(REMOTE_URL),
+    url = parse_url(COUNTS_URL),
     cache_dir,
     subdirs,
     files
 ) {
     # Find every combination of file name, sample id, and assay, since each
     # will be a separate file we need to download
-    files = expand.grid(
+    files <- expand.grid(
         filename = c("assays.h5", "se.rds"),
         sample_id = files,
         subdir = subdirs,
@@ -283,70 +298,4 @@ sync_assay_files <- function(
         sync_remote_file(full_url, output_file)
         output_file
     }, .progress = list(name = "Downloading files"))
-}
-
-#' Synchronises a single remote file with a local path
-#' @importFrom httr write_disk GET stop_for_status
-#' @importFrom cli cli_abort cli_alert_info
-#' @noRd
-sync_remote_file <- function(full_url, output_file, ...) {
-    if (!file.exists(output_file)) {
-        output_dir <- dirname(output_file)
-        dir.create(output_dir,
-            recursive = TRUE,
-            showWarnings = FALSE
-        )
-        cli_alert_info("Downloading {full_url} to {output_file}")
-
-        tryCatch(
-            GET(full_url, write_disk(output_file), ...) |> stop_for_status(),
-            error = function(e) {
-                # Clean up if we had an error
-                file.remove(output_file)
-                cli_abort("File {full_url} could not be downloaded. {e}")
-            }
-        )
-    }
-}
-
-#' Returns the default cache directory
-#'
-#' @return A length one character vector.
-#' @importFrom tools R_user_dir
-#' @importFrom utils packageName
-#' @noRd
-#'
-get_default_cache_dir <- function() {
-    packageName() |>
-        R_user_dir(
-            "cache"
-        ) |>
-        normalizePath() |>
-        suppressWarnings()
-}
-
-#' @importFrom assertthat assert_that
-#' @importFrom methods as
-#' @importFrom SeuratObject as.sparse
-#' @exportS3Method
-as.sparse.DelayedMatrix <- function(x) {
-    # This is glue to ensure the SCE -> Seurat conversion works properly with
-    # DelayedArray types
-    as(x, "dgCMatrix")
-}
-
-#' Given a data frame of HCA metadata, returns a Seurat object corresponding to
-#' the samples in that data frame
-#'
-#' @inheritDotParams get_SingleCellExperiment
-#' @importFrom SeuratObject as.Seurat
-#' @export
-#' @return A Seurat object containing the same data as a call to
-#'   get_SingleCellExperiment.
-#' @examples
-#' meta <- get_metadata() |> head(2)
-#' seurat <- get_seurat(meta)
-#'
-get_seurat <- function(...) {
-    get_SingleCellExperiment(...) |> as.Seurat(data = NULL)
 }

@@ -1,7 +1,7 @@
 Type: Package
 Package: CuratedAtlasQueryR
 Title: Queries the Human Cell Atlas
-Version: 0.4.3
+Version: 0.99.1
 Authors@R: c(
     person(
         "Stefano",
@@ -90,10 +90,10 @@ Imports:
     tibble,
     utils,
     dbplyr (>= 2.3.0),
-    duckdb
+    duckdb,
+    stringr
 Suggests:
     here,
-    stringr,
     tidyseurat,
     zellkonverter,
     scMerge,
@@ -130,3 +130,11 @@ URL: https://github.com/stemangiola/CuratedAtlasQueryR
 BugReports: https://github.com/stemangiola/CuratedAtlasQueryR/issues
 VignetteBuilder: knitr
 Roxygen: list(markdown = TRUE)
+Collate: 
+    'utils.R'
+    'counts.R'
+    'dev.R'
+    'metadata.R'
+    'seurat.R'
+    'unharmonised.R'
+    'zzz.R'
