@@ -8,7 +8,7 @@ cache <- rlang::env(
     metadata_table = rlang::env()
 )
 
-DATABASE_URL = single_line_str(
+DATABASE_URL <- single_line_str(
     "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.3.parquet"
 )
@@ -129,7 +129,7 @@ get_metadata <- function(
 ) {
     hash <- c(remote_url, cache_directory) |> paste0(collapse="") |>
         hash_sha256()
-    cached_connection = cache$metadata_table[[hash]]
+    cached_connection <- cache$metadata_table[[hash]]
     if (!is.null(cached_connection) && isTRUE(use_cache)) {
         cached_connection
     }
@@ -144,7 +144,7 @@ get_metadata <- function(
         table <- duckdb() |>
             dbConnect(drv = _, read_only = TRUE) |>
             tbl(db_path)
-        cache$metadata_table[[hash]] = table
+        cache$metadata_table[[hash]] <- table
         table
     }
 }
