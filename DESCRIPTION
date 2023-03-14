@@ -94,7 +94,6 @@ Imports:
     stringr
 Suggests:
     here,
-    stringr,
     tidyseurat,
     zellkonverter,
     scMerge,

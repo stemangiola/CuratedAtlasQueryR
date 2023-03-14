@@ -170,6 +170,7 @@ get_SingleCellExperiment <- function(
 #' @importFrom utils head
 #' @importFrom cli cli_alert_warning cli_abort
 #' @importFrom glue glue
+#' @importFrom stringr str_replace_all
 #' @noRd
 group_to_sce <- function(i, df, dir_prefix, features) {
     sce_path <- df$file_id_db |>
@@ -245,7 +246,7 @@ group_to_sce <- function(i, df, dir_prefix, features) {
 #' @noRd
 #'
 sync_assay_files <- function(
-    url = parse_url(REMOTE_URL),
+    url = parse_url(COUNTS_URL),
     cache_dir,
     subdirs,
     files
