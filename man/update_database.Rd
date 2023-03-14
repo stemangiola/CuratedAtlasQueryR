@@ -26,6 +26,9 @@ file.}
 character scalar}
   }}
 }
+\value{
+\code{NULL}, invisibly
+}
 \description{
 Update the metadata database in nectar using a newly created data frame
 }

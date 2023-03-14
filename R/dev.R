@@ -13,7 +13,7 @@
 #'   `-openrc.sh` file instead of providing it here.
 #' @param credential_id The OpenStack application credential secret as a
 #'   character scalar
-#' @return NULL
+#' @return `NULL`, invisibly
 #' @keywords internal
 upload_swift <- function(
     source,
@@ -89,6 +89,7 @@ upload_swift <- function(
 #'  # Prints "metadata.0.2.3.parquet" if successful
 #' }
 #' @keywords internal
+#' @inherit upload_swift return
 update_database <- function(metadata, version, ...){
     # These are optional dev packages
     rlang::check_installed(c("arrow", "glue", "basilisk"))
