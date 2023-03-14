@@ -137,6 +137,5 @@ Collate:
     'dev.R'
     'metadata.R'
     'seurat.R'
-    'unharm.R'
     'unharmonised.R'
     'zzz.R'
