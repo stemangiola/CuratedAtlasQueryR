@@ -22,7 +22,22 @@
     <loc>/news/index.html</loc>
   </url>
   <url>
+    <loc>/reference/COUNTS_URL.html</loc>
+  </url>
+  <url>
+    <loc>/reference/COUNTS_VERSION.html</loc>
+  </url>
+  <url>
+    <loc>/reference/UNHARMONISED_URL.html</loc>
+  </url>
+  <url>
+    <loc>/reference/cache.html</loc>
+  </url>
+  <url>
     <loc>/reference/get_SingleCellExperiment.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_default_cache_dir.html</loc>
   </url>
   <url>
     <loc>/reference/get_metadata.html</loc>
@@ -40,6 +55,15 @@
     <loc>/reference/index.html</loc>
   </url>
   <url>
+    <loc>/reference/report_file_sizes.html</loc>
+  </url>
+  <url>
+    <loc>/reference/single_line_str.html</loc>
+  </url>
+  <url>
+    <loc>/reference/sync_remote_file.html</loc>
+  </url>
+  <url>
     <loc>/reference/update_database.html</loc>
   </url>
   <url>
@@ -47,5 +71,8 @@
   </url>
   <url>
     <loc>/reference/upload_swift.html</loc>
+  </url>
+  <url>
+    <loc>/reference/url_file_size.html</loc>
   </url>
 </urlset>

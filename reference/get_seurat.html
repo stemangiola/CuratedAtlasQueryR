@@ -20,7 +20,7 @@ the samples in that data frame"><meta property="og:image" content="/logo.png"><!
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CuratedAtlasQueryR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.1</span>
       </span>
     </div>
 
@@ -58,7 +58,7 @@ the samples in that data frame"><meta property="og:image" content="/logo.png"><!
     <div class="page-header">
     <h1>Given a data frame of HCA metadata, returns a Seurat object corresponding to
 the samples in that data frame</h1>
-    <small class="dont-index">Source: <a href="https://github.com/stemangiola/CuratedAtlasQueryR/blob/HEAD/R/query.R" class="external-link"><code>R/query.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/stemangiola/CuratedAtlasQueryR/blob/HEAD/R/seurat.R" class="external-link"><code>R/seurat.R</code></a></small>
     <div class="hidden name"><code>get_seurat.Rd</code></div>
     </div>
 
@@ -82,8 +82,8 @@ corresponds to a single cell sample ID. This can be obtained from the
     <dt><code>assays</code></dt>
 <dd><p>A character vector whose elements must be either "counts"
 and/or "cpm", representing the corresponding assay(s) you want to request.
-By default only the count assay is downloaded. If you are interested in comparing a limited amount of genes,
-the "cpm" assay is more appropriate.</p></dd>
+By default only the count assay is downloaded. If you are interested in
+comparing a limited amount of genes, the "cpm" assay is more appropriate.</p></dd>
 
     <dt><code>repository</code></dt>
 <dd><p>A character vector of length one. If provided, it should be
