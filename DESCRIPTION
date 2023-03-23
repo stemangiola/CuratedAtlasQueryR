@@ -99,8 +99,7 @@ Suggests:
     testthat,
     basilisk,
     arrow,
-    reticulate,
-    XML
+    reticulate
 Biarch: true
 biocViews: 
     AssayDomain,
