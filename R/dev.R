@@ -126,3 +126,61 @@ update_unharmonised <- function(unharmonised_parquet_dir, ...){
         ...
     )
 }
+
+#' Converts a series of HDF5Array-serialized SingleCellExperiments to AnnData
+#' @param src A character scalar. The path to a directory containing one or more
+#'  directories created by [HDF5Array::saveHDF5SummarizedExperiment()].
+#' @param dest A character scalar. The path to a directory in which to save the
+#'  created anndata files.
+#' @keywords internal
+#' @return A character vector of the newly-created anndata files
+#' @examples
+#' \donttest{
+#' dir_to_anndata(
+#'     "/vast/projects/cellxgene_curated/splitted_DB2_data_0.2.1",
+#'     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_0.2.1"
+#' )
+#' dir_to_anndata(
+#'     "/vast/projects/cellxgene_curated/splitted_DB2_data_scaled_0.2.1",
+#'     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_scaled_0.2.1"
+#' )
+#' }
+dir_to_anndata = function(src, dest){
+    dir.create(dest, showWarnings = FALSE)
+    # This is a quick utility script to convert the SCE files into AnnData format for use in Pythonlist.files("/vast/projects/RCP/human_cell_atlas/splitted_DB2_data", full.names = FALSE) |>  purrr::walk(function(dir){
+    basilisk::basiliskRun(fun = function(sce) {
+        list.dirs(src)[-1] |>
+            purrr::map_chr(function(sce_dir){
+                cli::cli_alert_info("Processing {sce_dir}.")
+                prefix <- basename(sce_dir)
+                out_path <- glue::glue("{prefix}.h5ad") |>
+                    file.path(dest, name=_)
+                
+                if (file.exists(out_path)) {
+                    cli::cli_alert_info("{out_path} already exists. Skipping")
+                }
+                else {
+                    sce <- HDF5Array::loadHDF5SummarizedExperiment(sce_dir)
+                    single_column <- length(colnames(sce)) == 1
+                    if (single_column){
+                        # Hack, so that single-column SCEs will convert 
+                        # correctly
+                        cli::cli_alert_info(
+                            "{sce_dir} has only 1 column. Duplicating column."
+                        )
+                        sce <- cbind(sce, sce)
+                        single_column <- TRUE
+                    }
+                    ad <- zellkonverter::SCE2AnnData(sce)
+                    if (single_column){
+                        # Remove the duplicate column
+                        sce$X <- sce$X[1]
+                    }
+                    # TODO: customize chunking here, when anndata supports it
+                    # (see https://github.com/scverse/anndata/issues/961)
+                    ad$write_h5ad(out_path)
+                }
+                out_path
+            }, .progress = "Converting files")
+    }, env = zellkonverter::zellkonverterAnnDataEnv())
+}
