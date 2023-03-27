@@ -327,7 +327,7 @@ to be slow for large objects.</p>
 <p>We can gather all CD14 monocytes cells and plot the distribution of
 HLA-A across all tissues</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stemangiola/tidySingleCellExperiment" class="external-link">tidySingleCellExperiment</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">tidySingleCellExperiment</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">metadata</span> <span class="op">|&gt;</span></span>
@@ -338,7 +338,7 @@ HLA-A across all tissues</p>
 <span>  <span class="fu"><a href="../reference/get_SingleCellExperiment.html">get_SingleCellExperiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span>, features <span class="op">=</span> <span class="st">"HLA-A"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  </span>
 <span>  <span class="co"># Plot (styling code have been omitted)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ttservice/man/join_features.html" class="external-link">join_features</a></span><span class="op">(</span><span class="st">"HLA-A"</span>, shape <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">join_features</span><span class="op">(</span><span class="st">"HLA-A"</span>, shape <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span> <span class="va">disease</span>, <span class="va">`HLA.A`</span>,color <span class="op">=</span> <span class="va">file_id</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span>shape<span class="op">=</span><span class="st">"."</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="../reference/figures/HLA_A_disease_plot.png" width="262"></p>
@@ -353,7 +353,7 @@ HLA-A across all tissues</p>
 <span>  <span class="fu"><a href="../reference/get_SingleCellExperiment.html">get_SingleCellExperiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span>, features <span class="op">=</span> <span class="st">"HLA-A"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span></span>
 <span>    <span class="co"># Plot (styling code have been omitted)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/ttservice/man/join_features.html" class="external-link">join_features</a></span><span class="op">(</span><span class="st">"HLA-A"</span>, shape <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">join_features</span><span class="op">(</span><span class="st">"HLA-A"</span>, shape <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span> <span class="va">tissue_harmonised</span>, <span class="va">`HLA.A`</span>,color <span class="op">=</span> <span class="va">file_id</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span>shape<span class="op">=</span><span class="st">"."</span><span class="op">)</span> </span></code></pre></div>
 <p><img src="../reference/figures/HLA_A_tissue_plot.png" width="262"></p>
@@ -385,43 +385,43 @@ a nested data frame.</p>
 <span><span class="co">#&gt; [[1]]</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Source:   SQL [?? x 17]</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1034-azure:R 4.2.1/:memory:]</span></span></span>
-<span><span class="co">#&gt;    cell_ file_id donor…¹ donor…² libra…³ mappe…⁴ sampl…⁵ suspe…⁶ suspe…⁷ autho…⁸</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 4602… 63523a… 19 mon… 463181… 671785… GENCOD… 125234… cell    c7485e… CD4 T …</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with more rows, 7 more variables: cell_state &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt;    cell_        file_id donor_age donor_uuid library_uuid mapped_reference_ann…¹</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 4602STDY709… 63523a… 19 months 46318131-… 67178571-39… GENCODE 24            </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ abbreviated name: ¹​mapped_reference_annotation</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 11 more variables: sample_uuid &lt;chr&gt;, suspension_type &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   suspension_uuid &lt;chr&gt;, author_cell_type &lt;chr&gt;, cell_state &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   reported_diseases &lt;chr&gt;, Short_Sample &lt;chr&gt;, Project &lt;chr&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   Experiment &lt;chr&gt;, compartment &lt;chr&gt;, broad_celltype &lt;chr&gt;, and abbreviated</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   variable names ¹​donor_age, ²​donor_uuid, ³​library_uuid,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ⁴​mapped_reference_annotation, ⁵​sample_uuid, ⁶​suspension_type,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ⁷​suspension_uuid, ⁸​author_cell_type</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   Experiment &lt;chr&gt;, compartment &lt;chr&gt;, broad_celltype &lt;chr&gt;</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[2]]</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Source:   SQL [?? x 12]</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1034-azure:R 4.2.1/:memory:]</span></span></span>
-<span><span class="co">#&gt;    cell_ file_id orig.…¹ nCoun…² nFeat…³ seura…⁴ Project donor…⁵ compa…⁶ broad…⁷</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1069  8fee7b… 4602ST…   <span style="text-decoration: underline;">16</span>082 3997    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 1214  8fee7b… 4602ST…    <span style="text-decoration: underline;">1</span>037 606     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 2583  8fee7b… 4602ST…    <span style="text-decoration: underline;">3</span>028 1361    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 2655  8fee7b… 4602ST…    <span style="text-decoration: underline;">1</span>605 859     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 3609  8fee7b… 4602ST…    <span style="text-decoration: underline;">1</span>144 682     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 3624  8fee7b… 4602ST…    <span style="text-decoration: underline;">1</span>874 963     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 3946  8fee7b… 4602ST…    <span style="text-decoration: underline;">1</span>296 755     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 5163  8fee7b… 4602ST…   <span style="text-decoration: underline;">11</span>417 3255    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 5446  8fee7b… 4602ST…    <span style="text-decoration: underline;">1</span>769 946     19      Experi… Wilms2  lympho… CD4 T …</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 6275  8fee7b… 4602ST…    <span style="text-decoration: underline;">3</span>750 1559    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># … with more rows, 2 more variables: author_cell_type &lt;chr&gt;, Sample &lt;chr&gt;, and</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   abbreviated variable names ¹​orig.ident, ²​nCount_RNA, ³​nFeature_RNA,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ⁴​seurat_clusters, ⁵​donor_id, ⁶​compartment, ⁷​broad_celltype</span></span></span></code></pre></div>
+<span><span class="co">#&gt;    cell_ file_id      orig.ident nCount_RNA nFeature_RNA seurat_clusters Project</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1069  8fee7b82-17… 4602STDY7…      <span style="text-decoration: underline;">16</span>082 3997         25              Experi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 1214  8fee7b82-17… 4602STDY7…       <span style="text-decoration: underline;">1</span>037 606          25              Experi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 2583  8fee7b82-17… 4602STDY7…       <span style="text-decoration: underline;">3</span>028 1361         25              Experi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 2655  8fee7b82-17… 4602STDY7…       <span style="text-decoration: underline;">1</span>605 859          25              Experi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 3609  8fee7b82-17… 4602STDY7…       <span style="text-decoration: underline;">1</span>144 682          25              Experi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 3624  8fee7b82-17… 4602STDY7…       <span style="text-decoration: underline;">1</span>874 963          25              Experi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 3946  8fee7b82-17… 4602STDY7…       <span style="text-decoration: underline;">1</span>296 755          25              Experi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 5163  8fee7b82-17… 4602STDY7…      <span style="text-decoration: underline;">11</span>417 3255         25              Experi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 5446  8fee7b82-17… 4602STDY7…       <span style="text-decoration: underline;">1</span>769 946          19              Experi…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 6275  8fee7b82-17… 4602STDY7…       <span style="text-decoration: underline;">3</span>750 1559         25              Experi…</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: donor_id &lt;chr&gt;, compartment &lt;chr&gt;, broad_celltype &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   author_cell_type &lt;chr&gt;, Sample &lt;chr&gt;</span></span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
