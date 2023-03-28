@@ -25,12 +25,19 @@ file.}
 character scalar}
   }}
 }
+\value{
+\code{NULL}, invisibly
+}
 \description{
 Update the unharmonised parquet files
 }
 \examples{
 \dontrun{
-update_unharmonised("/vast/projects/cellxgene_curated/metadata_non_harmonised_parquet_0.2", credential_id = "ABCDEFGHIJK", credential_secret = "ABCD1234EFGH-5678IJK")
+update_unharmonised(
+    "/vast/projects/cellxgene_curated/metadata_non_harmonised_parquet_0.2", 
+    credential_id = "ABCDEFGHIJK", 
+    credential_secret = "ABCD1234EFGH-5678IJK"
+)
 }
 }
 \keyword{internal}

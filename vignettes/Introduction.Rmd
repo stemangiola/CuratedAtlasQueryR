@@ -31,7 +31,7 @@ knitr::include_graphics(c(
   "../man/figures/svcf_logo.jpeg", 
   "../man/figures/czi_logo.png", 
   "../man/figures/bioconductor_logo.jpg",
-    "../man/figures/vca_logo.png",
+  "../man/figures/vca_logo.png",
   "../man/figures/nectar_logo.png"
 ))
 ```
@@ -92,9 +92,8 @@ metadata |>
 ### Query raw counts
 
 ```{r}
-
 single_cell_counts = 
-	metadata |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -112,7 +111,7 @@ This is helpful if just few genes are of interest, as they can be compared acros
 
 ```{r}
 single_cell_counts = 
-	metadata |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -128,7 +127,7 @@ single_cell_counts
 
 ```{r}
 single_cell_counts = 
-	metadata |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -147,7 +146,7 @@ This convert the H5 SingleCellExperiment to Seurat so it might take long time an
 
 ```{r}
 single_cell_counts = 
-	metadata |>
+    metadata |>
     dplyr::filter(
         ethnicity == "African" &
         stringr::str_like(assay, "%10x%") &
@@ -282,7 +281,7 @@ metadata |>
   # Get counts per million for HCA-A gene 
   get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
 
-	# Plot (styling code have been omitted)
+    # Plot (styling code have been omitted)
   join_features("HLA-A", shape = "wide") |> 
   ggplot(aes( tissue_harmonised, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") 
@@ -297,22 +296,20 @@ knitr::include_graphics("../man/figures/HLA_A_tissue_plot.png")
 
 Various metadata fields are *not* common between datasets, so it does not
 make sense for these to live in the main metadata table. However, we can
-obtain it using the `get_unharmonised_metadata()` function.
-
-Note how this table has additional columns that are not in the normal metadata:
+obtain it using the `get_unharmonised_metadata()` function. This function
+returns a data frame with one row per dataset, including the `unharmonised` 
+column which contains unharmnised metadata as a nested data frame.
 
 ```{r}
-dataset = "838ea006-2369-4e2c-b426-b2a744a2b02b"
-unharmonised_meta = get_unharmonised_metadata(dataset)
-unharmonised_tbl = dplyr::collect(unharmonised_meta[[dataset]])
-unharmonised_tbl
+harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
+unharmonised <- get_unharmonised_metadata(harmonised)
+unharmonised
 ```
 
-If we have metadata from the normal metadata table that is from a single dataset,
-we can even join this additional metadata into one big data frame:
+Notice that the columns differ between each dataset's data frame:
+
 ```{r}
-harmonised_meta = get_metadata() |> dplyr::filter(file_id == dataset) |> dplyr::collect()
-dplyr::left_join(harmonised_meta, unharmonised_tbl, by=c("file_id", "cell_"))
+dplyr::pull(unharmonised, unharmonised) |> head(2)
 ```
 
 # Cell metadata
