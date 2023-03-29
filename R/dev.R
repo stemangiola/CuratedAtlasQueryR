@@ -145,7 +145,7 @@ update_unharmonised <- function(unharmonised_parquet_dir, ...){
 #'     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_scaled_0.2.1"
 #' )
 #' }
-dir_to_anndata = function(src, dest){
+dir_to_anndata <- function(src, dest){
     dir.create(dest, showWarnings = FALSE)
     # This is a quick utility script to convert the SCE files into AnnData format for use in Pythonlist.files("/vast/projects/RCP/human_cell_atlas/splitted_DB2_data", full.names = FALSE) |>  purrr::walk(function(dir){
     basilisk::basiliskRun(fun = function(sce) {

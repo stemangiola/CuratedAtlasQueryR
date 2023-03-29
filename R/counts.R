@@ -194,11 +194,11 @@ group_to_sce <- function(i, df, dir_prefix, features) {
     cells <- colnames(sce) |> intersect(df$cell_)
 
     if (length(cells) < nrow(df)){
-        str_replace_all(
-            "Some cells were filtered out because of extremely low counts. The
-            number of cells in the SingleCellExperiment will be less than the
+        single_line_str(
+            "Some cells were filtered out because of extremely low counts. The 
+            number of cells in the SingleCellExperiment will be less than the 
             number of cells you have selected from the metadata."
-        )
+        ) |> cli_alert_warning()
         df <- filter(df, .data$cell_ %in% cells)
     }
     else if (length(cells) > nrow(df)){
