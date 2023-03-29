@@ -33,8 +33,6 @@ knitr::include_graphics(c(
 ))
 ```
 
-[website](https://stemangiola.github.io/CuratedAtlasQueryR)
-
 # Query interface
 
 ## Installation
