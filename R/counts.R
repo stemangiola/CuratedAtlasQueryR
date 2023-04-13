@@ -22,6 +22,18 @@ COUNTS_URL <- single_line_str(
 #' version is released
 COUNTS_VERSION <- "0.2"
 
+#' @inherit get_single_cell_experiment
+#' @inheritDotParams get_single_cell_experiment
+#' @importFrom cli cli_alert_warning
+#' @export
+get_SingleCellExperiment <- function(...){
+    single_line_str("This function name is deprecated. 
+                    Please use `get_single_cell_experiment()` instead") |>
+        cli_alert_warning()
+    
+    get_single_cell_experiment(...)
+}
+
 #' Gets a SingleCellExperiment from curated metadata
 #'
 #' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
@@ -46,7 +58,7 @@ COUNTS_VERSION <- "0.2"
 #'   assays argument
 #' @examples
 #' meta <- get_metadata() |> head(2)
-#' sce <- get_SingleCellExperiment(meta)
+#' sce <- get_single_cell_experiment(meta)
 #'
 #' @importFrom dplyr pull filter as_tibble inner_join collect
 #' @importFrom tibble column_to_rownames
@@ -64,7 +76,7 @@ COUNTS_VERSION <- "0.2"
 #' @importFrom stats setNames
 #' @importFrom S4Vectors DataFrame
 #' @export
-get_SingleCellExperiment <- function(
+get_single_cell_experiment <- function(
     data,
     assays = "counts",
     cache_directory = get_default_cache_dir(),
@@ -72,26 +84,31 @@ get_SingleCellExperiment <- function(
     features = NULL
 ) {
     # Parameter validation
+    
     assays %in% names(assay_map) |>
         all() |>
         assert_that(
             msg = 'assays must be a character vector containing "counts" and/or
-          "cpm"'
+            "cpm"'
         )
-    (!anyDuplicated(assays)) |> assert_that()
-    inherits(cache_directory, "character") |> assert_that()
-    is.null(repository) || is.character(repository) |> assert_that()
-    is.null(features) || is.character(features) |> assert_that()
+    assert_that(
+        !anyDuplicated(assays),
+        inherits(cache_directory, "character"),
+        is.null(repository) || is.character(repository),
+        is.null(features) || is.character(features)
+    )
 
     # Data parameter validation (last, because it's slower)
     ## Evaluate the promise now so that we get a sensible error message
-    data
+    force(data)
     ## We have to convert to an in-memory table here, or some of the dplyr
     ## operations will fail when passed a database connection
     cli_alert_info("Realising metadata.")
     raw_data <- collect(data)
-    inherits(raw_data, "tbl") |> assert_that()
-    has_name(raw_data, c("cell_", "file_id_db")) |> assert_that()
+    assert_that(
+        inherits(raw_data, "tbl"),
+        has_name(raw_data, c("cell_", "file_id_db"))
+    )
 
     versioned_cache_directory <- file.path(cache_directory, COUNTS_VERSION)
     versioned_cache_directory |> dir.create(

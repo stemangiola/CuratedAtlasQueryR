@@ -8,7 +8,11 @@ output: github_document
 <!-- badges: end -->
 
 
-`CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria. 
+`CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria.
+
+Harmonised data is stored in the ARDC Nectar Research Cloud, and most 
+`CuratedAtlasQuery` functions interact with Nectar via web requests, so a 
+network connection is required for most functionality.
 
 ```{r, include = FALSE}
 # Note: knit this to the repo readme file using:
@@ -72,7 +76,6 @@ metadata |>
 ### Query raw counts
 
 ```{r}
-
 single_cell_counts = 
 	metadata |>
     dplyr::filter(
@@ -81,7 +84,7 @@ single_cell_counts =
         tissue == "lung parenchyma" &
         stringr::str_like(cell_type, "%CD4%")
     ) |>
-    get_SingleCellExperiment()
+    get_single_cell_experiment()
 
 single_cell_counts
 ```
@@ -99,7 +102,7 @@ single_cell_counts =
         tissue == "lung parenchyma" &
         stringr::str_like(cell_type, "%CD4%")
     ) |>
-    get_SingleCellExperiment(assays = "cpm")
+    get_single_cell_experiment(assays = "cpm")
 
 single_cell_counts
 ```
@@ -115,7 +118,7 @@ single_cell_counts =
         tissue == "lung parenchyma" &
         stringr::str_like(cell_type, "%CD4%")
     ) |>
-    get_SingleCellExperiment(assays = "cpm", features = "PUM1")
+    get_single_cell_experiment(assays = "cpm", features = "PUM1")
 
 single_cell_counts
 ```
@@ -147,15 +150,15 @@ The returned `SingleCellExperiment` can be saved with two modalities, as `.rds` 
 
 Saving as `.rds` has the advantage that is very fast, the `.rds` file occupies very little disk space as it only stored the links for the files in your ache.
 
-However it has the disadvantage that for big `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_SingleCellExperiment` the display and manipulation is going to be slow.
+However it has the disadvantage that for big `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_single_cell_experiment` the display and manipulation is going to be slow.
 
-```{r, eval=FALSE}
+```{r}
 single_cell_counts |> saveRDS("single_cell_counts.rds")
 ```
 
 ### Saving as HDF5 (slow saving, fast reading)
 
-Saving as `.rds` has the advantage that rewrites on disk a monolithic `HDF5` and so displaying and manipulating large `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_SingleCellExperiment`, is going to be fast.
+Saving as `.rds` has the advantage that rewrites on disk a monolithic `HDF5` and so displaying and manipulating large `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_single_cell_experiment`, is going to be fast.
 
 However it has the disadvantage that the files are going to be larger as they include the count information, and the saving process is going to be slow for large objects.
 
@@ -167,7 +170,7 @@ single_cell_counts |> saveHDF5SummarizedExperiment("single_cell_counts")
 
 We can gather all CD14 monocytes cells and plot the distribution of HLA-A across all tissues
 
-```{r, eval=FALSE, echo=FALSE}
+```{r, echo=FALSE}
 library(tidySingleCellExperiment)
 library(ggplot2)
 
@@ -176,21 +179,21 @@ library(ggplot2)
 # Plot by disease
 metadata |>
   # Filter and subset
-  filter(cell_type_harmonised=="cd14 mono") |>
-  filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
+  dplyr::filter(cell_type_harmonised=="cd14 mono") |>
+  dplyr::filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
   
   # Get counts per million for HCA-A gene
-  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
   
   # Add feature to table
   join_features("HLA-A", shape = "wide") |> 
     
   # Rank x axis
-  as_tibble() |> 
-  with_groups(disease, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
+  tibble::as_tibble() |> 
+  dplyr::with_groups(disease, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
   
   # Plot
-  ggplot(aes( fct_reorder(disease, median_count,.desc = TRUE), `HLA.A`,color = file_id)) +
+  ggplot(aes(forcats::fct_reorder(disease, median_count,.desc = TRUE), `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") +
     
   # Style
@@ -208,17 +211,17 @@ metadata |>
   filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
   
   # Get counts per million for HCA-A gene
-  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
   
   # Add feature to table
   join_features("HLA-A", shape = "wide") |> 
     
   # Rank x axis
   as_tibble() |> 
-  with_groups(tissue_harmonised, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
+  dplyr::with_groups(tissue_harmonised, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
   
   # Plot
-  ggplot(aes( fct_reorder(tissue_harmonised, median_count,.desc = TRUE), `HLA.A`,color = file_id)) +
+  ggplot(aes(forcats::fct_reorder(tissue_harmonised, median_count,.desc = TRUE), `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") +
     
   # Style
@@ -228,19 +231,18 @@ metadata |>
   theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1)) + 
   xlab("Tissue") + 
   ggtitle("HLA-A in CD14 monocytes by tissue") 
-
 ```
 
-```{r, eval=FALSE}
+```{r}
 library(tidySingleCellExperiment)
 library(ggplot2)
 
 metadata |>
   # Filter and subset
-  filter(cell_type_harmonised=="cd14 mono") |>
+  dplyr::filter(cell_type_harmonised=="cd14 mono") |>
 
   # Get counts per million for HCA-A gene
-  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
   
   # Plot (styling code have been omitted)
   join_features("HLA-A", shape = "wide") |> 
@@ -252,7 +254,7 @@ metadata |>
 knitr::include_graphics("man/figures/HLA_A_disease_plot.png")
 ```
 
-```{r, eval=FALSE}
+```{r}
 
 metadata |> 
     
@@ -260,7 +262,7 @@ metadata |>
   filter(cell_type_harmonised=="nk") |> 
 
   # Get counts per million for HCA-A gene 
-  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
 
 	# Plot (styling code have been omitted)
   join_features("HLA-A", shape = "wide") |> 

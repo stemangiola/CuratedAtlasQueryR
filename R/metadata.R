@@ -17,7 +17,7 @@ DATABASE_URL <- single_line_str(
 #'
 #' Downloads a parquet database of the Human Cell Atlas metadata to a local
 #' cache, and then opens it as a data frame. It can then be filtered and passed
-#' into [get_SingleCellExperiment()] to obtain a
+#' into [get_single_cell_experiment()] to obtain a
 #' [`SingleCellExperiment::SingleCellExperiment-class`]
 #'
 #' @param remote_url Optional character vector of length 1. An HTTP URL pointing
@@ -116,7 +116,7 @@ DATABASE_URL <- single_line_str(
 #'
 #' Error in `db_query_fields.DBIConnection()`: ! Can't query fields. Caused by
 #' error: ! Parser Error: syntax error at or near "/" LINE 2: FROM
-#' /Users/bob/Library/Cach...
+#' /Users/bob/Library/Caches...
 #'
 #' The solution is to choose a different cache, for example
 #'

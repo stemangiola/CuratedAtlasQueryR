@@ -11,7 +11,11 @@ vignette: >
 [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
 <!-- badges: end -->
 
-`CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria. 
+`CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria.
+
+Harmonised data is stored in the ARDC Nectar Research Cloud, and most 
+`CuratedAtlasQuery` functions interact with Nectar via web requests, so a 
+network connection is required for most functionality.
 
 ```{r, include = FALSE}
 # Note: knit this to the repo readme file using:
@@ -100,7 +104,7 @@ single_cell_counts =
         tissue == "lung parenchyma" &
         stringr::str_like(cell_type, "%CD4%")
     ) |>
-    get_SingleCellExperiment()
+    get_single_cell_experiment()
 
 single_cell_counts
 ```
@@ -118,7 +122,7 @@ single_cell_counts =
         tissue == "lung parenchyma" &
         stringr::str_like(cell_type, "%CD4%")
     ) |>
-    get_SingleCellExperiment(assays = "cpm")
+    get_single_cell_experiment(assays = "cpm")
 
 single_cell_counts
 ```
@@ -134,7 +138,7 @@ single_cell_counts =
         tissue == "lung parenchyma" &
         stringr::str_like(cell_type, "%CD4%")
     ) |>
-    get_SingleCellExperiment(assays = "cpm", features = "PUM1")
+    get_single_cell_experiment(assays = "cpm", features = "PUM1")
 
 single_cell_counts
 ```
@@ -166,19 +170,19 @@ The returned `SingleCellExperiment` can be saved with two modalities, as `.rds` 
 
 Saving as `.rds` has the advantage that is very fast, the `.rds` file occupies very little disk space as it only stored the links for the files in your ache.
 
-However it has the disadvantage that for big `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_SingleCellExperiment` the display and manipulation is going to be slow.
+However it has the disadvantage that for big `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_single_cell_experiment` the display and manipulation is going to be slow.
 
-```{r, eval=FALSE}
+```{r}
 single_cell_counts |> saveRDS("single_cell_counts.rds")
 ```
 
 ### Saving as HDF5 (slow saving, fast reading)
 
-Saving as `.rds` has the advantage that rewrites on disk a monolithic `HDF5` and so displaying and manipulating large `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_SingleCellExperiment`, is going to be fast.
+Saving as `.rds` has the advantage that rewrites on disk a monolithic `HDF5` and so displaying and manipulating large `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_single_cell_experiment`, is going to be fast.
 
 However it has the disadvantage that the files are going to be larger as they include the count information, and the saving process is going to be slow for large objects.
 
-```{r, eval=FALSE}
+```{r}
 single_cell_counts |> saveHDF5SummarizedExperiment("single_cell_counts")
 ```
 
@@ -186,7 +190,7 @@ single_cell_counts |> saveHDF5SummarizedExperiment("single_cell_counts")
 
 We can gather all CD14 monocytes cells and plot the distribution of HLA-A across all tissues
 
-```{r, eval=FALSE, echo=FALSE}
+```{r, echo=FALSE}
 library(tidySingleCellExperiment)
 library(ggplot2)
 
@@ -199,7 +203,7 @@ metadata |>
   filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
   
   # Get counts per million for HCA-A gene
-  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
   
   # Add feature to table
   join_features("HLA-A", shape = "wide") |> 
@@ -227,7 +231,7 @@ metadata |>
   filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
   
   # Get counts per million for HCA-A gene
-  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
   
   # Add feature to table
   join_features("HLA-A", shape = "wide") |> 
@@ -250,7 +254,7 @@ metadata |>
 
 ```
 
-```{r, eval=FALSE}
+```{r}
 library(tidySingleCellExperiment)
 library(ggplot2)
 
@@ -259,7 +263,7 @@ metadata |>
   filter(cell_type_harmonised=="cd14 mono") |>
 
   # Get counts per million for HCA-A gene
-  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
   
   # Plot (styling code have been omitted)
   join_features("HLA-A", shape = "wide") |> 
@@ -279,7 +283,7 @@ metadata |>
   filter(cell_type_harmonised=="nk") |> 
 
   # Get counts per million for HCA-A gene 
-  get_SingleCellExperiment(assays = "cpm", features = "HLA-A") |> 
+  get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
 
     # Plot (styling code have been omitted)
   join_features("HLA-A", shape = "wide") |> 
@@ -345,3 +349,9 @@ Through harmonisation and curation we introduced custom column, not present in t
 The `raw` assay includes RNA abundance in the positive real scale (not transformed with non-linear functions, e.g. log sqrt). Originally CELLxGENE include a mix of scales and transformations specified in the `x_normalization` column.
 
 The `cpm` assay includes counts per million.
+
+# Session Info
+```{r}
+sessionInfo()
+```
+

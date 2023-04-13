@@ -7,13 +7,15 @@ Authors@R: c(
         "Stefano",
         "Mangiola",
         email = "mangiolastefano@gmail.com",
-        role = c("aut", "cre", "rev")
+        role = c("aut", "cre", "rev"),
+        comment = c(ORCID = "0000-0001-7474-836X")
     ),
     person(
         "Michael",
         "Milton",
         email = "milton.m@wehi.edu.au",
-        role = c("aut", "rev")
+        role = c("aut", "rev"),
+        comment = c(ORCID = "0000-0002-8965-2595")
     ),
     person(
         "Martin",
@@ -50,7 +52,7 @@ Authors@R: c(
         role = c( "fnd")
     ),
     person(
-        "Victoria Cancer Agnency",
+        "Victoria Cancer Agency",
         "ECRF21036",
         role = c( "fnd")
     ),
@@ -99,7 +101,8 @@ Suggests:
     testthat,
     basilisk,
     arrow,
-    reticulate
+    reticulate,
+    spelling
 Biarch: true
 biocViews: 
     AssayDomain,
@@ -128,3 +131,4 @@ Collate:
     'seurat.R'
     'unharmonised.R'
     'zzz.R'
+Language: en-US

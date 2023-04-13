@@ -4,33 +4,27 @@
 \alias{get_SingleCellExperiment}
 \title{Gets a SingleCellExperiment from curated metadata}
 \usage{
-get_SingleCellExperiment(
-  data,
-  assays = "counts",
-  cache_directory = get_default_cache_dir(),
-  repository = COUNTS_URL,
-  features = NULL
-)
+get_SingleCellExperiment(...)
 }
 \arguments{
-\item{data}{A data frame containing, at minimum, a \code{sample_} column, which
+\item{...}{
+  Arguments passed on to \code{\link[=get_single_cell_experiment]{get_single_cell_experiment}}
+  \describe{
+    \item{\code{data}}{A data frame containing, at minimum, a \code{sample_} column, which
 corresponds to a single cell sample ID. This can be obtained from the
 \code{\link[=get_metadata]{get_metadata()}} function.}
-
-\item{assays}{A character vector whose elements must be either "counts"
+    \item{\code{assays}}{A character vector whose elements must be either "counts"
 and/or "cpm", representing the corresponding assay(s) you want to request.
 By default only the count assay is downloaded. If you are interested in
 comparing a limited amount of genes, the "cpm" assay is more appropriate.}
-
-\item{cache_directory}{An optional character vector of length one. If
+    \item{\code{repository}}{A character vector of length one. If provided, it should be
+an HTTP URL pointing to the location where the single cell data is stored.}
+    \item{\code{cache_directory}}{An optional character vector of length one. If
 provided, it should indicate a local file path where any remotely accessed
 files should be copied.}
-
-\item{repository}{A character vector of length one. If provided, it should be
-an HTTP URL pointing to the location where the single cell data is stored.}
-
-\item{features}{An optional character vector of features (ie genes) to return
+    \item{\code{features}}{An optional character vector of features (ie genes) to return
 the counts for. By default counts for all features will be returned.}
+  }}
 }
 \value{
 A SingleCellExperiment object, with one assay for each value in the
@@ -43,6 +37,6 @@ corresponding to the samples in that data frame
 }
 \examples{
 meta <- get_metadata() |> head(2)
-sce <- get_SingleCellExperiment(meta)
+sce <- get_single_cell_experiment(meta)
 
 }
