@@ -102,7 +102,10 @@ Suggests:
     basilisk,
     arrow,
     reticulate,
-    spelling
+    spelling,
+    forcats,
+    ggplot2,
+    tidySingleCellExperiment
 Biarch: true
 biocViews: 
     AssayDomain,

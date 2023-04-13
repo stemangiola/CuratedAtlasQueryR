@@ -48,12 +48,12 @@ jobs:
     ## Environment variables unique to this job.
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         config:
-          - { os: ubuntu-latest, r: '4.2', bioc: '3.15', cont: "bioconductor/bioconductor_docker:RELEASE_3_15", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
-          - { os: macOS-latest, r: '4.2', bioc: '3.15'}
-          - { os: windows-latest, r: '4.2', bioc: '3.15'}
+          - { os: ubuntu-latest, r: '4.3', bioc: '3.17', cont: "bioconductor/bioconductor_docker:RELEASE_3_17", rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest" }
+          - { os: macOS-latest, r: '4.3', bioc: '3.17'}
+          - { os: windows-latest, r: '4.3', bioc: '3.17'}
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       RSPM: ${{ matrix.config.rspm }}

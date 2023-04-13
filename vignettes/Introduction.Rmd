@@ -147,9 +147,8 @@ single_cell_counts
 
 This convert the H5 SingleCellExperiment to Seurat so it might take long time and occupy a lot of memory depending on how many cells you are requesting.
 
-
 ```{r}
-single_cell_counts = 
+single_cell_counts_seurat = 
     metadata |>
     dplyr::filter(
         ethnicity == "African" &
@@ -159,7 +158,7 @@ single_cell_counts =
     ) |>
     get_seurat()
 
-single_cell_counts
+single_cell_counts_seurat
 ```
 
 ## Save your `SingleCellExperiment`
@@ -183,7 +182,7 @@ Saving as `.rds` has the advantage that rewrites on disk a monolithic `HDF5` and
 However it has the disadvantage that the files are going to be larger as they include the count information, and the saving process is going to be slow for large objects.
 
 ```{r}
-single_cell_counts |> saveHDF5SummarizedExperiment("single_cell_counts")
+single_cell_counts |> HDF5Array::saveHDF5SummarizedExperiment("single_cell_counts")
 ```
 
 ## Visualise gene transcription
@@ -210,10 +209,10 @@ metadata |>
     
   # Rank x axis
   as_tibble() |> 
-  with_groups(disease, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
+  dplyr::with_groups(disease, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
   
   # Plot
-  ggplot(aes( fct_reorder(disease, median_count,.desc = TRUE), `HLA.A`,color = file_id)) +
+  ggplot(aes(forcats::fct_reorder(disease, median_count,.desc = TRUE), `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") +
     
   # Style
@@ -238,10 +237,10 @@ metadata |>
     
   # Rank x axis
   as_tibble() |> 
-  with_groups(tissue_harmonised, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
+  dplyr::with_groups(tissue_harmonised, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
   
   # Plot
-  ggplot(aes( fct_reorder(tissue_harmonised, median_count,.desc = TRUE), `HLA.A`,color = file_id)) +
+  ggplot(aes(forcats::fct_reorder(tissue_harmonised, median_count,.desc = TRUE), `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") +
     
   # Style
