@@ -1,13 +1,6 @@
 CuratedAtlasQueryR
 ================
 
-``` r
-find_figure <- function(names){
-    rprojroot::find_package_root_file() |>
-        file.path("man", "figures", names) 
-}
-```
-
 <!-- badges: start -->
 
 [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
