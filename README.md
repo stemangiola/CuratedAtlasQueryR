@@ -1,6 +1,13 @@
 CuratedAtlasQueryR
 ================
 
+``` r
+find_figure <- function(names){
+    rprojroot::find_package_root_file() |>
+        file.path("man", "figures", names)
+}
+```
+
 <!-- badges: start -->
 
 [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
@@ -11,11 +18,9 @@ exploration and retrieval of the harmonised, curated and reannotated
 CELLxGENE single-cell human cell atlas. Data can be retrieved at cell,
 sample, or dataset levels based on filtering criteria.
 
-<img src="man/figures/logo.png" width="120x" height="139px" />
+<img src="../man/figures/logo.png" width="120x" height="139px" />
 
-<img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" /><img src="man/figures/nectar_logo.png" width="180px" height="58px" />
-
-[website](https://stemangiola.github.io/CuratedAtlasQueryR)
+<img src="../man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="../man/figures/czi_logo.png" width="129px" height="58px" /><img src="../man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="../man/figures/vca_logo.png" width="219px" height="58px" /><img src="../man/figures/nectar_logo.png" width="180px" height="58px" />
 
 # Query interface
 
@@ -36,52 +41,34 @@ library(CuratedAtlasQueryR)
 ### Load the metadata
 
 ``` r
-metadata  = get_metadata()
-
-metadata
-#> # Source:   table</vast/scratch/users/milton.m/cache/R/CuratedAtlasQueryR/metadata.0.2.3.parquet> [?? x 56]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
-#>    cell_ sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ _samp…⁸
-#>    <chr> <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  
-#>  1 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
-#>  2 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
-#>  3 AAAC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938… D17PrP…
-#>  4 AAAC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938… D17PrP…
-#>  5 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
-#>  6 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
-#>  7 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
-#>  8 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
-#>  9 AAAC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938… D17PrP…
-#> 10 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
-#> # … with more rows, 46 more variables: assay <chr>,
-#> #   assay_ontology_term_id <chr>, file_id_db <chr>,
-#> #   cell_type_ontology_term_id <chr>, development_stage <chr>,
-#> #   development_stage_ontology_term_id <chr>, disease <chr>,
-#> #   disease_ontology_term_id <chr>, ethnicity <chr>,
-#> #   ethnicity_ontology_term_id <chr>, experiment___ <chr>, file_id <chr>,
-#> #   is_primary_data_x <chr>, organism <chr>, organism_ontology_term_id <chr>, …
+metadata <- get_metadata()
 ```
 
-### Explore the number of datasets per tissue
+The `metadata` variable can then be re-used for all subsequent queries.
+
+### Explore the tissue
 
 ``` r
 metadata |>
-  dplyr::distinct(tissue, dataset_id) |> 
-  dplyr::count(tissue)
-#> # Source:   SQL [?? x 2]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
-#>    tissue            n
-#>    <chr>         <dbl>
-#>  1 cerebellum        3
-#>  2 telencephalon     2
-#>  3 heart             3
-#>  4 intestine        18
-#>  5 kidney           19
-#>  6 liver            24
-#>  7 lung             27
-#>  8 muscle organ      3
-#>  9 pancreas          5
-#> 10 placenta          3
+    dplyr::distinct(tissue, file_id) 
+```
+
+``` r
+#> # Source:     SQL [?? x 2]
+#> # Database:   sqlite 3.40.0 [public_access@zki3lfhznsa.db.cloud.edu.au:5432/metadata]
+#> # Ordered by: desc(n)
+#>    tissue                      n
+#>    <chr>                 <int64>
+#>  1 blood                      47
+#>  2 heart left ventricle       46
+#>  3 cortex of kidney           31
+#>  4 renal medulla              29
+#>  5 lung                       27
+#>  6 liver                      24
+#>  7 middle temporal gyrus      24
+#>  8 kidney                     19
+#>  9 intestine                  18
+#> 10 thymus                     17
 #> # … with more rows
 ```
 
@@ -90,7 +77,6 @@ metadata |>
 ### Query raw counts
 
 ``` r
-
 single_cell_counts = 
     metadata |>
     dplyr::filter(
@@ -100,8 +86,10 @@ single_cell_counts =
         stringr::str_like(cell_type, "%CD4%")
     ) |>
     get_SingleCellExperiment()
+#> ! This function name is deprecated. Please use `get_single_cell_experiment()` instead
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
+#> ℹ Downloading 0 files, totalling 0 GB
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
 
@@ -112,8 +100,8 @@ single_cell_counts
 #> assays(1): counts
 #> rownames(36229): A1BG A1BG-AS1 ... ZZEF1 ZZZ3
 #> rowData names(0):
-#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
-#>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
+#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ... TACAACGTCAGCATTG_SC84_1
+#>   CATTCGCTCAATACCG_F02526_1
 #> colData names(56): sample_ cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
@@ -135,8 +123,10 @@ single_cell_counts =
         stringr::str_like(cell_type, "%CD4%")
     ) |>
     get_SingleCellExperiment(assays = "cpm")
+#> ! This function name is deprecated. Please use `get_single_cell_experiment()` instead
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
+#> ℹ Downloading 0 files, totalling 0 GB
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
 
@@ -147,8 +137,8 @@ single_cell_counts
 #> assays(1): cpm
 #> rownames(36229): A1BG A1BG-AS1 ... ZZEF1 ZZZ3
 #> rowData names(0):
-#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
-#>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
+#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ... TACAACGTCAGCATTG_SC84_1
+#>   CATTCGCTCAATACCG_F02526_1
 #> colData names(56): sample_ cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
@@ -167,8 +157,10 @@ single_cell_counts =
         stringr::str_like(cell_type, "%CD4%")
     ) |>
     get_SingleCellExperiment(assays = "cpm", features = "PUM1")
+#> ! This function name is deprecated. Please use `get_single_cell_experiment()` instead
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
+#> ℹ Downloading 0 files, totalling 0 GB
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
 
@@ -179,8 +171,8 @@ single_cell_counts
 #> assays(1): cpm
 #> rownames(1): PUM1
 #> rowData names(0):
-#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
-#>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
+#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ... TACAACGTCAGCATTG_SC84_1
+#>   CATTCGCTCAATACCG_F02526_1
 #> colData names(56): sample_ cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
@@ -205,6 +197,7 @@ single_cell_counts =
     get_seurat()
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
+#> ℹ Downloading 0 files, totalling 0 GB
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
 
@@ -270,7 +263,7 @@ metadata |>
   geom_jitter(shape=".") 
 ```
 
-<img src="man/figures/HLA_A_disease_plot.png" width="525" />
+<img src="../man/figures/HLA_A_disease_plot.png" width="525" />
 
 ``` r
 
@@ -288,7 +281,7 @@ metadata |>
   geom_jitter(shape=".") 
 ```
 
-<img src="man/figures/HLA_A_tissue_plot.png" width="525" />
+<img src="../man/figures/HLA_A_tissue_plot.png" width="525" />
 
 ## Obtain Unharmonised Metadata
 
@@ -303,13 +296,6 @@ data frame.
 harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
 unharmonised <- get_unharmonised_metadata(harmonised)
 unharmonised
-#> # A tibble: 4 × 2
-#>   file_id                              unharmonised   
-#>   <chr>                                <list>         
-#> 1 63523aa3-0d04-4fc6-ac59-5cadd3e73a14 <tbl_dck_[,17]>
-#> 2 8fee7b82-178b-4c04-bf23-04689415690d <tbl_dck_[,12]>
-#> 3 dc9d8cdd-29ee-4c44-830c-6559cb3d0af6 <tbl_dck_[,14]>
-#> 4 f7e94dbb-8638-4616-aaf9-16e2212c369f <tbl_dck_[,14]>
 ```
 
 Notice that the columns differ between each dataset’s data frame:
@@ -317,45 +303,8 @@ Notice that the columns differ between each dataset’s data frame:
 ``` r
 dplyr::pull(unharmonised, unharmonised) |> head(2)
 #> [[1]]
-#> # Source:   SQL [?? x 17]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
-#>    cell_ file_id donor…¹ donor…² libra…³ mappe…⁴ sampl…⁵ suspe…⁶ suspe…⁷ autho…⁸
-#>    <chr> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
-#>  1 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  2 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  3 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  4 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  5 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  6 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  7 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  8 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  9 4602… 63523a… 19 mon… 463181… 671785… GENCOD… 125234… cell    c7485e… CD4 T …
-#> 10 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#> # … with more rows, 7 more variables: cell_state <chr>,
-#> #   reported_diseases <chr>, Short_Sample <chr>, Project <chr>,
-#> #   Experiment <chr>, compartment <chr>, broad_celltype <chr>, and abbreviated
-#> #   variable names ¹​donor_age, ²​donor_uuid, ³​library_uuid,
-#> #   ⁴​mapped_reference_annotation, ⁵​sample_uuid, ⁶​suspension_type,
-#> #   ⁷​suspension_uuid, ⁸​author_cell_type
 #> 
 #> [[2]]
-#> # Source:   SQL [?? x 12]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
-#>    cell_ file_id orig.…¹ nCoun…² nFeat…³ seura…⁴ Project donor…⁵ compa…⁶ broad…⁷
-#>    <chr> <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
-#>  1 1069  8fee7b… 4602ST…   16082 3997    25      Experi… Wilms3  non_PT  Pelvic…
-#>  2 1214  8fee7b… 4602ST…    1037 606     25      Experi… Wilms3  non_PT  Pelvic…
-#>  3 2583  8fee7b… 4602ST…    3028 1361    25      Experi… Wilms3  non_PT  Pelvic…
-#>  4 2655  8fee7b… 4602ST…    1605 859     25      Experi… Wilms3  non_PT  Pelvic…
-#>  5 3609  8fee7b… 4602ST…    1144 682     25      Experi… Wilms3  non_PT  Pelvic…
-#>  6 3624  8fee7b… 4602ST…    1874 963     25      Experi… Wilms3  non_PT  Pelvic…
-#>  7 3946  8fee7b… 4602ST…    1296 755     25      Experi… Wilms3  non_PT  Pelvic…
-#>  8 5163  8fee7b… 4602ST…   11417 3255    25      Experi… Wilms3  non_PT  Pelvic…
-#>  9 5446  8fee7b… 4602ST…    1769 946     19      Experi… Wilms2  lympho… CD4 T …
-#> 10 6275  8fee7b… 4602ST…    3750 1559    25      Experi… Wilms3  non_PT  Pelvic…
-#> # … with more rows, 2 more variables: author_cell_type <chr>, Sample <chr>, and
-#> #   abbreviated variable names ¹​orig.ident, ²​nCount_RNA, ³​nFeature_RNA,
-#> #   ⁴​seurat_clusters, ⁵​donor_id, ⁶​compartment, ⁷​broad_celltype
 ```
 
 # Cell metadata
@@ -407,7 +356,7 @@ present in the original CELLxGENE metadata
 - `sample_id_db`: Sample subdivision for internal use
 - `file_id_db`: File subdivision for internal use
 - `sample_`: Sample ID
-- `sample_name`: How samples were defined
+- `.sample_name`: How samples were defined
 
 # RNA abundance
 
@@ -417,43 +366,3 @@ CELLxGENE include a mix of scales and transformations specified in the
 `x_normalization` column.
 
 The `cpm` assay includes counts per million.
-
-# Installation and getting-started problems
-
-**Problem:** Default R cache path including non-standard characters
-(e.g. dash)
-
-``` r
-get_metadata()
-
-# Error in `db_query_fields.DBIConnection()`:
-# ! Can't query fields.
-# Caused by error:
-# ! Parser Error: syntax error at or near "/"
-# LINE 2: FROM /Users/bob/Library/Cach...
-```
-
-**Solution:** Setup custom cache path (e.g. user home directory)
-
-``` r
-get_metadata(cache_directory = path.expand('~'))
-```
-
-**Problem:** namespace ‘dbplyr’ 2.2.1 is being loaded, but \>= 2.3.0 is
-required
-
-**Solution:** Install new dbplyr
-
-``` r
-install.packages("dbplyr")
-```
-
-------------------------------------------------------------------------
-
-This project has been funded by
-
-- *Silicon Valley Foundation* CZF2019-002443
-- *Bioconductor core funding* NIH NHGRI 5U24HG004059-18
-- *Victoria Cancer Agency* ECRF21036
-- *Australian National Health and Medical Research Council* 1116955
-- *The Lorenzo and Pamela Galli Medical Research Trust*

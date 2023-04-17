@@ -9,7 +9,12 @@ vignette: >
 
 ```{r, eval=FALSE, echo=FALSE}
 # Note: knit this to the repo readme file using:
-rmarkdown::render("Introduction.Rmd", output_format = "github_document", output_dir = getwd() |> dirname())
+rmarkdown::render(
+    "Introduction.Rmd",
+    output_file = "README.md",
+    output_format = "github_document",
+    output_dir = getwd() |> dirname()
+)
 ```
 
 ```{r}
