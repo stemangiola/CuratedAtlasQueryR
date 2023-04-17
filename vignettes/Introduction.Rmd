@@ -1,8 +1,6 @@
 ---
 title: "CuratedAtlasQueryR"
 output: rmarkdown::html_vignette
-params:
-  proj_root:
 vignette: >
   %\VignetteIndexEntry{CuratedAtlasQueryR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -25,6 +23,7 @@ proj_root <- rprojroot::find_package_root_file() |> normalizePath()
 
 ```{r, eval=FALSE, echo=FALSE, include=FALSE}
 # Note: knit this to the repo readme file using:
+proj_root <- rprojroot::find_package_root_file() |> normalizePath()
 rmarkdown::render(
     "Introduction.Rmd",
     output_file = "README.md",
@@ -86,6 +85,7 @@ library(CuratedAtlasQueryR)
 
 ```{r}
 metadata <- get_metadata()
+metadata
 ```
 
 The `metadata` variable can then be re-used for all subsequent queries.

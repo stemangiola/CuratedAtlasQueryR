@@ -35,6 +35,7 @@ library(CuratedAtlasQueryR)
 
 ``` r
 metadata <- get_metadata()
+metadata
 ```
 
 The `metadata` variable can then be re-used for all subsequent queries.
