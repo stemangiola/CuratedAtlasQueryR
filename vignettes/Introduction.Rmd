@@ -1,26 +1,45 @@
 ---
 title: "CuratedAtlasQueryR"
 output: rmarkdown::html_vignette
+params:
+  proj_root:
 vignette: >
   %\VignetteIndexEntry{CuratedAtlasQueryR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, eval=FALSE, echo=FALSE}
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+root_dir <- knitr::opts_knit$get("root.dir")
+if (!is.null(root_dir)){
+    knitr::opts_knit$set(
+        output.dir = root_dir
+    )
+}
+proj_root <- rprojroot::find_package_root_file() |> normalizePath() 
+```
+
+```{r, eval=FALSE, echo=FALSE, include=FALSE}
 # Note: knit this to the repo readme file using:
 rmarkdown::render(
     "Introduction.Rmd",
     output_file = "README.md",
     output_format = "github_document",
-    output_dir = getwd() |> dirname()
+    output_dir = proj_root,
+    # We need to knit in the destination directory, or the relative paths
+    # won't work
+    knit_root_dir = proj_root
 )
 ```
 
 ```{r}
 find_figure <- function(names){
     rprojroot::find_package_root_file() |>
-        file.path("man", "figures", names)
+        file.path("man", "figures", names) 
 }
 ```
 
@@ -32,12 +51,6 @@ find_figure <- function(names){
 
 `CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria. 
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>"
-)
-```
 
 ```{r, echo=FALSE, out.height = c("139px"), out.width = "120x" }
 find_figure("logo.png") |> knitr::include_graphics()

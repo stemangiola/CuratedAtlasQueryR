@@ -4,7 +4,7 @@ CuratedAtlasQueryR
 ``` r
 find_figure <- function(names){
     rprojroot::find_package_root_file() |>
-        file.path("man", "figures", names)
+        file.path("man", "figures", names) 
 }
 ```
 
@@ -18,9 +18,9 @@ exploration and retrieval of the harmonised, curated and reannotated
 CELLxGENE single-cell human cell atlas. Data can be retrieved at cell,
 sample, or dataset levels based on filtering criteria.
 
-<img src="../man/figures/logo.png" width="120x" height="139px" />
+<img src="man/figures/logo.png" width="120x" height="139px" />
 
-<img src="../man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="../man/figures/czi_logo.png" width="129px" height="58px" /><img src="../man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="../man/figures/vca_logo.png" width="219px" height="58px" /><img src="../man/figures/nectar_logo.png" width="180px" height="58px" />
+<img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" /><img src="man/figures/nectar_logo.png" width="180px" height="58px" />
 
 # Query interface
 
@@ -263,7 +263,7 @@ metadata |>
   geom_jitter(shape=".") 
 ```
 
-<img src="../man/figures/HLA_A_disease_plot.png" width="525" />
+![](man/figures/HLA_A_disease_plot.png)<!-- -->
 
 ``` r
 
@@ -281,7 +281,7 @@ metadata |>
   geom_jitter(shape=".") 
 ```
 
-<img src="../man/figures/HLA_A_tissue_plot.png" width="525" />
+![](man/figures/HLA_A_tissue_plot.png)<!-- -->
 
 ## Obtain Unharmonised Metadata
 
