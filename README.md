@@ -80,7 +80,6 @@ single_cell_counts =
         stringr::str_like(cell_type, "%CD4%")
     ) |>
     get_SingleCellExperiment()
-#> ! This function name is deprecated. Please use `get_single_cell_experiment()` instead
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
 #> ℹ Downloading 0 files, totalling 0 GB
@@ -117,7 +116,6 @@ single_cell_counts =
         stringr::str_like(cell_type, "%CD4%")
     ) |>
     get_SingleCellExperiment(assays = "cpm")
-#> ! This function name is deprecated. Please use `get_single_cell_experiment()` instead
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
 #> ℹ Downloading 0 files, totalling 0 GB
@@ -151,7 +149,6 @@ single_cell_counts =
         stringr::str_like(cell_type, "%CD4%")
     ) |>
     get_SingleCellExperiment(assays = "cpm", features = "PUM1")
-#> ! This function name is deprecated. Please use `get_single_cell_experiment()` instead
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
 #> ℹ Downloading 0 files, totalling 0 GB
@@ -296,10 +293,11 @@ Notice that the columns differ between each dataset’s data frame:
 
 ``` r
 dplyr::pull(unharmonised, unharmonised) |> head(2)
-#> [[1]]
-#> 
-#> [[2]]
 ```
+
+\[\[1\]\]
+
+\[\[2\]\]
 
 # Cell metadata
 
