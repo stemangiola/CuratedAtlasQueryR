@@ -127,7 +127,29 @@ criteria.</p>
 </h4>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Downloading 1 file, totalling 0.48 GB</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Downloading 1 file, totalling 0.48 GB</span></span>
+<span><span class="va">metadata</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Source:   table&lt;/github/home/.cache/R/CuratedAtlasQueryR/metadata.0.2.3.parquet&gt; [?? x 56]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1035-azure:R 4.2.1/:memory:]</span></span></span>
+<span><span class="co">#&gt;    cell_              sample_    cell_type cell_type_harmonised confidence_class</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> AAACCTGAGAGACGAA_1 689e2fe4f… basal ce… basal_cell                          1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> AAACCTGAGTTGTCGT_1 689e2fe4f… basal ce… basal_cell                          1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> AAACCTGCAGTCGATT_1 689e2fe4f… luminal … luminal_cell_of_pro…                1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> AAACCTGCAGTTCATG_1 689e2fe4f… luminal … luminal_cell_of_pro…                1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> AAACCTGGTCTAAACC_1 689e2fe4f… basal ce… basal_cell                          1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> AAACCTGTCGTACCGG_1 689e2fe4f… basal ce… basal_cell                          1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> AAACCTGTCTTGTACT_1 689e2fe4f… basal ce… basal_cell                          1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> AAACGGGAGTACGTTC_1 689e2fe4f… basal ce… basal_cell                          1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> AAACGGGAGTAGGTGC_1 689e2fe4f… luminal … luminal_cell_of_pro…                1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> AAACGGGAGTGGGATC_1 689e2fe4f… basal ce… basal_cell                          1</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 51 more variables: cell_annotation_azimuth_l2 &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   cell_annotation_blueprint_singler &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   cell_annotation_monaco_singler &lt;chr&gt;, sample_id_db &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   `_sample_name` &lt;chr&gt;, assay &lt;chr&gt;, assay_ontology_term_id &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   file_id_db &lt;chr&gt;, cell_type_ontology_term_id &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   development_stage &lt;chr&gt;, development_stage_ontology_term_id &lt;chr&gt;, …</span></span></span></code></pre></div>
 <p>The <code>metadata</code> variable can then be re-used for all
 subsequent queries.</p>
 </div>
@@ -381,10 +403,10 @@ a nested data frame.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> f7e94dbb-8638-4616-aaf9-16e2212c369f <span style="color: #949494;">&lt;tbl_dck_[,14]&gt;</span></span></span></code></pre></div>
 <p>Notice that the columns differ between each dataset’s data frame:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">unharmonised</span>, <span class="va">unharmonised</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">unharmonised</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [[1]]</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Source:   SQL [?? x 17]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1034-azure:R 4.2.1/:memory:]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1035-azure:R 4.2.1/:memory:]</span></span></span>
 <span><span class="co">#&gt;    cell_        file_id donor_age donor_uuid library_uuid mapped_reference_ann…¹</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
@@ -406,7 +428,7 @@ a nested data frame.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[2]]</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Source:   SQL [?? x 12]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1034-azure:R 4.2.1/:memory:]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1035-azure:R 4.2.1/:memory:]</span></span></span>
 <span><span class="co">#&gt;    cell_ file_id      orig.ident nCount_RNA nFeature_RNA seurat_clusters Project</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1069  8fee7b82-17… 4602STDY7…      <span style="text-decoration: underline;">16</span>082 3997         25              Experi…</span></span>
