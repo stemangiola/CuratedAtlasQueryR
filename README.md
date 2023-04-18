@@ -36,6 +36,27 @@ library(CuratedAtlasQueryR)
 ``` r
 metadata <- get_metadata()
 metadata
+#> # Source:   table</vast/scratch/users/milton.m/cache/R/CuratedAtlasQueryR/metadata.0.2.3.parquet> [?? x 56]
+#> # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]
+#>    cell_ sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ _samp…⁸
+#>    <chr> <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  
+#>  1 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  2 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  3 AAAC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938… D17PrP…
+#>  4 AAAC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938… D17PrP…
+#>  5 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  6 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  7 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  8 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#>  9 AAAC… 689e2f… lumina… lumina…       1 <NA>    <NA>    <NA>    930938… D17PrP…
+#> 10 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
+#> # … with more rows, 46 more variables: assay <chr>,
+#> #   assay_ontology_term_id <chr>, file_id_db <chr>,
+#> #   cell_type_ontology_term_id <chr>, development_stage <chr>,
+#> #   development_stage_ontology_term_id <chr>, disease <chr>,
+#> #   disease_ontology_term_id <chr>, ethnicity <chr>,
+#> #   ethnicity_ontology_term_id <chr>, experiment___ <chr>, file_id <chr>,
+#> #   is_primary_data_x <chr>, organism <chr>, organism_ontology_term_id <chr>, …
 ```
 
 The `metadata` variable can then be re-used for all subsequent queries.
@@ -93,8 +114,8 @@ single_cell_counts
 #> assays(1): counts
 #> rownames(36229): A1BG A1BG-AS1 ... ZZEF1 ZZZ3
 #> rowData names(0):
-#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ... TACAACGTCAGCATTG_SC84_1
-#>   CATTCGCTCAATACCG_F02526_1
+#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
+#>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
 #> colData names(56): sample_ cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
@@ -129,8 +150,8 @@ single_cell_counts
 #> assays(1): cpm
 #> rownames(36229): A1BG A1BG-AS1 ... ZZEF1 ZZZ3
 #> rowData names(0):
-#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ... TACAACGTCAGCATTG_SC84_1
-#>   CATTCGCTCAATACCG_F02526_1
+#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
+#>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
 #> colData names(56): sample_ cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
@@ -162,8 +183,8 @@ single_cell_counts
 #> assays(1): cpm
 #> rownames(1): PUM1
 #> rowData names(0):
-#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ... TACAACGTCAGCATTG_SC84_1
-#>   CATTCGCTCAATACCG_F02526_1
+#> colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...
+#>   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1
 #> colData names(56): sample_ cell_type ... updated_at_y original_cell_id
 #> reducedDimNames(0):
 #> mainExpName: NULL
@@ -287,17 +308,60 @@ data frame.
 harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
 unharmonised <- get_unharmonised_metadata(harmonised)
 unharmonised
+#> # A tibble: 4 × 2
+#>   file_id                              unharmonised   
+#>   <chr>                                <list>         
+#> 1 63523aa3-0d04-4fc6-ac59-5cadd3e73a14 <tbl_dck_[,17]>
+#> 2 8fee7b82-178b-4c04-bf23-04689415690d <tbl_dck_[,12]>
+#> 3 dc9d8cdd-29ee-4c44-830c-6559cb3d0af6 <tbl_dck_[,14]>
+#> 4 f7e94dbb-8638-4616-aaf9-16e2212c369f <tbl_dck_[,14]>
 ```
 
 Notice that the columns differ between each dataset’s data frame:
 
 ``` r
-dplyr::pull(unharmonised, unharmonised) |> head(2)
+dplyr::pull(unharmonised) |> head(2)
+#> [[1]]
+#> # Source:   SQL [?? x 17]
+#> # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]
+#>    cell_ file_id donor…¹ donor…² libra…³ mappe…⁴ sampl…⁵ suspe…⁶ suspe…⁷ autho…⁸
+#>    <chr> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
+#>  1 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  2 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  3 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  4 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  5 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  6 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  7 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  8 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  9 4602… 63523a… 19 mon… 463181… 671785… GENCOD… 125234… cell    c7485e… CD4 T …
+#> 10 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#> # … with more rows, 7 more variables: cell_state <chr>,
+#> #   reported_diseases <chr>, Short_Sample <chr>, Project <chr>,
+#> #   Experiment <chr>, compartment <chr>, broad_celltype <chr>, and abbreviated
+#> #   variable names ¹​donor_age, ²​donor_uuid, ³​library_uuid,
+#> #   ⁴​mapped_reference_annotation, ⁵​sample_uuid, ⁶​suspension_type,
+#> #   ⁷​suspension_uuid, ⁸​author_cell_type
+#> 
+#> [[2]]
+#> # Source:   SQL [?? x 12]
+#> # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]
+#>    cell_ file_id orig.…¹ nCoun…² nFeat…³ seura…⁴ Project donor…⁵ compa…⁶ broad…⁷
+#>    <chr> <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
+#>  1 1069  8fee7b… 4602ST…   16082 3997    25      Experi… Wilms3  non_PT  Pelvic…
+#>  2 1214  8fee7b… 4602ST…    1037 606     25      Experi… Wilms3  non_PT  Pelvic…
+#>  3 2583  8fee7b… 4602ST…    3028 1361    25      Experi… Wilms3  non_PT  Pelvic…
+#>  4 2655  8fee7b… 4602ST…    1605 859     25      Experi… Wilms3  non_PT  Pelvic…
+#>  5 3609  8fee7b… 4602ST…    1144 682     25      Experi… Wilms3  non_PT  Pelvic…
+#>  6 3624  8fee7b… 4602ST…    1874 963     25      Experi… Wilms3  non_PT  Pelvic…
+#>  7 3946  8fee7b… 4602ST…    1296 755     25      Experi… Wilms3  non_PT  Pelvic…
+#>  8 5163  8fee7b… 4602ST…   11417 3255    25      Experi… Wilms3  non_PT  Pelvic…
+#>  9 5446  8fee7b… 4602ST…    1769 946     19      Experi… Wilms2  lympho… CD4 T …
+#> 10 6275  8fee7b… 4602ST…    3750 1559    25      Experi… Wilms3  non_PT  Pelvic…
+#> # … with more rows, 2 more variables: author_cell_type <chr>, Sample <chr>, and
+#> #   abbreviated variable names ¹​orig.ident, ²​nCount_RNA, ³​nFeature_RNA,
+#> #   ⁴​seurat_clusters, ⁵​donor_id, ⁶​compartment, ⁷​broad_celltype
 ```
-
-\[\[1\]\]
-
-\[\[2\]\]
 
 # Cell metadata
 

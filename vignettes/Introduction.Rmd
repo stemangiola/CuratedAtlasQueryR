@@ -1,10 +1,25 @@
 ---
 title: "CuratedAtlasQueryR"
-output: rmarkdown::html_vignette
+output: "html_vignette"
 vignette: >
   %\VignetteIndexEntry{CuratedAtlasQueryR}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+knit: >
+    (function(x, ...){
+        proj_root <- rprojroot::find_package_root_file() |> normalizePath()
+        rmarkdown::render(
+            x,
+            output_format = "html_document"
+        )
+        rmarkdown::render(
+            x,
+            output_file = "README.md",
+            output_format = "github_document",
+            output_dir = proj_root,
+            knit_root_dir = proj_root
+        )
+    })
 ---
 
 ```{r, include = FALSE}
@@ -14,28 +29,14 @@ knitr::opts_chunk$set(
 )
 root_dir <- knitr::opts_knit$get("root.dir")
 if (!is.null(root_dir)){
+    # This hack fixes the relative image paths. 
+    # See https://github.com/rstudio/rmarkdown/issues/2473
     knitr::opts_knit$set(
         output.dir = root_dir
     )
 }
 proj_root <- rprojroot::find_package_root_file() |> normalizePath() 
-```
-
-```{r, eval=FALSE, echo=FALSE, include=FALSE}
-# Note: knit this to the repo readme file using:
-proj_root <- rprojroot::find_package_root_file() |> normalizePath()
-rmarkdown::render(
-    "Introduction.Rmd",
-    output_file = "README.md",
-    output_format = "github_document",
-    output_dir = proj_root,
-    # We need to knit in the destination directory, or the relative paths
-    # won't work
-    knit_root_dir = proj_root
-)
-```
-
-```{r include=FALSE}
+# Utility function for figures to force them to have the correct path
 find_figure <- function(names){
     rprojroot::find_package_root_file() |>
         file.path("man", "figures", names) 
@@ -339,7 +340,7 @@ unharmonised
 Notice that the columns differ between each dataset's data frame:
 
 ```{r}
-dplyr::pull(unharmonised, unharmonised) |> head(2)
+dplyr::pull(unharmonised) |> head(2)
 ```
 
 # Cell metadata
