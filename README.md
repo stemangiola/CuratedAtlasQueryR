@@ -15,8 +15,6 @@ sample, or dataset levels based on filtering criteria.
 
 <img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" /><img src="man/figures/nectar_logo.png" width="180px" height="58px" />
 
-[website](https://stemangiola.github.io/CuratedAtlasQueryR)
-
 # Query interface
 
 ## Installation
@@ -36,11 +34,10 @@ library(CuratedAtlasQueryR)
 ### Load the metadata
 
 ``` r
-metadata  = get_metadata()
-
+metadata <- get_metadata()
 metadata
 #> # Source:   table</vast/scratch/users/milton.m/cache/R/CuratedAtlasQueryR/metadata.0.2.3.parquet> [?? x 56]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
+#> # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]
 #>    cell_ sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ _samp…⁸
 #>    <chr> <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  
 #>  1 AAAC… 689e2f… basal … basal_…       1 <NA>    <NA>    <NA>    f297c7… D17PrP…
@@ -62,26 +59,31 @@ metadata
 #> #   is_primary_data_x <chr>, organism <chr>, organism_ontology_term_id <chr>, …
 ```
 
-### Explore the number of datasets per tissue
+The `metadata` variable can then be re-used for all subsequent queries.
+
+### Explore the tissue
 
 ``` r
 metadata |>
-  dplyr::distinct(tissue, dataset_id) |> 
-  dplyr::count(tissue)
-#> # Source:   SQL [?? x 2]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
-#>    tissue            n
-#>    <chr>         <dbl>
-#>  1 cerebellum        3
-#>  2 telencephalon     2
-#>  3 heart             3
-#>  4 intestine        18
-#>  5 kidney           19
-#>  6 liver            24
-#>  7 lung             27
-#>  8 muscle organ      3
-#>  9 pancreas          5
-#> 10 placenta          3
+    dplyr::distinct(tissue, file_id) 
+```
+
+``` r
+#> # Source:     SQL [?? x 2]
+#> # Database:   sqlite 3.40.0 [public_access@zki3lfhznsa.db.cloud.edu.au:5432/metadata]
+#> # Ordered by: desc(n)
+#>    tissue                      n
+#>    <chr>                 <int64>
+#>  1 blood                      47
+#>  2 heart left ventricle       46
+#>  3 cortex of kidney           31
+#>  4 renal medulla              29
+#>  5 lung                       27
+#>  6 liver                      24
+#>  7 middle temporal gyrus      24
+#>  8 kidney                     19
+#>  9 intestine                  18
+#> 10 thymus                     17
 #> # … with more rows
 ```
 
@@ -90,7 +92,6 @@ metadata |>
 ### Query raw counts
 
 ``` r
-
 single_cell_counts = 
     metadata |>
     dplyr::filter(
@@ -102,6 +103,7 @@ single_cell_counts =
     get_SingleCellExperiment()
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
+#> ℹ Downloading 0 files, totalling 0 GB
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
 
@@ -137,6 +139,7 @@ single_cell_counts =
     get_SingleCellExperiment(assays = "cpm")
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
+#> ℹ Downloading 0 files, totalling 0 GB
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
 
@@ -169,6 +172,7 @@ single_cell_counts =
     get_SingleCellExperiment(assays = "cpm", features = "PUM1")
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
+#> ℹ Downloading 0 files, totalling 0 GB
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
 
@@ -205,6 +209,7 @@ single_cell_counts =
     get_seurat()
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
+#> ℹ Downloading 0 files, totalling 0 GB
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
 
@@ -270,7 +275,7 @@ metadata |>
   geom_jitter(shape=".") 
 ```
 
-<img src="man/figures/HLA_A_disease_plot.png" width="525" />
+![](man/figures/HLA_A_disease_plot.png)<!-- -->
 
 ``` r
 
@@ -288,7 +293,7 @@ metadata |>
   geom_jitter(shape=".") 
 ```
 
-<img src="man/figures/HLA_A_tissue_plot.png" width="525" />
+![](man/figures/HLA_A_tissue_plot.png)<!-- -->
 
 ## Obtain Unharmonised Metadata
 
@@ -315,10 +320,10 @@ unharmonised
 Notice that the columns differ between each dataset’s data frame:
 
 ``` r
-dplyr::pull(unharmonised, unharmonised) |> head(2)
+dplyr::pull(unharmonised) |> head(2)
 #> [[1]]
 #> # Source:   SQL [?? x 17]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
+#> # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]
 #>    cell_ file_id donor…¹ donor…² libra…³ mappe…⁴ sampl…⁵ suspe…⁶ suspe…⁷ autho…⁸
 #>    <chr> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
 #>  1 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
@@ -340,7 +345,7 @@ dplyr::pull(unharmonised, unharmonised) |> head(2)
 #> 
 #> [[2]]
 #> # Source:   SQL [?? x 12]
-#> # Database: DuckDB 0.6.2-dev1166 [unknown@Linux 3.10.0-1160.81.1.el7.x86_64:R 4.2.1/:memory:]
+#> # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]
 #>    cell_ file_id orig.…¹ nCoun…² nFeat…³ seura…⁴ Project donor…⁵ compa…⁶ broad…⁷
 #>    <chr> <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
 #>  1 1069  8fee7b… 4602ST…   16082 3997    25      Experi… Wilms3  non_PT  Pelvic…
@@ -407,7 +412,7 @@ present in the original CELLxGENE metadata
 - `sample_id_db`: Sample subdivision for internal use
 - `file_id_db`: File subdivision for internal use
 - `sample_`: Sample ID
-- `sample_name`: How samples were defined
+- `.sample_name`: How samples were defined
 
 # RNA abundance
 
@@ -417,43 +422,3 @@ CELLxGENE include a mix of scales and transformations specified in the
 `x_normalization` column.
 
 The `cpm` assay includes counts per million.
-
-# Installation and getting-started problems
-
-**Problem:** Default R cache path including non-standard characters
-(e.g. dash)
-
-``` r
-get_metadata()
-
-# Error in `db_query_fields.DBIConnection()`:
-# ! Can't query fields.
-# Caused by error:
-# ! Parser Error: syntax error at or near "/"
-# LINE 2: FROM /Users/bob/Library/Cach...
-```
-
-**Solution:** Setup custom cache path (e.g. user home directory)
-
-``` r
-get_metadata(cache_directory = path.expand('~'))
-```
-
-**Problem:** namespace ‘dbplyr’ 2.2.1 is being loaded, but \>= 2.3.0 is
-required
-
-**Solution:** Install new dbplyr
-
-``` r
-install.packages("dbplyr")
-```
-
-------------------------------------------------------------------------
-
-This project has been funded by
-
-- *Silicon Valley Foundation* CZF2019-002443
-- *Bioconductor core funding* NIH NHGRI 5U24HG004059-18
-- *Victoria Cancer Agency* ECRF21036
-- *Australian National Health and Medical Research Council* 1116955
-- *The Lorenzo and Pamela Galli Medical Research Trust*

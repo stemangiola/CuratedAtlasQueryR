@@ -1,11 +1,47 @@
 ---
 title: "CuratedAtlasQueryR"
-output: rmarkdown::html_vignette
+output: "html_vignette"
 vignette: >
-  %\VignetteIndexEntry{readme}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{CuratedAtlasQueryR}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+knit: >
+    (function(x, ...){
+        proj_root <- rprojroot::find_package_root_file() |> normalizePath()
+        rmarkdown::render(
+            x,
+            output_format = "html_document"
+        )
+        rmarkdown::render(
+            x,
+            output_file = "README.md",
+            output_format = "github_document",
+            output_dir = proj_root,
+            knit_root_dir = proj_root
+        )
+    })
 ---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+root_dir <- knitr::opts_knit$get("root.dir")
+if (!is.null(root_dir)){
+    # This hack fixes the relative image paths. 
+    # See https://github.com/rstudio/rmarkdown/issues/2473
+    knitr::opts_knit$set(
+        output.dir = root_dir
+    )
+}
+proj_root <- rprojroot::find_package_root_file() |> normalizePath() 
+# Utility function for figures to force them to have the correct path
+find_figure <- function(names){
+    rprojroot::find_package_root_file() |>
+        file.path("man", "figures", names) 
+}
+```
 
 <!-- badges: start -->
 [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
@@ -13,27 +49,21 @@ vignette: >
 
 `CuratedAtlasQuery` is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria. 
 
-```{r, include = FALSE}
-# Note: knit this to the repo readme file using:
-# rmarkdown::render("vignettes/readme.Rmd", output_format = "github_document", output_dir = getwd())
-knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>"
-)
-```
 
 ```{r, echo=FALSE, out.height = c("139px"), out.width = "120x" }
-knitr::include_graphics(c("../man/figures/logo.png"))
+find_figure("logo.png") |> knitr::include_graphics()
 ```
 
 ```{r, echo=FALSE, out.height = c("58px"), out.width = c("155x", "129px", "202px", "219px", "180px")}
-knitr::include_graphics(c(
-  "../man/figures/svcf_logo.jpeg", 
-  "../man/figures/czi_logo.png", 
-  "../man/figures/bioconductor_logo.jpg",
-  "../man/figures/vca_logo.png",
-  "../man/figures/nectar_logo.png"
-))
+c(
+  "svcf_logo.jpeg", 
+  "czi_logo.png", 
+  "bioconductor_logo.jpg",
+  "vca_logo.png",
+  "nectar_logo.png"
+) |> 
+    find_figure() |>
+    knitr::include_graphics()
 ```
 
 # Query interface
@@ -56,6 +86,7 @@ library(CuratedAtlasQueryR)
 
 ```{r}
 metadata <- get_metadata()
+metadata
 ```
 
 The `metadata` variable can then be re-used for all subsequent queries.
@@ -268,7 +299,7 @@ metadata |>
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("../man/figures/HLA_A_disease_plot.png")
+find_figure("HLA_A_disease_plot.png") |> knitr::include_graphics()
 ```
 
 ```{r, eval=FALSE}
@@ -289,7 +320,7 @@ metadata |>
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("../man/figures/HLA_A_tissue_plot.png")
+find_figure("HLA_A_tissue_plot.png") |> knitr::include_graphics()
 ```
 
 ## Obtain Unharmonised Metadata
@@ -309,7 +340,7 @@ unharmonised
 Notice that the columns differ between each dataset's data frame:
 
 ```{r}
-dplyr::pull(unharmonised, unharmonised) |> head(2)
+dplyr::pull(unharmonised) |> head(2)
 ```
 
 # Cell metadata
