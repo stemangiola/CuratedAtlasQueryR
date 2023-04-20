@@ -199,26 +199,6 @@ downsample_metadata <- function(output = "sample_meta.parquet"){
         summarise(n = dplyr::n()) |> 
         dplyr::collect()
     
-    # This is a table of all the datasets we need for the vignette. The
-    # # "datasets" column is how many datasets we need from that filter
-    # filters <- tibble::tibble(
-    #     filter = rlang::exprs(
-    #         .data$ethnicity == "African" &
-    #         stringr::str_like(.data$assay, "%10x%") &
-    #         .data$tissue == "lung parenchyma" &
-    #         stringr::str_like(.data$cell_type, "%CD4%"),
-    #         .data$cell_type_harmonised == "nk",
-    #         .data$cell_type_harmonised == "cd14 mono",
-    #         .data$tissue == "kidney blood vessel"
-    #     ),
-    #     dataset = c(
-    #         4,
-    #         1,
-    #         1,
-    #         1
-    #     )
-    # )
-    
     # Find a minimal set of file_id_dbs we need
     minimal_file_ids <- rlang::exprs(
         .data$ethnicity == "African" &

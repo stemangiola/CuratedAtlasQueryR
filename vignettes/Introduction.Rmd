@@ -233,7 +233,7 @@ counts <- metadata |>
   tidySingleCellExperiment::join_features("HLA-A", shape = "wide") |> 
     
   # Rank x axis
-  as_tibble()
+  tibble::as_tibble()
 
 # Plot by disease
 counts |>
