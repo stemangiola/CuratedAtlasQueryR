@@ -232,6 +232,10 @@ downsample_metadata <- function(output = "sample_meta.parquet"){
         purrr::map(function(filter){
             all_ids <- metadata |> 
                 dplyr::filter(!!filter) |>
+                dplyr::group_by(file_id_db) |>
+                # Remove datasets that only have 1 matching cell, which will 
+                # break downstream
+                dplyr::filter(dplyr::n() > 1) |>
                 dplyr::pull(.data$file_id_db)
             
             dataset_sizes |>

@@ -217,7 +217,6 @@ We can gather all CD14 monocytes cells and plot the distribution of HLA-A across
 
 ```{r, echo=FALSE}
 suppressPackageStartupMessages({
-    library(tidySingleCellExperiment)
     library(ggplot2)
 })
 
@@ -231,7 +230,7 @@ counts <- metadata |>
   get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
   
   # Add feature to table
-  join_features("HLA-A", shape = "wide") |> 
+  tidySingleCellExperiment::join_features("HLA-A", shape = "wide") |> 
     
   # Rank x axis
   as_tibble()
@@ -291,8 +290,8 @@ metadata |>
   # Get counts per million for HCA-A gene 
   get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
 
-    # Plot (styling code have been omitted)
-  join_features("HLA-A", shape = "wide") |> 
+  # Plot (styling code have been omitted)
+  tidySingleCellExperiment::join_features("HLA-A", shape = "wide") |> 
   ggplot(aes( tissue_harmonised, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".")
 ```
