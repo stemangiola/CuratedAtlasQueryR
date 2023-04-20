@@ -199,45 +199,49 @@ downsample_metadata <- function(output = "sample_meta.parquet"){
         summarise(n = dplyr::n()) |> 
         dplyr::collect()
     
-    # For each of the 3 examples, we select the minimal file_id_db that will
-    # satisfy the corresponding filters
-    example_a_all <- metadata |> 
-        dplyr::filter(
-            .data$ethnicity == "African" &
+    # This is a table of all the datasets we need for the vignette. The
+    # # "datasets" column is how many datasets we need from that filter
+    # filters <- tibble::tibble(
+    #     filter = rlang::exprs(
+    #         .data$ethnicity == "African" &
+    #         stringr::str_like(.data$assay, "%10x%") &
+    #         .data$tissue == "lung parenchyma" &
+    #         stringr::str_like(.data$cell_type, "%CD4%"),
+    #         .data$cell_type_harmonised == "nk",
+    #         .data$cell_type_harmonised == "cd14 mono",
+    #         .data$tissue == "kidney blood vessel"
+    #     ),
+    #     dataset = c(
+    #         4,
+    #         1,
+    #         1,
+    #         1
+    #     )
+    # )
+    
+    # Find a minimal set of file_id_dbs we need
+    minimal_file_ids <- rlang::exprs(
+        .data$ethnicity == "African" &
             stringr::str_like(.data$assay, "%10x%") &
             .data$tissue == "lung parenchyma" &
-            stringr::str_like(.data$cell_type, "%CD4%")
-        ) |>
-        dplyr::pull(.data$file_id_db)
-    example_a_minimal <- dataset_sizes |>
-        dplyr::filter(.data$file_id_db %in% example_a_all) |>
-        dplyr::slice_head(n=5) |>
-        dplyr::pull(.data$file_id_db)
-    
-    example_b_all <- metadata |> 
-        dplyr::filter(.data$cell_type_harmonised == "cd14 mono") |>
-        dplyr::pull(.data$file_id_db)
-    example_b_minimal <- dataset_sizes |>
-        dplyr::filter(.data$file_id_db %in% example_b_all) |>
-        dplyr::slice_head(n=1) |>
-        dplyr::pull(.data$file_id_db)
-    
-    example_c_all <- metadata |> 
-        dplyr::filter(.data$cell_type_harmonised == "nk") |>
-        dplyr::pull(.data$file_id_db)
-    example_c_minimal <- dataset_sizes |>
-        dplyr::filter(.data$file_id_db %in% example_c_all) |>
-        dplyr::slice_head(n=1) |>
-        dplyr::pull(.data$file_id_db)
-    
-    # The final dataset is the union of all the selected file IDs
-    minimal_file_ids <- union(
-        example_a_minimal,
-        example_b_minimal
+            stringr::str_like(.data$cell_type, "%CD4%"),
+        .data$cell_type_harmonised == "nk",
+        .data$cell_type_harmonised == "cd14 mono",
+        .data$tissue == "kidney blood vessel"
     ) |>
-        union(example_c_minimal)
-
-    metadata |>
+        purrr::map(function(filter){
+            all_ids <- metadata |> 
+                dplyr::filter(!!filter) |>
+                dplyr::pull(.data$file_id_db)
+            
+            dataset_sizes |>
+                dplyr::filter(.data$file_id_db %in% all_ids) |>
+                dplyr::slice_min(n=1, order_by = .data$n, with_ties = FALSE) |>
+                dplyr::pull(.data$file_id_db)
+        }) |>
+        purrr::reduce(union)
+    
+    metadata |>    
         dplyr::filter(.data$file_id_db %in% minimal_file_ids) |>
         dplyr::arrange(.data$file_id_db, .data$sample_) |>
         dplyr::collect() |>

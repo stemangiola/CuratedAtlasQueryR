@@ -14,7 +14,7 @@ knit: >
             x,
             output_format = "html_document",
             params = list(
-                metadata_url = CuratedAtlasQueryR::SAMPLE_DATABASE_URL
+                demo_metadata = TRUE
             )
         )
         rmarkdown::render(
@@ -24,7 +24,7 @@ knit: >
             output_dir = proj_root,
             knit_root_dir = proj_root,
             params = list(
-                metadata_url = CuratedAtlasQueryR::DATABASE_URL
+                demo_metadata = FALSE
             )
         )
     })
@@ -310,7 +310,7 @@ returns a data frame with one row per dataset, including the `unharmonised`
 column which contains unharmnised metadata as a nested data frame.
 
 ```{r}
-harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
+harmonised <- metadata |> dplyr::filter(tissue == "kidney blood vessel")
 unharmonised <- get_unharmonised_metadata(harmonised)
 unharmonised
 ```
