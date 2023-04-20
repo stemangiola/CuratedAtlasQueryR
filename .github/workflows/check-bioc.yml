@@ -219,7 +219,7 @@ jobs:
           _R_CHECK_CRAN_INCOMING_: false
         run: |
           rcmdcheck::rcmdcheck(
-              args = c(""--no-manual", "--timings"),
+              args = c("-no-manual", "--timings"),
               build_args = c("--no-resave-data"),
               error_on = "warning",
               check_dir = "check"
