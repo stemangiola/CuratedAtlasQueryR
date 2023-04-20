@@ -105,7 +105,8 @@ Suggests:
     spelling,
     forcats,
     ggplot2,
-    tidySingleCellExperiment
+    tidySingleCellExperiment,
+    rprojroot
 Biarch: true
 biocViews: 
     AssayDomain,

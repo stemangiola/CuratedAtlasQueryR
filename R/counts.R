@@ -13,14 +13,14 @@ assay_map <- c(
     cpm = "cpm"
 )
 
-#' Base URL pointing to the count data
+#' Base URL pointing to the count data at the current version
 COUNTS_URL <- single_line_str(
-    "https://swift.rc.nectar.org.au/v1/
-    AUTH_06d6e008e3e642da99d806ba3ea629c5/harmonised-human-atlas"
+    "https://object-store.rc.nectar.org.au/v1/
+    AUTH_06d6e008e3e642da99d806ba3ea629c5/cellxgene-0.2.1-hdf5"
 )
 #' Current version of the counts. This will be incremented when a newer
 #' version is released
-COUNTS_VERSION <- "0.2"
+COUNTS_VERSION <- "0.2.1"
 
 #' @inherit get_single_cell_experiment
 #' @inheritDotParams get_single_cell_experiment
@@ -199,10 +199,10 @@ group_to_sce <- function(i, df, dir_prefix, features) {
 
     file.exists(sce_path) |>
         assert_that(
-            msg = "Your cache does not contain a file you
+            msg = "Your cache does not contain a file {sce_path} you
                             attempted to query. Please provide the repository
                             parameter so that files can be synchronised from the
-                            internet"
+                            internet" |> glue()
         )
 
     sce <- loadHDF5SummarizedExperiment(sce_path)

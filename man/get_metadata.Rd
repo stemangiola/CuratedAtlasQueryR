@@ -16,7 +16,7 @@ to the location of the parquet database.}
 
 \item{cache_directory}{Optional character vector of length 1. A file path on
 your local system to a directory (not a file) that will be used to store
-metadata.parquet}
+\code{metadata.parquet}}
 
 \item{use_cache}{Optional logical scalar. If \code{TRUE} (the default), and this
 function has been called before with the same parameters, then a cached

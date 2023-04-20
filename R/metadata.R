@@ -8,9 +8,20 @@ cache <- rlang::env(
     metadata_table = rlang::env()
 )
 
+#' URL pointing to the full metadata file
+#' @export
 DATABASE_URL <- single_line_str(
     "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.3.parquet"
+)
+
+#' URL pointing to the sample metadata file, which is smaller and for test,
+#' demonstration, and vignette purposes only
+#' @export
+SAMPLE_DATABASE_URL <- single_line_str(
+    "https://object-store.rc.nectar.org.au/v1/
+    AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/
+    sample_metadata.0.2.3.parquet"
 )
 
 #' Gets the Curated Atlas metadata as a data frame.
@@ -24,7 +35,7 @@ DATABASE_URL <- single_line_str(
 #'   to the location of the parquet database.
 #' @param cache_directory Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
-#'   metadata.parquet
+#'   `metadata.parquet`
 #' @param use_cache Optional logical scalar. If `TRUE` (the default), and this
 #'   function has been called before with the same parameters, then a cached
 #'   reference to the table will be returned. If `FALSE`, a new connection will

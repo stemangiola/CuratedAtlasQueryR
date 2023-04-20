@@ -184,3 +184,64 @@ dir_to_anndata <- function(src, dest){
             }, .progress = "Converting files")
     }, env = zellkonverter::zellkonverterAnnDataEnv())
 }
+
+#' Makes a "downsampled" metadata file that only contains the minimal data
+#' needed to run the vignette.
+#' @param output Character scalar. Path to the output file.
+#' @return NULL
+#' @keywords internal
+downsample_metadata <- function(output = "sample_meta.parquet"){
+    metadata <- get_metadata()
+    
+    # Make a table of rows per dataset
+    dataset_sizes <- metadata |>
+        dplyr::group_by(.data$file_id_db) |>
+        summarise(n = dplyr::n()) |> 
+        dplyr::collect()
+    
+    # For each of the 3 examples, we select the minimal file_id_db that will
+    # satisfy the corresponding filters
+    example_a_all <- metadata |> 
+        dplyr::filter(
+            .data$ethnicity == "African" &
+            stringr::str_like(.data$assay, "%10x%") &
+            .data$tissue == "lung parenchyma" &
+            stringr::str_like(.data$cell_type, "%CD4%")
+        ) |>
+        dplyr::pull(.data$file_id_db)
+    example_a_minimal <- dataset_sizes |>
+        dplyr::filter(.data$file_id_db %in% example_a_all) |>
+        dplyr::slice_head(n=5) |>
+        dplyr::pull(.data$file_id_db)
+    
+    example_b_all <- metadata |> 
+        dplyr::filter(.data$cell_type_harmonised == "cd14 mono") |>
+        dplyr::pull(.data$file_id_db)
+    example_b_minimal <- dataset_sizes |>
+        dplyr::filter(.data$file_id_db %in% example_b_all) |>
+        dplyr::slice_head(n=1) |>
+        dplyr::pull(.data$file_id_db)
+    
+    example_c_all <- metadata |> 
+        dplyr::filter(.data$cell_type_harmonised == "nk") |>
+        dplyr::pull(.data$file_id_db)
+    example_c_minimal <- dataset_sizes |>
+        dplyr::filter(.data$file_id_db %in% example_c_all) |>
+        dplyr::slice_head(n=1) |>
+        dplyr::pull(.data$file_id_db)
+    
+    # The final dataset is the union of all the selected file IDs
+    minimal_file_ids <- union(
+        example_a_minimal,
+        example_b_minimal
+    ) |>
+        union(example_c_minimal)
+
+    metadata |>
+        dplyr::filter(.data$file_id_db %in% minimal_file_ids) |>
+        dplyr::arrange(.data$file_id_db, .data$sample_) |>
+        dplyr::collect() |>
+        arrow::write_parquet("sample_meta.parquet")
+    
+    NULL
+}

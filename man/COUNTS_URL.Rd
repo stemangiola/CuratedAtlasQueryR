@@ -3,7 +3,7 @@
 \docType{data}
 \name{COUNTS_URL}
 \alias{COUNTS_URL}
-\title{Base URL pointing to the count data}
+\title{Base URL pointing to the count data at the current version}
 \format{
 An object of class \code{character} of length 1.
 }
@@ -11,6 +11,6 @@ An object of class \code{character} of length 1.
 COUNTS_URL
 }
 \description{
-Base URL pointing to the count data
+Base URL pointing to the count data at the current version
 }
 \keyword{datasets}

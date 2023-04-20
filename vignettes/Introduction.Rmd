@@ -1,11 +1,58 @@
 ---
 title: "CuratedAtlasQueryR"
-output: rmarkdown::html_vignette
+output: "html_vignette"
+params:
+  demo_metadata: true
 vignette: >
-  %\VignetteIndexEntry{readme}
-  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{CuratedAtlasQueryR}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+knit: >
+    (function(x, ...){
+        proj_root <- rprojroot::find_package_root_file() |> normalizePath()
+        rmarkdown::render(
+            x,
+            output_format = "html_document",
+            params = list(
+                metadata_url = CuratedAtlasQueryR::SAMPLE_DATABASE_URL
+            )
+        )
+        rmarkdown::render(
+            x,
+            output_file = "README.md",
+            output_format = "github_document",
+            output_dir = proj_root,
+            knit_root_dir = proj_root,
+            params = list(
+                metadata_url = CuratedAtlasQueryR::DATABASE_URL
+            )
+        )
+    })
 ---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+root_dir <- knitr::opts_knit$get("root.dir")
+if (!is.null(root_dir)){
+    # This hack fixes the relative image paths. 
+    # See https://github.com/rstudio/rmarkdown/issues/2473
+    knitr::opts_knit$set(
+        output.dir = root_dir
+    )
+}
+proj_root <- rprojroot::find_package_root_file() |> normalizePath() 
+# Utility function for figures to force them to have the correct path
+find_figure <- function(names){
+    rprojroot::find_package_root_file() |>
+        file.path("man", "figures", names) 
+}
+METADATA_URL = if (params$demo_metadata)
+        CuratedAtlasQueryR::SAMPLE_DATABASE_URL else
+        CuratedAtlasQueryR::DATABASE_URL
+```
 
 <!-- badges: start -->
 [![Lifecycle:maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
@@ -17,27 +64,20 @@ Harmonised data is stored in the ARDC Nectar Research Cloud, and most
 `CuratedAtlasQuery` functions interact with Nectar via web requests, so a 
 network connection is required for most functionality.
 
-```{r, include = FALSE}
-# Note: knit this to the repo readme file using:
-# rmarkdown::render("vignettes/readme.Rmd", output_format = "github_document", output_dir = getwd())
-knitr::opts_chunk$set(
-    collapse = TRUE,
-    comment = "#>"
-)
-```
-
 ```{r, echo=FALSE, out.height = c("139px"), out.width = "120x" }
-knitr::include_graphics(c("../man/figures/logo.png"))
+find_figure("logo.png") |> knitr::include_graphics()
 ```
 
 ```{r, echo=FALSE, out.height = c("58px"), out.width = c("155x", "129px", "202px", "219px", "180px")}
-knitr::include_graphics(c(
-  "../man/figures/svcf_logo.jpeg", 
-  "../man/figures/czi_logo.png", 
-  "../man/figures/bioconductor_logo.jpg",
-  "../man/figures/vca_logo.png",
-  "../man/figures/nectar_logo.png"
-))
+c(
+  "svcf_logo.jpeg", 
+  "czi_logo.png", 
+  "bioconductor_logo.jpg",
+  "vca_logo.png",
+  "nectar_logo.png"
+) |> 
+    find_figure() |>
+    knitr::include_graphics()
 ```
 
 # Query interface
@@ -59,37 +99,19 @@ library(CuratedAtlasQueryR)
 ### Load the metadata
 
 ```{r}
-metadata <- get_metadata()
+# Note: in real applications you should use the default value of remote_url 
+metadata <- get_metadata(remote_url = METADATA_URL)
+metadata
 ```
 
 The `metadata` variable can then be re-used for all subsequent queries.
 
 ### Explore the tissue 
 
-```{r, eval=FALSE}
+```{r}
 metadata |>
     dplyr::distinct(tissue, file_id) 
 ```
-
-```{r}
-#> # Source:     SQL [?? x 2]
-#> # Database:   sqlite 3.40.0 [public_access@zki3lfhznsa.db.cloud.edu.au:5432/metadata]
-#> # Ordered by: desc(n)
-#>    tissue                      n
-#>    <chr>                 <int64>
-#>  1 blood                      47
-#>  2 heart left ventricle       46
-#>  3 cortex of kidney           31
-#>  4 renal medulla              29
-#>  5 lung                       27
-#>  6 liver                      24
-#>  7 middle temporal gyrus      24
-#>  8 kidney                     19
-#>  9 intestine                  18
-#> 10 thymus                     17
-#> # … with more rows
-```
-
 
 ## Download single-cell RNA sequencing counts 
 
@@ -167,9 +189,11 @@ The returned `SingleCellExperiment` can be saved with two modalities, as `.rds` 
 
 ### Saving as RDS (fast saving, slow reading)
 
-Saving as `.rds` has the advantage that is very fast, the `.rds` file occupies very little disk space as it only stored the links for the files in your ache.
+Saving as `.rds` has the advantage of being fast, andd the `.rds` file occupies very little disk space as it only stores the links to the files in your cache.
 
-However it has the disadvantage that for big `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_single_cell_experiment` the display and manipulation is going to be slow.
+However it has the disadvantage that for big `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_single_cell_experiment`, the display and manipulation is going to be slow.
+In addition, an `.rds` saved in this way is not portable: you will not be able
+to share it with other users.
 
 ```{r}
 single_cell_counts |> saveRDS("single_cell_counts.rds")
@@ -177,12 +201,14 @@ single_cell_counts |> saveRDS("single_cell_counts.rds")
 
 ### Saving as HDF5 (slow saving, fast reading)
 
-Saving as `.rds` has the advantage that rewrites on disk a monolithic `HDF5` and so displaying and manipulating large `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_single_cell_experiment`, is going to be fast.
+Saving as `.hdf5` executes any computation on the `SingleCellExperiment` and writes it to disk as a monolithic `HDF5`.
+Once this is done, operations on the `SingleCellExperiment` will be comparatively very fast.
+The resulting `.hdf5` file will also be totally portable and sharable.
 
-However it has the disadvantage that the files are going to be larger as they include the count information, and the saving process is going to be slow for large objects.
+However this `.hdf5` has the disadvantage of being larger than the corresponding `.rds` as it includes a copy of the count information, and the saving process is going to be slow for large objects.
 
 ```{r}
-single_cell_counts |> HDF5Array::saveHDF5SummarizedExperiment("single_cell_counts")
+single_cell_counts |> HDF5Array::saveHDF5SummarizedExperiment("single_cell_counts", replace = TRUE)
 ```
 
 ## Visualise gene transcription
@@ -190,15 +216,15 @@ single_cell_counts |> HDF5Array::saveHDF5SummarizedExperiment("single_cell_count
 We can gather all CD14 monocytes cells and plot the distribution of HLA-A across all tissues
 
 ```{r, echo=FALSE}
-library(tidySingleCellExperiment)
-library(ggplot2)
+suppressPackageStartupMessages({
+    library(tidySingleCellExperiment)
+    library(ggplot2)
+})
 
 # Plots with styling
-
-# Plot by disease
-metadata |>
+counts <- metadata |>
   # Filter and subset
-  filter(cell_type_harmonised=="cd14 mono") |>
+  filter(cell_type_harmonised == "cd14 mono") |>
   filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
   
   # Get counts per million for HCA-A gene
@@ -208,7 +234,10 @@ metadata |>
   join_features("HLA-A", shape = "wide") |> 
     
   # Rank x axis
-  as_tibble() |> 
+  as_tibble()
+
+# Plot by disease
+counts |>
   dplyr::with_groups(disease, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
   
   # Plot
@@ -224,19 +253,7 @@ metadata |>
   ggtitle("HLA-A in CD14 monocytes by disease") 
 
 # Plot by tissue
-metadata |>
-  # Filter and subset
-  filter(cell_type_harmonised=="cd14 mono") |>
-  filter(file_id_db != "c5a05f23f9784a3be3bfa651198a48eb") |> 
-  
-  # Get counts per million for HCA-A gene
-  get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
-  
-  # Add feature to table
-  join_features("HLA-A", shape = "wide") |> 
-    
-  # Rank x axis
-  as_tibble() |> 
+counts |> 
   dplyr::with_groups(tissue_harmonised, ~ .x |> mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
   
   # Plot
@@ -249,33 +266,23 @@ metadata |>
   theme_bw() +
   theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1)) + 
   xlab("Tissue") + 
-  ggtitle("HLA-A in CD14 monocytes by tissue") 
-
+  ggtitle("HLA-A in CD14 monocytes by tissue")
 ```
 
 ```{r}
 library(tidySingleCellExperiment)
 library(ggplot2)
 
-metadata |>
-  # Filter and subset
-  filter(cell_type_harmonised=="cd14 mono") |>
-
-  # Get counts per million for HCA-A gene
-  get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
-  
-  # Plot (styling code have been omitted)
-  join_features("HLA-A", shape = "wide") |> 
+counts |> 
   ggplot(aes( disease, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") 
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("../man/figures/HLA_A_disease_plot.png")
+find_figure("HLA_A_disease_plot.png") |> knitr::include_graphics()
 ```
 
-```{r, eval=FALSE}
-
+```{r}
 metadata |> 
     
   # Filter and subset
@@ -287,12 +294,11 @@ metadata |>
     # Plot (styling code have been omitted)
   join_features("HLA-A", shape = "wide") |> 
   ggplot(aes( tissue_harmonised, `HLA.A`,color = file_id)) +
-  geom_jitter(shape=".") 
-
+  geom_jitter(shape=".")
 ```
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::include_graphics("../man/figures/HLA_A_tissue_plot.png")
+find_figure("HLA_A_tissue_plot.png") |> knitr::include_graphics()
 ```
 
 ## Obtain Unharmonised Metadata
@@ -312,7 +318,7 @@ unharmonised
 Notice that the columns differ between each dataset's data frame:
 
 ```{r}
-dplyr::pull(unharmonised, unharmonised) |> head(2)
+dplyr::pull(unharmonised) |> head(2)
 ```
 
 # Cell metadata
