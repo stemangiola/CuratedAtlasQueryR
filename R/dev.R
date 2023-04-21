@@ -201,13 +201,17 @@ downsample_metadata <- function(output = "sample_meta.parquet"){
     
     # Find a minimal set of file_id_dbs we need
     minimal_file_ids <- rlang::exprs(
+        # Used by the vignette
         .data$ethnicity == "African" &
             stringr::str_like(.data$assay, "%10x%") &
             .data$tissue == "lung parenchyma" &
             stringr::str_like(.data$cell_type, "%CD4%"),
         .data$cell_type_harmonised == "nk",
         .data$cell_type_harmonised == "cd14 mono",
-        .data$tissue == "kidney blood vessel"
+        .data$tissue == "kidney blood vessel",
+        # Used by tests
+        .data$file_id_db == "3214d8f8986c1e33a85be5322f2db4a9",
+        cell_ == "868417_1"
     ) |>
         purrr::map(function(filter){
             all_ids <- metadata |> 
