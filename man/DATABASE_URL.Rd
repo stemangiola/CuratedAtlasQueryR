@@ -13,4 +13,7 @@ DATABASE_URL
 \description{
 URL pointing to the full metadata file
 }
+\examples{
+get_metadata(remote_url = DATABASE_URL)
+}
 \keyword{datasets}

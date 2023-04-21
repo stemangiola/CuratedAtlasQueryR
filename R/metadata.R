@@ -10,6 +10,8 @@ cache <- rlang::env(
 
 #' URL pointing to the full metadata file
 #' @export
+#' @examples
+#' get_metadata(remote_url = DATABASE_URL)
 DATABASE_URL <- single_line_str(
     "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.3.parquet"
@@ -18,6 +20,7 @@ DATABASE_URL <- single_line_str(
 #' URL pointing to the sample metadata file, which is smaller and for test,
 #' demonstration, and vignette purposes only
 #' @export
+#' get_metadata(remote_url = SAMPLE_DATABASE_URL)
 SAMPLE_DATABASE_URL <- single_line_str(
     "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/
