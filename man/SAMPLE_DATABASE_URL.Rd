@@ -15,4 +15,7 @@ SAMPLE_DATABASE_URL
 URL pointing to the sample metadata file, which is smaller and for test,
 demonstration, and vignette purposes only
 }
+\examples{
+get_metadata(remote_url = SAMPLE_DATABASE_URL)
+}
 \keyword{datasets}

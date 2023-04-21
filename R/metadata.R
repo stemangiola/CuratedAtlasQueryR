@@ -20,6 +20,7 @@ DATABASE_URL <- single_line_str(
 #' URL pointing to the sample metadata file, which is smaller and for test,
 #' demonstration, and vignette purposes only
 #' @export
+#' @examples
 #' get_metadata(remote_url = SAMPLE_DATABASE_URL)
 SAMPLE_DATABASE_URL <- single_line_str(
     "https://object-store.rc.nectar.org.au/v1/
