@@ -211,12 +211,12 @@ downsample_metadata <- function(output = "sample_meta.parquet"){
         .data$tissue == "kidney blood vessel",
         # Used by tests
         .data$file_id_db == "3214d8f8986c1e33a85be5322f2db4a9",
-        cell_ == "868417_1"
+        .data$cell_ == "868417_1"
     ) |>
         purrr::map(function(filter){
             all_ids <- metadata |> 
                 dplyr::filter(!!filter) |>
-                dplyr::group_by(file_id_db) |>
+                dplyr::group_by(.data$file_id_db) |>
                 # Remove datasets that only have 1 matching cell, which will 
                 # break downstream
                 dplyr::filter(dplyr::n() > 1) |>
