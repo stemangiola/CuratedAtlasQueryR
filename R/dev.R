@@ -216,11 +216,11 @@ downsample_metadata <- function(output = "sample_meta.parquet"){
                 # Remove datasets that only have 1 matching cell, which will 
                 # break downstream
                 dplyr::filter(dplyr::n() > 1) |>
-                dplyr::pull(.data$file_id_db)
-            
+                dplyr::pull(.data$file_id_db) |> unique()
+                
             dataset_sizes |>
                 dplyr::filter(.data$file_id_db %in% all_ids) |>
-                dplyr::slice_min(n=1, order_by = .data$n, with_ties = FALSE) |>
+                dplyr::slice_min(n=50, order_by = .data$n) |>
                 dplyr::pull(.data$file_id_db)
         }) |>
         purrr::reduce(union)
@@ -229,7 +229,7 @@ downsample_metadata <- function(output = "sample_meta.parquet"){
         dplyr::filter(.data$file_id_db %in% minimal_file_ids) |>
         dplyr::arrange(.data$file_id_db, .data$sample_) |>
         dplyr::collect() |>
-        arrow::write_parquet("sample_meta.parquet")
+        arrow::write_parquet(output)
     
     NULL
 }

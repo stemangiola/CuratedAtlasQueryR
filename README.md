@@ -38,22 +38,23 @@ library(CuratedAtlasQueryR)
 ### Load the metadata
 
 ``` r
-metadata <- get_metadata(cache_directory = "/stornext/Home/data/allstaff/m/milton.m/HCAquery/fake_cache")
+# Note: in real applications you should use the default value of remote_url 
+metadata <- get_metadata(remote_url = METADATA_URL)
 metadata
-#> # Source:   table</stornext/Home/data/allstaff/m/milton.m/HCAquery/fake_cache/metadata.0.2.3.parquet> [?? x 56]
+#> # Source:   table</vast/scratch/users/milton.m/cache/R/CuratedAtlasQueryR/metadata.0.2.3.parquet> [?? x 56]
 #> # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]
 #>    cell_ sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ _samp…⁸
 #>    <chr> <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  
-#>  1 ACGC… 188e17… classi… cd14 m…       1 cd14 m… monocy… classi… d035c6… HGR000…
-#>  2 GACT… 188e17… classi… cd14 m…       1 cd14 m… monocy… classi… d035c6… HGR000…
-#>  3 TGTC… 188e17… classi… cd14 m…       1 cd14 m… monocy… classi… d035c6… HGR000…
-#>  4 GTTA… 188e17… classi… cd14 m…       1 cd14 m… monocy… classi… d035c6… HGR000…
-#>  5 CTCG… 188e17… classi… cd14 m…       1 cd14 m… monocy… classi… d035c6… HGR000…
-#>  6 CAAC… 188e17… classi… cd14 m…       1 cd14 m… monocy… classi… d035c6… HGR000…
-#>  7 GGTG… 188e17… classi… cd14 m…       1 cd14 m… monocy… classi… d035c6… HGR000…
-#>  8 GGTG… 188e17… classi… cd14 m…       1 cd14 m… monocy… classi… d035c6… HGR000…
-#>  9 GCTG… 188e17… classi… cd14 m…       1 cd14 m… monocy… interm… d035c6… HGR000…
-#> 10 ACCT… 188e17… classi… cd14 m…       1 cd14 m… monocy… classi… d035c6… HGR000…
+#>  1 8387… 7bd7b8… natura… immune…       5 cd8 tem gmp     natura… 842ce7… Q59___…
+#>  2 1768… 7bd7b8… natura… immune…       5 cd8 tem cd8 tcm natura… 842ce7… Q59___…
+#>  3 6329… 7bd7b8… natura… immune…       5 cd8 tem clp     termin… 842ce7… Q59___…
+#>  4 5027… 7bd7b8… natura… immune…       5 cd8 tem clp     natura… 842ce7… Q59___…
+#>  5 7956… 7bd7b8… natura… immune…       5 cd8 tem clp     natura… 842ce7… Q59___…
+#>  6 4305… 7bd7b8… natura… immune…       5 cd8 tem clp     termin… 842ce7… Q59___…
+#>  7 2126… 933f96… natura… ilc           1 nk      nk      natura… c250bf… AML3__…
+#>  8 3114… 933f96… natura… immune…       5 mait    nk      natura… c250bf… AML3__…
+#>  9 1407… 933f96… natura… immune…       5 mait    clp     natura… c250bf… AML3__…
+#> 10 2911… 933f96… natura… nk            5 nk      clp     natura… c250bf… AML3__…
 #> # … with more rows, 46 more variables: assay <chr>,
 #> #   assay_ontology_term_id <chr>, file_id_db <chr>,
 #> #   cell_type_ontology_term_id <chr>, development_stage <chr>,
@@ -70,14 +71,20 @@ The `metadata` variable can then be re-used for all subsequent queries.
 ``` r
 metadata |>
     dplyr::distinct(tissue, file_id) 
-#> # Source:   SQL [4 x 2]
+#> # Source:   SQL [10 x 2]
 #> # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]
-#>   tissue             file_id                             
-#>   <chr>              <chr>                               
-#> 1 blood              1042ba0a-98c5-4816-897d-e192eb9303e3
-#> 2 lung parenchyma    6661ab3a-792a-4682-b58c-4afb98b2c016
-#> 3 respiratory airway 6661ab3a-792a-4682-b58c-4afb98b2c016
-#> 4 nose               6661ab3a-792a-4682-b58c-4afb98b2c016
+#>    tissue              file_id                             
+#>    <chr>               <chr>                               
+#>  1 bone marrow         1ff5cbda-4d41-4f50-8c7e-cbe4a90e38db
+#>  2 lung parenchyma     6661ab3a-792a-4682-b58c-4afb98b2c016
+#>  3 respiratory airway  6661ab3a-792a-4682-b58c-4afb98b2c016
+#>  4 nose                6661ab3a-792a-4682-b58c-4afb98b2c016
+#>  5 renal pelvis        dc9d8cdd-29ee-4c44-830c-6559cb3d0af6
+#>  6 kidney              dc9d8cdd-29ee-4c44-830c-6559cb3d0af6
+#>  7 renal medulla       dc9d8cdd-29ee-4c44-830c-6559cb3d0af6
+#>  8 cortex of kidney    dc9d8cdd-29ee-4c44-830c-6559cb3d0af6
+#>  9 kidney blood vessel dc9d8cdd-29ee-4c44-830c-6559cb3d0af6
+#> 10 lung                a2796032-d015-40c4-b9db-835207e5bd5b
 ```
 
 ## Download single-cell RNA sequencing counts
@@ -287,10 +294,14 @@ HLA-A across all tissues
     #> ℹ Reading files.
     #> ℹ Compiling Single Cell Experiment.
     #> Warning: Transformation introduced infinite values in continuous y-axis
+    #> Warning in min(x): no non-missing arguments to min; returning Inf
+    #> Warning in max(x): no non-missing arguments to max; returning -Inf
 
 ![](/stornext/Home/data/allstaff/m/milton.m/HCAquery/README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
     #> Warning: Transformation introduced infinite values in continuous y-axis
+    #> Warning in min(x): no non-missing arguments to min; returning Inf
+    #> Warning in max(x): no non-missing arguments to max; returning -Inf
 
 ![](/stornext/Home/data/allstaff/m/milton.m/HCAquery/README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
 
@@ -311,14 +322,14 @@ counts |>
 metadata |> 
     
   # Filter and subset
-  filter(cell_type_harmonised=="nk") |> 
+  dplyr::filter(cell_type_harmonised=="nk") |> 
 
   # Get counts per million for HCA-A gene 
   get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
 
-    # Plot (styling code have been omitted)
-  join_features("HLA-A", shape = "wide") |> 
-  ggplot(aes( tissue_harmonised, `HLA.A`,color = file_id)) +
+  # Plot (styling code have been omitted)
+  tidySingleCellExperiment::join_features("HLA-A", shape = "wide") |> 
+  ggplot(aes(tissue_harmonised, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".")
 #> ℹ Realising metadata.
 #> ℹ Synchronising files
@@ -341,16 +352,13 @@ function returns a data frame with one row per dataset, including the
 data frame.
 
 ``` r
-harmonised <- get_metadata() |> dplyr::filter(tissue == "kidney blood vessel")
+harmonised <- metadata |> dplyr::filter(tissue == "kidney blood vessel")
 unharmonised <- get_unharmonised_metadata(harmonised)
 unharmonised
-#> # A tibble: 4 × 2
+#> # A tibble: 1 × 2
 #>   file_id                              unharmonised   
 #>   <chr>                                <list>         
-#> 1 63523aa3-0d04-4fc6-ac59-5cadd3e73a14 <tbl_dck_[,17]>
-#> 2 8fee7b82-178b-4c04-bf23-04689415690d <tbl_dck_[,12]>
-#> 3 dc9d8cdd-29ee-4c44-830c-6559cb3d0af6 <tbl_dck_[,14]>
-#> 4 f7e94dbb-8638-4616-aaf9-16e2212c369f <tbl_dck_[,14]>
+#> 1 dc9d8cdd-29ee-4c44-830c-6559cb3d0af6 <tbl_dck_[,14]>
 ```
 
 Notice that the columns differ between each dataset’s data frame:
@@ -358,45 +366,25 @@ Notice that the columns differ between each dataset’s data frame:
 ``` r
 dplyr::pull(unharmonised) |> head(2)
 #> [[1]]
-#> # Source:   SQL [?? x 17]
+#> # Source:   SQL [?? x 14]
 #> # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]
 #>    cell_ file_id donor…¹ donor…² libra…³ mappe…⁴ sampl…⁵ suspe…⁶ suspe…⁷ autho…⁸
 #>    <chr> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
-#>  1 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  2 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  3 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  4 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  5 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  6 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  7 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  8 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#>  9 4602… 63523a… 19 mon… 463181… 671785… GENCOD… 125234… cell    c7485e… CD4 T …
-#> 10 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
-#> # … with more rows, 7 more variables: cell_state <chr>,
-#> #   reported_diseases <chr>, Short_Sample <chr>, Project <chr>,
-#> #   Experiment <chr>, compartment <chr>, broad_celltype <chr>, and abbreviated
+#>  1 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  2 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  3 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  4 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  5 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  6 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  7 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  8 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#>  9 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#> 10 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…
+#> # … with more rows, 4 more variables: reported_diseases <chr>,
+#> #   Experiment <chr>, Project <chr>, broad_celltype <chr>, and abbreviated
 #> #   variable names ¹​donor_age, ²​donor_uuid, ³​library_uuid,
 #> #   ⁴​mapped_reference_annotation, ⁵​sample_uuid, ⁶​suspension_type,
 #> #   ⁷​suspension_uuid, ⁸​author_cell_type
-#> 
-#> [[2]]
-#> # Source:   SQL [?? x 12]
-#> # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]
-#>    cell_ file_id orig.…¹ nCoun…² nFeat…³ seura…⁴ Project donor…⁵ compa…⁶ broad…⁷
-#>    <chr> <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>   <chr>  
-#>  1 1069  8fee7b… 4602ST…   16082 3997    25      Experi… Wilms3  non_PT  Pelvic…
-#>  2 1214  8fee7b… 4602ST…    1037 606     25      Experi… Wilms3  non_PT  Pelvic…
-#>  3 2583  8fee7b… 4602ST…    3028 1361    25      Experi… Wilms3  non_PT  Pelvic…
-#>  4 2655  8fee7b… 4602ST…    1605 859     25      Experi… Wilms3  non_PT  Pelvic…
-#>  5 3609  8fee7b… 4602ST…    1144 682     25      Experi… Wilms3  non_PT  Pelvic…
-#>  6 3624  8fee7b… 4602ST…    1874 963     25      Experi… Wilms3  non_PT  Pelvic…
-#>  7 3946  8fee7b… 4602ST…    1296 755     25      Experi… Wilms3  non_PT  Pelvic…
-#>  8 5163  8fee7b… 4602ST…   11417 3255    25      Experi… Wilms3  non_PT  Pelvic…
-#>  9 5446  8fee7b… 4602ST…    1769 946     19      Experi… Wilms2  lympho… CD4 T …
-#> 10 6275  8fee7b… 4602ST…    3750 1559    25      Experi… Wilms3  non_PT  Pelvic…
-#> # … with more rows, 2 more variables: author_cell_type <chr>, Sample <chr>, and
-#> #   abbreviated variable names ¹​orig.ident, ²​nCount_RNA, ³​nFeature_RNA,
-#> #   ⁴​seurat_clusters, ⁵​donor_id, ⁶​compartment, ⁷​broad_celltype
 ```
 
 # Cell metadata
@@ -484,13 +472,13 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] ggplot2_3.4.1                  tidySingleCellExperiment_1.6.3
-#>  [3] SingleCellExperiment_1.18.1    SummarizedExperiment_1.26.1   
-#>  [5] Biobase_2.56.0                 GenomicRanges_1.48.0          
-#>  [7] GenomeInfoDb_1.32.4            IRanges_2.30.1                
-#>  [9] S4Vectors_0.34.0               BiocGenerics_0.42.0           
-#> [11] MatrixGenerics_1.8.1           matrixStats_0.63.0            
-#> [13] ttservice_0.2.2                CuratedAtlasQueryR_0.99.1     
+#>  [1] tidySingleCellExperiment_1.6.3 SingleCellExperiment_1.18.1   
+#>  [3] SummarizedExperiment_1.26.1    Biobase_2.56.0                
+#>  [5] GenomicRanges_1.48.0           GenomeInfoDb_1.32.4           
+#>  [7] IRanges_2.30.1                 S4Vectors_0.34.0              
+#>  [9] BiocGenerics_0.42.0            MatrixGenerics_1.8.1          
+#> [11] matrixStats_0.63.0             ttservice_0.2.2               
+#> [13] ggplot2_3.4.1                  CuratedAtlasQueryR_0.99.1     
 #> 
 #> loaded via a namespace (and not attached):
 #>   [1] plyr_1.8.8             igraph_1.4.1           lazyeval_0.2.2        
@@ -521,20 +509,20 @@ sessionInfo()
 #>  [76] goftest_1.2-3          knitr_1.42             fitdistrplus_1.1-8    
 #>  [79] purrr_1.0.1            RANN_2.6.1             pbapply_1.6-0         
 #>  [82] future_1.30.0          nlme_3.1-157           mime_0.12             
-#>  [85] compiler_4.2.1         rstudioapi_0.14        plotly_4.10.1         
-#>  [88] png_0.1-8              spatstat.utils_3.0-1   tibble_3.1.8          
-#>  [91] bslib_0.4.2            stringi_1.7.12         highr_0.10            
-#>  [94] forcats_1.0.0          lattice_0.20-45        Matrix_1.5-3          
-#>  [97] vctrs_0.5.2            pillar_1.8.1           lifecycle_1.0.3       
-#> [100] rhdf5filters_1.8.0     spatstat.geom_3.0-3    lmtest_0.9-40         
-#> [103] jquerylib_0.1.4        RcppAnnoy_0.0.20       data.table_1.14.6     
-#> [106] cowplot_1.1.1          bitops_1.0-7           irlba_2.3.5.1         
-#> [109] httpuv_1.6.7           patchwork_1.1.2        R6_2.5.1              
-#> [112] promises_1.2.0.1       KernSmooth_2.23-20     gridExtra_2.3         
-#> [115] parallelly_1.33.0      codetools_0.2-18       assertthat_0.2.1      
-#> [118] MASS_7.3-57            rhdf5_2.40.0           rprojroot_2.0.3       
-#> [121] withr_2.5.0            SeuratObject_4.1.3     sctransform_0.3.5     
-#> [124] GenomeInfoDbData_1.2.8 parallel_4.2.1         grid_4.2.1            
-#> [127] tidyr_1.3.0            rmarkdown_2.20         Rtsne_0.16            
-#> [130] spatstat.explore_3.0-5 shiny_1.7.4
+#>  [85] compiler_4.2.1         rstudioapi_0.14        curl_4.3.3            
+#>  [88] plotly_4.10.1          png_0.1-8              spatstat.utils_3.0-1  
+#>  [91] tibble_3.1.8           bslib_0.4.2            stringi_1.7.12        
+#>  [94] highr_0.10             forcats_1.0.0          lattice_0.20-45       
+#>  [97] Matrix_1.5-3           vctrs_0.5.2            pillar_1.8.1          
+#> [100] lifecycle_1.0.3        rhdf5filters_1.8.0     spatstat.geom_3.0-3   
+#> [103] lmtest_0.9-40          jquerylib_0.1.4        RcppAnnoy_0.0.20      
+#> [106] data.table_1.14.6      cowplot_1.1.1          bitops_1.0-7          
+#> [109] irlba_2.3.5.1          httpuv_1.6.7           patchwork_1.1.2       
+#> [112] R6_2.5.1               promises_1.2.0.1       KernSmooth_2.23-20    
+#> [115] gridExtra_2.3          parallelly_1.33.0      codetools_0.2-18      
+#> [118] assertthat_0.2.1       MASS_7.3-57            rhdf5_2.40.0          
+#> [121] rprojroot_2.0.3        withr_2.5.0            SeuratObject_4.1.3    
+#> [124] sctransform_0.3.5      GenomeInfoDbData_1.2.8 parallel_4.2.1        
+#> [127] grid_4.2.1             tidyr_1.3.0            rmarkdown_2.20        
+#> [130] Rtsne_0.16             spatstat.explore_3.0-5 shiny_1.7.4
 ```
