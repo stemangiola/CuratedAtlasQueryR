@@ -274,7 +274,11 @@ counts |>
 counts |> 
   ggplot(aes( disease, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") + 
-  theme(legend.position = "none")
+  theme_bw() +
+  theme(
+      axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1),
+      legend.position = "none"
+  )
 ```
 
 ```{r}
@@ -287,11 +291,15 @@ metadata |>
   get_single_cell_experiment(assays = "cpm", features = "HLA-A") |> 
   suppressMessages() |>
 
-  # Plot (styling code have been omitted)
+  # Plot
   tidySingleCellExperiment::join_features("HLA-A", shape = "wide") |> 
-  ggplot(aes(tissue_harmonised, `HLA.A`,color = file_id)) +
-  geom_jitter(shape=".") + 
-  theme(legend.position = "none")
+  ggplot(aes(tissue_harmonised, `HLA.A`, color = file_id)) +
+  theme_bw() +
+  theme(
+      axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1),
+      legend.position = "none"
+  ) + 
+  geom_jitter(shape=".")
 ```
 
 ## Obtain Unharmonised Metadata
