@@ -9,7 +9,7 @@ get_seurat(...)
 }
 \arguments{
 \item{...}{
-  Arguments passed on to \code{\link[=get_SingleCellExperiment]{get_SingleCellExperiment}}
+  Arguments passed on to \code{\link[=get_single_cell_experiment]{get_single_cell_experiment}}
   \describe{
     \item{\code{data}}{A data frame containing, at minimum, a \code{sample_} column, which
 corresponds to a single cell sample ID. This can be obtained from the
@@ -29,7 +29,7 @@ the counts for. By default counts for all features will be returned.}
 }
 \value{
 A Seurat object containing the same data as a call to
-get_SingleCellExperiment.
+\code{\link[=get_single_cell_experiment]{get_single_cell_experiment()}}
 }
 \description{
 Given a data frame of HCA metadata, returns a Seurat object corresponding to

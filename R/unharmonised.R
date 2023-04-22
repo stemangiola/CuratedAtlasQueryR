@@ -37,11 +37,11 @@ UNHARMONISED_URL <- single_line_str(
 #'   a "lazy data frame", ie a `tbl`.
 #' @examples
 #' \donttest{
-#' dataset = "838ea006-2369-4e2c-b426-b2a744a2b02b"
-#' harmonised_meta = get_metadata() |> 
+#' dataset <- "838ea006-2369-4e2c-b426-b2a744a2b02b"
+#' harmonised_meta <- get_metadata() |> 
 #'     dplyr::filter(file_id == dataset) |> dplyr::collect()
-#' unharmonised_meta = get_unharmonised_dataset(dataset)
-#' unharmonised_tbl = dplyr::collect(unharmonised_meta[[dataset]])
+#' unharmonised_meta <- get_unharmonised_dataset(dataset)
+#' unharmonised_tbl <- dplyr::collect(unharmonised_meta[[dataset]])
 #' dplyr::left_join(harmonised_meta, unharmonised_tbl, by=c("file_id", "cell_"))
 #' }
 get_unharmonised_dataset <- function(
@@ -84,7 +84,7 @@ get_unharmonised_dataset <- function(
 #' @examples
 #' harmonised <- dplyr::filter(get_metadata(), tissue == "kidney blood vessel")
 #' unharmonised <- get_unharmonised_metadata(harmonised)
-get_unharmonised_metadata = function(metadata, ...){
+get_unharmonised_metadata <- function(metadata, ...){
     args <- list(...)
     metadata |>
         collect() |>
