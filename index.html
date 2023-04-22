@@ -96,6 +96,7 @@
 <!-- badges: start -->
 
 <p><code>CuratedAtlasQuery</code> is a query interface that allow the programmatic exploration and retrieval of the harmonised, curated and reannotated CELLxGENE single-cell human cell atlas. Data can be retrieved at cell, sample, or dataset levels based on filtering criteria.</p>
+<p>Harmonised data is stored in the ARDC Nectar Research Cloud, and most <code>CuratedAtlasQuery</code> functions interact with Nectar via web requests, so a network connection is required for most functionality.</p>
 <p><img src="reference/figures/logo.png" width="120x" height="139px"></p>
 <p><img src="reference/figures/svcf_logo.jpeg" width="155x" height="58px"><img src="reference/figures/czi_logo.png" width="129px" height="58px"><img src="reference/figures/bioconductor_logo.jpg" width="202px" height="58px"><img src="reference/figures/vca_logo.png" width="219px" height="58px"><img src="reference/figures/nectar_logo.png" width="180px" height="58px"></p>
 </div>
@@ -121,22 +122,23 @@
 <h3 id="load-the-metadata">Load the metadata<a class="anchor" aria-label="anchor" href="#load-the-metadata"></a>
 </h3>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Note: in real applications you should use the default value of remote_url </span></span>
+<span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span>remote_url <span class="op">=</span> <span class="va">METADATA_URL</span><span class="op">)</span></span>
 <span><span class="va">metadata</span></span>
 <span><span class="co">#&gt; # Source:   table&lt;/vast/scratch/users/milton.m/cache/R/CuratedAtlasQueryR/metadata.0.2.3.parquet&gt; [?? x 56]</span></span>
 <span><span class="co">#&gt; # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]</span></span>
 <span><span class="co">#&gt;    cell_ sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ _samp…⁸</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  </span></span>
-<span><span class="co">#&gt;  1 AAAC… 689e2f… basal … basal_…       1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    f297c7… D17PrP…</span></span>
-<span><span class="co">#&gt;  2 AAAC… 689e2f… basal … basal_…       1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    f297c7… D17PrP…</span></span>
-<span><span class="co">#&gt;  3 AAAC… 689e2f… lumina… lumina…       1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    930938… D17PrP…</span></span>
-<span><span class="co">#&gt;  4 AAAC… 689e2f… lumina… lumina…       1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    930938… D17PrP…</span></span>
-<span><span class="co">#&gt;  5 AAAC… 689e2f… basal … basal_…       1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    f297c7… D17PrP…</span></span>
-<span><span class="co">#&gt;  6 AAAC… 689e2f… basal … basal_…       1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    f297c7… D17PrP…</span></span>
-<span><span class="co">#&gt;  7 AAAC… 689e2f… basal … basal_…       1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    f297c7… D17PrP…</span></span>
-<span><span class="co">#&gt;  8 AAAC… 689e2f… basal … basal_…       1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    f297c7… D17PrP…</span></span>
-<span><span class="co">#&gt;  9 AAAC… 689e2f… lumina… lumina…       1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    930938… D17PrP…</span></span>
-<span><span class="co">#&gt; 10 AAAC… 689e2f… basal … basal_…       1 &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;    f297c7… D17PrP…</span></span>
+<span><span class="co">#&gt;  1 8387… 7bd7b8… natura… immune…       5 cd8 tem gmp     natura… 842ce7… Q59___…</span></span>
+<span><span class="co">#&gt;  2 1768… 7bd7b8… natura… immune…       5 cd8 tem cd8 tcm natura… 842ce7… Q59___…</span></span>
+<span><span class="co">#&gt;  3 6329… 7bd7b8… natura… immune…       5 cd8 tem clp     termin… 842ce7… Q59___…</span></span>
+<span><span class="co">#&gt;  4 5027… 7bd7b8… natura… immune…       5 cd8 tem clp     natura… 842ce7… Q59___…</span></span>
+<span><span class="co">#&gt;  5 7956… 7bd7b8… natura… immune…       5 cd8 tem clp     natura… 842ce7… Q59___…</span></span>
+<span><span class="co">#&gt;  6 4305… 7bd7b8… natura… immune…       5 cd8 tem clp     termin… 842ce7… Q59___…</span></span>
+<span><span class="co">#&gt;  7 2126… 933f96… natura… ilc           1 nk      nk      natura… c250bf… AML3__…</span></span>
+<span><span class="co">#&gt;  8 3114… 933f96… natura… immune…       5 mait    nk      natura… c250bf… AML3__…</span></span>
+<span><span class="co">#&gt;  9 1407… 933f96… natura… immune…       5 mait    clp     natura… c250bf… AML3__…</span></span>
+<span><span class="co">#&gt; 10 2911… 933f96… natura… nk            5 nk      clp     natura… c250bf… AML3__…</span></span>
 <span><span class="co">#&gt; # … with more rows, 46 more variables: assay &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   assay_ontology_term_id &lt;chr&gt;, file_id_db &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   cell_type_ontology_term_id &lt;chr&gt;, development_stage &lt;chr&gt;,</span></span>
@@ -151,24 +153,21 @@
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">tissue</span>, <span class="va">file_id</span><span class="op">)</span> </span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">#&gt; # Source:     SQL [?? x 2]</span></span>
-<span><span class="co">#&gt; # Database:   sqlite 3.40.0 [public_access@zki3lfhznsa.db.cloud.edu.au:5432/metadata]</span></span>
-<span><span class="co">#&gt; # Ordered by: desc(n)</span></span>
-<span><span class="co">#&gt;    tissue                      n</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;                 &lt;int64&gt;</span></span>
-<span><span class="co">#&gt;  1 blood                      47</span></span>
-<span><span class="co">#&gt;  2 heart left ventricle       46</span></span>
-<span><span class="co">#&gt;  3 cortex of kidney           31</span></span>
-<span><span class="co">#&gt;  4 renal medulla              29</span></span>
-<span><span class="co">#&gt;  5 lung                       27</span></span>
-<span><span class="co">#&gt;  6 liver                      24</span></span>
-<span><span class="co">#&gt;  7 middle temporal gyrus      24</span></span>
-<span><span class="co">#&gt;  8 kidney                     19</span></span>
-<span><span class="co">#&gt;  9 intestine                  18</span></span>
-<span><span class="co">#&gt; 10 thymus                     17</span></span>
-<span><span class="co">#&gt; # … with more rows</span></span></code></pre></div>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">tissue</span>, <span class="va">file_id</span><span class="op">)</span> </span>
+<span><span class="co">#&gt; # Source:   SQL [10 x 2]</span></span>
+<span><span class="co">#&gt; # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]</span></span>
+<span><span class="co">#&gt;    tissue              file_id                             </span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;               &lt;chr&gt;                               </span></span>
+<span><span class="co">#&gt;  1 bone marrow         1ff5cbda-4d41-4f50-8c7e-cbe4a90e38db</span></span>
+<span><span class="co">#&gt;  2 lung parenchyma     6661ab3a-792a-4682-b58c-4afb98b2c016</span></span>
+<span><span class="co">#&gt;  3 respiratory airway  6661ab3a-792a-4682-b58c-4afb98b2c016</span></span>
+<span><span class="co">#&gt;  4 nose                6661ab3a-792a-4682-b58c-4afb98b2c016</span></span>
+<span><span class="co">#&gt;  5 renal pelvis        dc9d8cdd-29ee-4c44-830c-6559cb3d0af6</span></span>
+<span><span class="co">#&gt;  6 kidney              dc9d8cdd-29ee-4c44-830c-6559cb3d0af6</span></span>
+<span><span class="co">#&gt;  7 renal medulla       dc9d8cdd-29ee-4c44-830c-6559cb3d0af6</span></span>
+<span><span class="co">#&gt;  8 cortex of kidney    dc9d8cdd-29ee-4c44-830c-6559cb3d0af6</span></span>
+<span><span class="co">#&gt;  9 kidney blood vessel dc9d8cdd-29ee-4c44-830c-6559cb3d0af6</span></span>
+<span><span class="co">#&gt; 10 lung                a2796032-d015-40c4-b9db-835207e5bd5b</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -177,6 +176,49 @@
 <div class="section level3">
 <h3 id="query-raw-counts">Query raw counts<a class="anchor" aria-label="anchor" href="#query-raw-counts"></a>
 </h3>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
+<span>    <span class="va">metadata</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
+<span>        <span class="va">ethnicity</span> <span class="op">==</span> <span class="st">"African"</span> <span class="op">&amp;</span></span>
+<span>        <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">str_like</a></span><span class="op">(</span><span class="va">assay</span>, <span class="st">"%10x%"</span><span class="op">)</span> <span class="op">&amp;</span></span>
+<span>        <span class="va">tissue</span> <span class="op">==</span> <span class="st">"lung parenchyma"</span> <span class="op">&amp;</span></span>
+<span>        <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">str_like</a></span><span class="op">(</span><span class="va">cell_type</span>, <span class="st">"%CD4%"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="reference/get_single_cell_experiment.html">get_single_cell_experiment</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Realising metadata.</span></span>
+<span><span class="co">#&gt; ℹ Synchronising files</span></span>
+<span><span class="co">#&gt; ℹ Downloading 0 files, totalling 0 GB</span></span>
+<span><span class="co">#&gt; ℹ Reading files.</span></span>
+<span><span class="co">#&gt; ℹ Compiling Single Cell Experiment.</span></span>
+<span></span>
+<span><span class="va">single_cell_counts</span></span>
+<span><span class="co">#&gt; # A SingleCellExperiment-tibble abstraction: 1,571 × 57</span></span>
+<span><span class="co">#&gt; # [90mFeatures=36229 | Cells=1571 | Assays=counts[0m</span></span>
+<span><span class="co">#&gt;    .cell sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ X_sam…⁸</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  </span></span>
+<span><span class="co">#&gt;  1 AGCG… 11a7dc… CD4-po… cd4 th1       3 cd4 tcm cd8 t   th1     10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  2 TCAG… 11a7dc… CD4-po… cd4 th…       3 cd4 tcm cd4 tem th1/th… 10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  3 TTTA… 11a7dc… CD4-po… cd4 th…       3 cd4 tcm cd4 tcm th17    10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  4 ACAC… 11a7dc… CD4-po… immune…       5 cd4 tcm plasma  th1/th… 10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  5 CAAG… 11a7dc… CD4-po… immune…       1 cd4 tcm cd4 tcm mait    10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  6 CTGT… 14a078… CD4-po… cd4 th…       3 cd4 tcm cd4 tem th1/th… 8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt;  7 ACGT… 14a078… CD4-po… treg          5 cd4 tcm tregs   t regu… 8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt;  8 CATA… 14a078… CD4-po… immune…       5 nk      cd8 tem mait    8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt;  9 ACTT… 14a078… CD4-po… mait          5 mait    cd8 tem mait    8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt; 10 TGCG… 14a078… CD4-po… cd4 th1       3 cd4 tcm cd4 tem th1     8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt; # … with 1,561 more rows, 47 more variables: assay &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   assay_ontology_term_id &lt;chr&gt;, file_id_db &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   cell_type_ontology_term_id &lt;chr&gt;, development_stage &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   development_stage_ontology_term_id &lt;chr&gt;, disease &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   disease_ontology_term_id &lt;chr&gt;, ethnicity &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   ethnicity_ontology_term_id &lt;chr&gt;, experiment___ &lt;chr&gt;, file_id &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   is_primary_data_x &lt;chr&gt;, organism &lt;chr&gt;, organism_ontology_term_id &lt;chr&gt;, …</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="query-counts-scaled-per-million">Query counts scaled per million<a class="anchor" aria-label="anchor" href="#query-counts-scaled-per-million"></a>
+</h3>
+<p>This is helpful if just few genes are of interest, as they can be compared across samples.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
 <span>    <span class="va">metadata</span> <span class="op">|&gt;</span></span>
@@ -186,7 +228,7 @@
 <span>        <span class="va">tissue</span> <span class="op">==</span> <span class="st">"lung parenchyma"</span> <span class="op">&amp;</span></span>
 <span>        <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">str_like</a></span><span class="op">(</span><span class="va">cell_type</span>, <span class="st">"%CD4%"</span><span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="reference/get_SingleCellExperiment.html">get_SingleCellExperiment</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="reference/get_single_cell_experiment.html">get_single_cell_experiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Realising metadata.</span></span>
 <span><span class="co">#&gt; ℹ Synchronising files</span></span>
 <span><span class="co">#&gt; ℹ Downloading 0 files, totalling 0 GB</span></span>
@@ -194,23 +236,31 @@
 <span><span class="co">#&gt; ℹ Compiling Single Cell Experiment.</span></span>
 <span></span>
 <span><span class="va">single_cell_counts</span></span>
-<span><span class="co">#&gt; class: SingleCellExperiment </span></span>
-<span><span class="co">#&gt; dim: 36229 1571 </span></span>
-<span><span class="co">#&gt; metadata(0):</span></span>
-<span><span class="co">#&gt; assays(1): counts</span></span>
-<span><span class="co">#&gt; rownames(36229): A1BG A1BG-AS1 ... ZZEF1 ZZZ3</span></span>
-<span><span class="co">#&gt; rowData names(0):</span></span>
-<span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
-<span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
-<span><span class="co">#&gt; colData names(56): sample_ cell_type ... updated_at_y original_cell_id</span></span>
-<span><span class="co">#&gt; reducedDimNames(0):</span></span>
-<span><span class="co">#&gt; mainExpName: NULL</span></span>
-<span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
+<span><span class="co">#&gt; # A SingleCellExperiment-tibble abstraction: 1,571 × 57</span></span>
+<span><span class="co">#&gt; # [90mFeatures=36229 | Cells=1571 | Assays=cpm[0m</span></span>
+<span><span class="co">#&gt;    .cell sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ X_sam…⁸</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  </span></span>
+<span><span class="co">#&gt;  1 AGCG… 11a7dc… CD4-po… cd4 th1       3 cd4 tcm cd8 t   th1     10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  2 TCAG… 11a7dc… CD4-po… cd4 th…       3 cd4 tcm cd4 tem th1/th… 10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  3 TTTA… 11a7dc… CD4-po… cd4 th…       3 cd4 tcm cd4 tcm th17    10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  4 ACAC… 11a7dc… CD4-po… immune…       5 cd4 tcm plasma  th1/th… 10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  5 CAAG… 11a7dc… CD4-po… immune…       1 cd4 tcm cd4 tcm mait    10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  6 CTGT… 14a078… CD4-po… cd4 th…       3 cd4 tcm cd4 tem th1/th… 8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt;  7 ACGT… 14a078… CD4-po… treg          5 cd4 tcm tregs   t regu… 8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt;  8 CATA… 14a078… CD4-po… immune…       5 nk      cd8 tem mait    8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt;  9 ACTT… 14a078… CD4-po… mait          5 mait    cd8 tem mait    8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt; 10 TGCG… 14a078… CD4-po… cd4 th1       3 cd4 tcm cd4 tem th1     8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt; # … with 1,561 more rows, 47 more variables: assay &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   assay_ontology_term_id &lt;chr&gt;, file_id_db &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   cell_type_ontology_term_id &lt;chr&gt;, development_stage &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   development_stage_ontology_term_id &lt;chr&gt;, disease &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   disease_ontology_term_id &lt;chr&gt;, ethnicity &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   ethnicity_ontology_term_id &lt;chr&gt;, experiment___ &lt;chr&gt;, file_id &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   is_primary_data_x &lt;chr&gt;, organism &lt;chr&gt;, organism_ontology_term_id &lt;chr&gt;, …</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="query-counts-scaled-per-million">Query counts scaled per million<a class="anchor" aria-label="anchor" href="#query-counts-scaled-per-million"></a>
+<h3 id="extract-only-a-subset-of-genes">Extract only a subset of genes<a class="anchor" aria-label="anchor" href="#extract-only-a-subset-of-genes"></a>
 </h3>
-<p>This is helpful if just few genes are of interest, as they can be compared across samples.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
 <span>    <span class="va">metadata</span> <span class="op">|&gt;</span></span>
@@ -220,7 +270,7 @@
 <span>        <span class="va">tissue</span> <span class="op">==</span> <span class="st">"lung parenchyma"</span> <span class="op">&amp;</span></span>
 <span>        <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">str_like</a></span><span class="op">(</span><span class="va">cell_type</span>, <span class="st">"%CD4%"</span><span class="op">)</span></span>
 <span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="reference/get_SingleCellExperiment.html">get_SingleCellExperiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="reference/get_single_cell_experiment.html">get_single_cell_experiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span>, features <span class="op">=</span> <span class="st">"PUM1"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ℹ Realising metadata.</span></span>
 <span><span class="co">#&gt; ℹ Synchronising files</span></span>
 <span><span class="co">#&gt; ℹ Downloading 0 files, totalling 0 GB</span></span>
@@ -228,58 +278,34 @@
 <span><span class="co">#&gt; ℹ Compiling Single Cell Experiment.</span></span>
 <span></span>
 <span><span class="va">single_cell_counts</span></span>
-<span><span class="co">#&gt; class: SingleCellExperiment </span></span>
-<span><span class="co">#&gt; dim: 36229 1571 </span></span>
-<span><span class="co">#&gt; metadata(0):</span></span>
-<span><span class="co">#&gt; assays(1): cpm</span></span>
-<span><span class="co">#&gt; rownames(36229): A1BG A1BG-AS1 ... ZZEF1 ZZZ3</span></span>
-<span><span class="co">#&gt; rowData names(0):</span></span>
-<span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
-<span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
-<span><span class="co">#&gt; colData names(56): sample_ cell_type ... updated_at_y original_cell_id</span></span>
-<span><span class="co">#&gt; reducedDimNames(0):</span></span>
-<span><span class="co">#&gt; mainExpName: NULL</span></span>
-<span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="extract-only-a-subset-of-genes">Extract only a subset of genes<a class="anchor" aria-label="anchor" href="#extract-only-a-subset-of-genes"></a>
-</h3>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
-<span>    <span class="va">metadata</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
-<span>        <span class="va">ethnicity</span> <span class="op">==</span> <span class="st">"African"</span> <span class="op">&amp;</span></span>
-<span>        <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">str_like</a></span><span class="op">(</span><span class="va">assay</span>, <span class="st">"%10x%"</span><span class="op">)</span> <span class="op">&amp;</span></span>
-<span>        <span class="va">tissue</span> <span class="op">==</span> <span class="st">"lung parenchyma"</span> <span class="op">&amp;</span></span>
-<span>        <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_like.html" class="external-link">str_like</a></span><span class="op">(</span><span class="va">cell_type</span>, <span class="st">"%CD4%"</span><span class="op">)</span></span>
-<span>    <span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="reference/get_SingleCellExperiment.html">get_SingleCellExperiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span>, features <span class="op">=</span> <span class="st">"PUM1"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ℹ Realising metadata.</span></span>
-<span><span class="co">#&gt; ℹ Synchronising files</span></span>
-<span><span class="co">#&gt; ℹ Downloading 0 files, totalling 0 GB</span></span>
-<span><span class="co">#&gt; ℹ Reading files.</span></span>
-<span><span class="co">#&gt; ℹ Compiling Single Cell Experiment.</span></span>
-<span></span>
-<span><span class="va">single_cell_counts</span></span>
-<span><span class="co">#&gt; class: SingleCellExperiment </span></span>
-<span><span class="co">#&gt; dim: 1 1571 </span></span>
-<span><span class="co">#&gt; metadata(0):</span></span>
-<span><span class="co">#&gt; assays(1): cpm</span></span>
-<span><span class="co">#&gt; rownames(1): PUM1</span></span>
-<span><span class="co">#&gt; rowData names(0):</span></span>
-<span><span class="co">#&gt; colnames(1571): ACAGCCGGTCCGTTAA_F02526_1 GGGAATGAGCCCAGCT_F02526_1 ...</span></span>
-<span><span class="co">#&gt;   TACAACGTCAGCATTG_SC84_1 CATTCGCTCAATACCG_F02526_1</span></span>
-<span><span class="co">#&gt; colData names(56): sample_ cell_type ... updated_at_y original_cell_id</span></span>
-<span><span class="co">#&gt; reducedDimNames(0):</span></span>
-<span><span class="co">#&gt; mainExpName: NULL</span></span>
-<span><span class="co">#&gt; altExpNames(0):</span></span></code></pre></div>
+<span><span class="co">#&gt; # A SingleCellExperiment-tibble abstraction: 1,571 × 57</span></span>
+<span><span class="co">#&gt; # [90mFeatures=1 | Cells=1571 | Assays=cpm[0m</span></span>
+<span><span class="co">#&gt;    .cell sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ X_sam…⁸</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  </span></span>
+<span><span class="co">#&gt;  1 AGCG… 11a7dc… CD4-po… cd4 th1       3 cd4 tcm cd8 t   th1     10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  2 TCAG… 11a7dc… CD4-po… cd4 th…       3 cd4 tcm cd4 tem th1/th… 10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  3 TTTA… 11a7dc… CD4-po… cd4 th…       3 cd4 tcm cd4 tcm th17    10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  4 ACAC… 11a7dc… CD4-po… immune…       5 cd4 tcm plasma  th1/th… 10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  5 CAAG… 11a7dc… CD4-po… immune…       1 cd4 tcm cd4 tcm mait    10b339… Donor_…</span></span>
+<span><span class="co">#&gt;  6 CTGT… 14a078… CD4-po… cd4 th…       3 cd4 tcm cd4 tem th1/th… 8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt;  7 ACGT… 14a078… CD4-po… treg          5 cd4 tcm tregs   t regu… 8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt;  8 CATA… 14a078… CD4-po… immune…       5 nk      cd8 tem mait    8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt;  9 ACTT… 14a078… CD4-po… mait          5 mait    cd8 tem mait    8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt; 10 TGCG… 14a078… CD4-po… cd4 th1       3 cd4 tcm cd4 tem th1     8f71c5… VUHD85…</span></span>
+<span><span class="co">#&gt; # … with 1,561 more rows, 47 more variables: assay &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   assay_ontology_term_id &lt;chr&gt;, file_id_db &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   cell_type_ontology_term_id &lt;chr&gt;, development_stage &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   development_stage_ontology_term_id &lt;chr&gt;, disease &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   disease_ontology_term_id &lt;chr&gt;, ethnicity &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   ethnicity_ontology_term_id &lt;chr&gt;, experiment___ &lt;chr&gt;, file_id &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   is_primary_data_x &lt;chr&gt;, organism &lt;chr&gt;, organism_ontology_term_id &lt;chr&gt;, …</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="extract-the-counts-as-a-seurat-object">Extract the counts as a Seurat object<a class="anchor" aria-label="anchor" href="#extract-the-counts-as-a-seurat-object"></a>
 </h3>
 <p>This convert the H5 SingleCellExperiment to Seurat so it might take long time and occupy a lot of memory depending on how many cells you are requesting.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">=</span> </span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">single_cell_counts_seurat</span> <span class="op">=</span> </span>
 <span>    <span class="va">metadata</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>        <span class="va">ethnicity</span> <span class="op">==</span> <span class="st">"African"</span> <span class="op">&amp;</span></span>
@@ -294,7 +320,7 @@
 <span><span class="co">#&gt; ℹ Reading files.</span></span>
 <span><span class="co">#&gt; ℹ Compiling Single Cell Experiment.</span></span>
 <span></span>
-<span><span class="va">single_cell_counts</span></span>
+<span><span class="va">single_cell_counts_seurat</span></span>
 <span><span class="co">#&gt; An object of class Seurat </span></span>
 <span><span class="co">#&gt; 36229 features across 1571 samples within 1 assay </span></span>
 <span><span class="co">#&gt; Active assay: originalexp (36229 features, 0 variable features)</span></span></code></pre></div>
@@ -308,114 +334,102 @@
 <div class="section level3">
 <h3 id="saving-as-rds-fast-saving-slow-reading">Saving as RDS (fast saving, slow reading)<a class="anchor" aria-label="anchor" href="#saving-as-rds-fast-saving-slow-reading"></a>
 </h3>
-<p>Saving as <code>.rds</code> has the advantage that is very fast, the <code>.rds</code> file occupies very little disk space as it only stored the links for the files in your ache.</p>
-<p>However it has the disadvantage that for big <code>SingleCellExperiment</code> objects, which merge a lot of HDF5 from your <code>get_SingleCellExperiment</code> the display and manipulation is going to be slow.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<p>Saving as <code>.rds</code> has the advantage of being fast, andd the <code>.rds</code> file occupies very little disk space as it only stores the links to the files in your cache.</p>
+<p>However it has the disadvantage that for big <code>SingleCellExperiment</code> objects, which merge a lot of HDF5 from your <code>get_single_cell_experiment</code>, the display and manipulation is going to be slow. In addition, an <code>.rds</code> saved in this way is not portable: you will not be able to share it with other users.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="st">"single_cell_counts.rds"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="saving-as-hdf5-slow-saving-fast-reading">Saving as HDF5 (slow saving, fast reading)<a class="anchor" aria-label="anchor" href="#saving-as-hdf5-slow-saving-fast-reading"></a>
 </h3>
-<p>Saving as <code>.rds</code> has the advantage that rewrites on disk a monolithic <code>HDF5</code> and so displaying and manipulating large <code>SingleCellExperiment</code> objects, which merge a lot of HDF5 from your <code>get_SingleCellExperiment</code>, is going to be fast.</p>
-<p>However it has the disadvantage that the files are going to be larger as they include the count information, and the saving process is going to be slow for large objects.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">|&gt;</span> <span class="fu">saveHDF5SummarizedExperiment</span><span class="op">(</span><span class="st">"single_cell_counts"</span><span class="op">)</span></span></code></pre></div>
+<p>Saving as <code>.hdf5</code> executes any computation on the <code>SingleCellExperiment</code> and writes it to disk as a monolithic <code>HDF5</code>. Once this is done, operations on the <code>SingleCellExperiment</code> will be comparatively very fast. The resulting <code>.hdf5</code> file will also be totally portable and sharable.</p>
+<p>However this <code>.hdf5</code> has the disadvantage of being larger than the corresponding <code>.rds</code> as it includes a copy of the count information, and the saving process is going to be slow for large objects.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">single_cell_counts</span> <span class="op">|&gt;</span> <span class="fu">HDF5Array</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/HDF5Array/man/saveHDF5SummarizedExperiment.html" class="external-link">saveHDF5SummarizedExperiment</a></span><span class="op">(</span><span class="st">"single_cell_counts"</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="visualise-gene-transcription">Visualise gene transcription<a class="anchor" aria-label="anchor" href="#visualise-gene-transcription"></a>
 </h2>
 <p>We can gather all CD14 monocytes cells and plot the distribution of HLA-A across all tissues</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">tidySingleCellExperiment</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb11"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ Realising metadata.</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ Synchronising files</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ Downloading 0 files, totalling 0 GB</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ Reading files.</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ℹ Compiling Single Cell Experiment.</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Transformation introduced infinite values in continuous y-axis</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span></span></code></pre></div>
+<p><img src="/stornext/Home/data/allstaff/m/milton.m/HCAquery/README_files/figure-gfm/unnamed-chunk-14-1.png"><!-- --></p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: Transformation introduced infinite values in continuous y-axis</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in min(x): no non-missing arguments to min; returning Inf</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning in max(x): no non-missing arguments to max; returning -Inf</span></span></code></pre></div>
+<p><img src="/stornext/Home/data/allstaff/m/milton.m/HCAquery/README_files/figure-gfm/unnamed-chunk-14-2.png"><!-- --></p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stemangiola/tidySingleCellExperiment" class="external-link">tidySingleCellExperiment</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">metadata</span> <span class="op">|&gt;</span></span>
-<span>  <span class="co"># Filter and subset</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">cell_type_harmonised</span><span class="op">==</span><span class="st">"cd14 mono"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span></span>
-<span>  <span class="co"># Get counts per million for HCA-A gene</span></span>
-<span>  <span class="fu"><a href="reference/get_SingleCellExperiment.html">get_SingleCellExperiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span>, features <span class="op">=</span> <span class="st">"HLA-A"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  </span>
-<span>  <span class="co"># Plot (styling code have been omitted)</span></span>
-<span>  <span class="fu">join_features</span><span class="op">(</span><span class="st">"HLA-A"</span>, shape <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span><span class="va">counts</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span> <span class="va">disease</span>, <span class="va">`HLA.A`</span>,color <span class="op">=</span> <span class="va">file_id</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span>shape<span class="op">=</span><span class="st">"."</span><span class="op">)</span> </span></code></pre></div>
+<p><img src="/stornext/Home/data/allstaff/m/milton.m/HCAquery/README_files/figure-gfm/unnamed-chunk-15-1.png"><!-- --></p>
 <p><img src="reference/figures/HLA_A_disease_plot.png"><!-- --></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">metadata</span> <span class="op">|&gt;</span> </span>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">|&gt;</span> </span>
 <span>    </span>
 <span>  <span class="co"># Filter and subset</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">cell_type_harmonised</span><span class="op">==</span><span class="st">"nk"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">cell_type_harmonised</span><span class="op">==</span><span class="st">"nk"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span></span>
 <span>  <span class="co"># Get counts per million for HCA-A gene </span></span>
-<span>  <span class="fu"><a href="reference/get_SingleCellExperiment.html">get_SingleCellExperiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span>, features <span class="op">=</span> <span class="st">"HLA-A"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="reference/get_single_cell_experiment.html">get_single_cell_experiment</a></span><span class="op">(</span>assays <span class="op">=</span> <span class="st">"cpm"</span>, features <span class="op">=</span> <span class="st">"HLA-A"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span></span>
-<span>    <span class="co"># Plot (styling code have been omitted)</span></span>
-<span>  <span class="fu">join_features</span><span class="op">(</span><span class="st">"HLA-A"</span>, shape <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span> <span class="va">tissue_harmonised</span>, <span class="va">`HLA.A`</span>,color <span class="op">=</span> <span class="va">file_id</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span>shape<span class="op">=</span><span class="st">"."</span><span class="op">)</span> </span></code></pre></div>
+<span>  <span class="co"># Plot (styling code have been omitted)</span></span>
+<span>  <span class="fu">tidySingleCellExperiment</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ttservice/man/join_features.html" class="external-link">join_features</a></span><span class="op">(</span><span class="st">"HLA-A"</span>, shape <span class="op">=</span> <span class="st">"wide"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">tissue_harmonised</span>, <span class="va">`HLA.A`</span>,color <span class="op">=</span> <span class="va">file_id</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span>shape<span class="op">=</span><span class="st">"."</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ℹ Realising metadata.</span></span>
+<span><span class="co">#&gt; ℹ Synchronising files</span></span>
+<span><span class="co">#&gt; ℹ Downloading 0 files, totalling 0 GB</span></span>
+<span><span class="co">#&gt; ℹ Reading files.</span></span>
+<span><span class="co">#&gt; ℹ Compiling Single Cell Experiment.</span></span></code></pre></div>
+<p><img src="/stornext/Home/data/allstaff/m/milton.m/HCAquery/README_files/figure-gfm/unnamed-chunk-17-1.png"><!-- --></p>
 <p><img src="reference/figures/HLA_A_tissue_plot.png"><!-- --></p>
 </div>
 <div class="section level2">
 <h2 id="obtain-unharmonised-metadata">Obtain Unharmonised Metadata<a class="anchor" aria-label="anchor" href="#obtain-unharmonised-metadata"></a>
 </h2>
 <p>Various metadata fields are <em>not</em> common between datasets, so it does not make sense for these to live in the main metadata table. However, we can obtain it using the <code><a href="reference/get_unharmonised_metadata.html">get_unharmonised_metadata()</a></code> function. This function returns a data frame with one row per dataset, including the <code>unharmonised</code> column which contains unharmnised metadata as a nested data frame.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">harmonised</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">tissue</span> <span class="op">==</span> <span class="st">"kidney blood vessel"</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">harmonised</span> <span class="op">&lt;-</span> <span class="va">metadata</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">tissue</span> <span class="op">==</span> <span class="st">"kidney blood vessel"</span><span class="op">)</span></span>
 <span><span class="va">unharmonised</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/get_unharmonised_metadata.html">get_unharmonised_metadata</a></span><span class="op">(</span><span class="va">harmonised</span><span class="op">)</span></span>
 <span><span class="va">unharmonised</span></span>
-<span><span class="co">#&gt; # A tibble: 4 × 2</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 2</span></span>
 <span><span class="co">#&gt;   file_id                              unharmonised   </span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;                                &lt;list&gt;         </span></span>
-<span><span class="co">#&gt; 1 63523aa3-0d04-4fc6-ac59-5cadd3e73a14 &lt;tbl_dck_[,17]&gt;</span></span>
-<span><span class="co">#&gt; 2 8fee7b82-178b-4c04-bf23-04689415690d &lt;tbl_dck_[,12]&gt;</span></span>
-<span><span class="co">#&gt; 3 dc9d8cdd-29ee-4c44-830c-6559cb3d0af6 &lt;tbl_dck_[,14]&gt;</span></span>
-<span><span class="co">#&gt; 4 f7e94dbb-8638-4616-aaf9-16e2212c369f &lt;tbl_dck_[,14]&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 dc9d8cdd-29ee-4c44-830c-6559cb3d0af6 &lt;tbl_dck_[,14]&gt;</span></span></code></pre></div>
 <p>Notice that the columns differ between each dataset’s data frame:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">unharmonised</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [[1]]</span></span>
-<span><span class="co">#&gt; # Source:   SQL [?? x 17]</span></span>
+<span><span class="co">#&gt; # Source:   SQL [?? x 14]</span></span>
 <span><span class="co">#&gt; # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]</span></span>
 <span><span class="co">#&gt;    cell_ file_id donor…¹ donor…² libra…³ mappe…⁴ sampl…⁵ suspe…⁶ suspe…⁷ autho…⁸</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  </span></span>
-<span><span class="co">#&gt;  1 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt;  2 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt;  3 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt;  4 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt;  5 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt;  6 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt;  7 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt;  8 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt;  9 4602… 63523a… 19 mon… 463181… 671785… GENCOD… 125234… cell    c7485e… CD4 T …</span></span>
-<span><span class="co">#&gt; 10 4602… 63523a… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
-<span><span class="co">#&gt; # … with more rows, 7 more variables: cell_state &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   reported_diseases &lt;chr&gt;, Short_Sample &lt;chr&gt;, Project &lt;chr&gt;,</span></span>
-<span><span class="co">#&gt; #   Experiment &lt;chr&gt;, compartment &lt;chr&gt;, broad_celltype &lt;chr&gt;, and abbreviated</span></span>
+<span><span class="co">#&gt;  1 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  2 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  3 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  4 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  5 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  6 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  7 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  8 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt;  9 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt; 10 4602… dc9d8c… 27 mon… a8536b… 5ddaea… GENCOD… 61bf84… cell    d8a44f… Pelvic…</span></span>
+<span><span class="co">#&gt; # … with more rows, 4 more variables: reported_diseases &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   Experiment &lt;chr&gt;, Project &lt;chr&gt;, broad_celltype &lt;chr&gt;, and abbreviated</span></span>
 <span><span class="co">#&gt; #   variable names ¹​donor_age, ²​donor_uuid, ³​library_uuid,</span></span>
 <span><span class="co">#&gt; #   ⁴​mapped_reference_annotation, ⁵​sample_uuid, ⁶​suspension_type,</span></span>
-<span><span class="co">#&gt; #   ⁷​suspension_uuid, ⁸​author_cell_type</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[2]]</span></span>
-<span><span class="co">#&gt; # Source:   SQL [?? x 12]</span></span>
-<span><span class="co">#&gt; # Database: DuckDB 0.7.1 [unknown@Linux 3.10.0-1160.88.1.el7.x86_64:R 4.2.1/:memory:]</span></span>
-<span><span class="co">#&gt;    cell_ file_id orig.…¹ nCoun…² nFeat…³ seura…⁴ Project donor…⁵ compa…⁶ broad…⁷</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  </span></span>
-<span><span class="co">#&gt;  1 1069  8fee7b… 4602ST…   16082 3997    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt;  2 1214  8fee7b… 4602ST…    1037 606     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt;  3 2583  8fee7b… 4602ST…    3028 1361    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt;  4 2655  8fee7b… 4602ST…    1605 859     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt;  5 3609  8fee7b… 4602ST…    1144 682     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt;  6 3624  8fee7b… 4602ST…    1874 963     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt;  7 3946  8fee7b… 4602ST…    1296 755     25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt;  8 5163  8fee7b… 4602ST…   11417 3255    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt;  9 5446  8fee7b… 4602ST…    1769 946     19      Experi… Wilms2  lympho… CD4 T …</span></span>
-<span><span class="co">#&gt; 10 6275  8fee7b… 4602ST…    3750 1559    25      Experi… Wilms3  non_PT  Pelvic…</span></span>
-<span><span class="co">#&gt; # … with more rows, 2 more variables: author_cell_type &lt;chr&gt;, Sample &lt;chr&gt;, and</span></span>
-<span><span class="co">#&gt; #   abbreviated variable names ¹​orig.ident, ²​nCount_RNA, ³​nFeature_RNA,</span></span>
-<span><span class="co">#&gt; #   ⁴​seurat_clusters, ⁵​donor_id, ⁶​compartment, ⁷​broad_celltype</span></span></code></pre></div>
+<span><span class="co">#&gt; #   ⁷​suspension_uuid, ⁸​author_cell_type</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level1">
@@ -460,6 +474,86 @@
 <p>The <code>raw</code> assay includes RNA abundance in the positive real scale (not transformed with non-linear functions, e.g. log sqrt). Originally CELLxGENE include a mix of scales and transformations specified in the <code>x_normalization</code> column.</p>
 <p>The <code>cpm</code> assay includes counts per million.</p>
 </div>
+<div class="section level1">
+<h1 id="session-info">Session Info<a class="anchor" aria-label="anchor" href="#session-info"></a>
+</h1>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; R version 4.2.1 (2022-06-23)</span></span>
+<span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu (64-bit)</span></span>
+<span><span class="co">#&gt; Running under: CentOS Linux 7 (Core)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Matrix products: default</span></span>
+<span><span class="co">#&gt; BLAS:   /stornext/System/data/apps/R/R-4.2.1/lib64/R/lib/libRblas.so</span></span>
+<span><span class="co">#&gt; LAPACK: /stornext/System/data/apps/R/R-4.2.1/lib64/R/lib/libRlapack.so</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; locale:</span></span>
+<span><span class="co">#&gt;  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              </span></span>
+<span><span class="co">#&gt;  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    </span></span>
+<span><span class="co">#&gt;  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   </span></span>
+<span><span class="co">#&gt;  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 </span></span>
+<span><span class="co">#&gt;  [9] LC_ADDRESS=C               LC_TELEPHONE=C            </span></span>
+<span><span class="co">#&gt; [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attached base packages:</span></span>
+<span><span class="co">#&gt; [1] stats4    stats     graphics  grDevices utils     datasets  methods  </span></span>
+<span><span class="co">#&gt; [8] base     </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; other attached packages:</span></span>
+<span><span class="co">#&gt;  [1] tidySingleCellExperiment_1.6.3 SingleCellExperiment_1.18.1   </span></span>
+<span><span class="co">#&gt;  [3] SummarizedExperiment_1.26.1    Biobase_2.56.0                </span></span>
+<span><span class="co">#&gt;  [5] GenomicRanges_1.48.0           GenomeInfoDb_1.32.4           </span></span>
+<span><span class="co">#&gt;  [7] IRanges_2.30.1                 S4Vectors_0.34.0              </span></span>
+<span><span class="co">#&gt;  [9] BiocGenerics_0.42.0            MatrixGenerics_1.8.1          </span></span>
+<span><span class="co">#&gt; [11] matrixStats_0.63.0             ttservice_0.2.2               </span></span>
+<span><span class="co">#&gt; [13] ggplot2_3.4.1                  CuratedAtlasQueryR_0.99.1     </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span><span class="co">#&gt;   [1] plyr_1.8.8             igraph_1.4.1           lazyeval_0.2.2        </span></span>
+<span><span class="co">#&gt;   [4] sp_1.5-1               splines_4.2.1          listenv_0.9.0         </span></span>
+<span><span class="co">#&gt;   [7] scattermore_0.8        digest_0.6.31          htmltools_0.5.4       </span></span>
+<span><span class="co">#&gt;  [10] fansi_1.0.3            magrittr_2.0.3         tensor_1.5            </span></span>
+<span><span class="co">#&gt;  [13] cluster_2.1.3          ROCR_1.0-11            globals_0.16.2        </span></span>
+<span><span class="co">#&gt;  [16] duckdb_0.7.1-1         spatstat.sparse_3.0-0  colorspace_2.0-3      </span></span>
+<span><span class="co">#&gt;  [19] blob_1.2.3             ggrepel_0.9.2          xfun_0.36             </span></span>
+<span><span class="co">#&gt;  [22] dplyr_1.1.0            RCurl_1.98-1.9         jsonlite_1.8.4        </span></span>
+<span><span class="co">#&gt;  [25] progressr_0.13.0       spatstat.data_3.0-0    survival_3.3-1        </span></span>
+<span><span class="co">#&gt;  [28] zoo_1.8-11             glue_1.6.2             polyclip_1.10-4       </span></span>
+<span><span class="co">#&gt;  [31] gtable_0.3.1           zlibbioc_1.42.0        XVector_0.36.0        </span></span>
+<span><span class="co">#&gt;  [34] leiden_0.4.3           DelayedArray_0.22.0    Rhdf5lib_1.18.2       </span></span>
+<span><span class="co">#&gt;  [37] future.apply_1.10.0    HDF5Array_1.24.2       abind_1.4-5           </span></span>
+<span><span class="co">#&gt;  [40] scales_1.2.1           DBI_1.1.3              spatstat.random_3.0-1 </span></span>
+<span><span class="co">#&gt;  [43] miniUI_0.1.1.1         Rcpp_1.0.10            viridisLite_0.4.1     </span></span>
+<span><span class="co">#&gt;  [46] xtable_1.8-4           reticulate_1.26        htmlwidgets_1.6.0     </span></span>
+<span><span class="co">#&gt;  [49] httr_1.4.4             RColorBrewer_1.1-3     ellipsis_0.3.2        </span></span>
+<span><span class="co">#&gt;  [52] Seurat_4.3.0           ica_1.0-3              farver_2.1.1          </span></span>
+<span><span class="co">#&gt;  [55] pkgconfig_2.0.3        dbplyr_2.3.0           sass_0.4.4            </span></span>
+<span><span class="co">#&gt;  [58] uwot_0.1.14            deldir_1.0-6           utf8_1.2.2            </span></span>
+<span><span class="co">#&gt;  [61] labeling_0.4.2         tidyselect_1.2.0       rlang_1.0.6           </span></span>
+<span><span class="co">#&gt;  [64] reshape2_1.4.4         later_1.3.0            munsell_0.5.0         </span></span>
+<span><span class="co">#&gt;  [67] tools_4.2.1            cachem_1.0.6           cli_3.6.0             </span></span>
+<span><span class="co">#&gt;  [70] generics_0.1.3         ggridges_0.5.4         evaluate_0.19         </span></span>
+<span><span class="co">#&gt;  [73] stringr_1.5.0          fastmap_1.1.0          yaml_2.3.6            </span></span>
+<span><span class="co">#&gt;  [76] goftest_1.2-3          knitr_1.42             fitdistrplus_1.1-8    </span></span>
+<span><span class="co">#&gt;  [79] purrr_1.0.1            RANN_2.6.1             pbapply_1.6-0         </span></span>
+<span><span class="co">#&gt;  [82] future_1.30.0          nlme_3.1-157           mime_0.12             </span></span>
+<span><span class="co">#&gt;  [85] compiler_4.2.1         rstudioapi_0.14        curl_4.3.3            </span></span>
+<span><span class="co">#&gt;  [88] plotly_4.10.1          png_0.1-8              spatstat.utils_3.0-1  </span></span>
+<span><span class="co">#&gt;  [91] tibble_3.1.8           bslib_0.4.2            stringi_1.7.12        </span></span>
+<span><span class="co">#&gt;  [94] highr_0.10             forcats_1.0.0          lattice_0.20-45       </span></span>
+<span><span class="co">#&gt;  [97] Matrix_1.5-3           vctrs_0.5.2            pillar_1.8.1          </span></span>
+<span><span class="co">#&gt; [100] lifecycle_1.0.3        rhdf5filters_1.8.0     spatstat.geom_3.0-3   </span></span>
+<span><span class="co">#&gt; [103] lmtest_0.9-40          jquerylib_0.1.4        RcppAnnoy_0.0.20      </span></span>
+<span><span class="co">#&gt; [106] data.table_1.14.6      cowplot_1.1.1          bitops_1.0-7          </span></span>
+<span><span class="co">#&gt; [109] irlba_2.3.5.1          httpuv_1.6.7           patchwork_1.1.2       </span></span>
+<span><span class="co">#&gt; [112] R6_2.5.1               promises_1.2.0.1       KernSmooth_2.23-20    </span></span>
+<span><span class="co">#&gt; [115] gridExtra_2.3          parallelly_1.33.0      codetools_0.2-18      </span></span>
+<span><span class="co">#&gt; [118] assertthat_0.2.1       MASS_7.3-57            rhdf5_2.40.0          </span></span>
+<span><span class="co">#&gt; [121] rprojroot_2.0.3        withr_2.5.0            SeuratObject_4.1.3    </span></span>
+<span><span class="co">#&gt; [124] sctransform_0.3.5      GenomeInfoDbData_1.2.8 parallel_4.2.1        </span></span>
+<span><span class="co">#&gt; [127] grid_4.2.1             tidyr_1.3.0            rmarkdown_2.20        </span></span>
+<span><span class="co">#&gt; [130] Rtsne_0.16             spatstat.explore_3.0-5 shiny_1.7.4</span></span></code></pre></div>
+</div>
 
   </div>
 
@@ -491,11 +585,11 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Stefano Mangiola <br><small class="roles"> Author, maintainer, reviewer </small>  </li>
-<li>Michael Milton <br><small class="roles"> Author, reviewer </small>  </li>
+<li>Stefano Mangiola <br><small class="roles"> Author, maintainer, reviewer </small> <a href="https://orcid.org/0000-0001-7474-836X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Michael Milton <br><small class="roles"> Author, reviewer </small> <a href="https://orcid.org/0000-0002-8965-2595" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 <li>Silicon Valley Foundation CZF2019-002443 <br><small class="roles"> Funder </small>  </li>
 <li>NIH NHGRI 5U24HG004059-18 <br><small class="roles"> Funder </small>  </li>
-<li>Victoria Cancer Agnency ECRF21036 <br><small class="roles"> Funder </small>  </li>
+<li>Victoria Cancer Agency ECRF21036 <br><small class="roles"> Funder </small>  </li>
 <li>NHMRC 1116955 <br><small class="roles"> Funder </small>  </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
@@ -514,7 +608,7 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Stefano Mangiola, Michael Milton, Silicon Valley Foundation CZF2019-002443, NIH NHGRI 5U24HG004059-18, Victoria Cancer Agnency ECRF21036, NHMRC 1116955.</p>
+<p>Developed by Stefano Mangiola, Michael Milton, Silicon Valley Foundation CZF2019-002443, NIH NHGRI 5U24HG004059-18, Victoria Cancer Agency ECRF21036, NHMRC 1116955.</p>
 </div>
 
 <div class="pkgdown">

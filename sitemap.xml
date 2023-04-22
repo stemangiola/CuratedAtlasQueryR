@@ -28,10 +28,22 @@
     <loc>/reference/COUNTS_VERSION.html</loc>
   </url>
   <url>
+    <loc>/reference/DATABASE_URL.html</loc>
+  </url>
+  <url>
+    <loc>/reference/SAMPLE_DATABASE_URL.html</loc>
+  </url>
+  <url>
     <loc>/reference/UNHARMONISED_URL.html</loc>
   </url>
   <url>
     <loc>/reference/cache.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dir_to_anndata.html</loc>
+  </url>
+  <url>
+    <loc>/reference/downsample_metadata.html</loc>
   </url>
   <url>
     <loc>/reference/get_SingleCellExperiment.html</loc>
@@ -44,6 +56,9 @@
   </url>
   <url>
     <loc>/reference/get_seurat.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_single_cell_experiment.html</loc>
   </url>
   <url>
     <loc>/reference/get_unharmonised_dataset.html</loc>

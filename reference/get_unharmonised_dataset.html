@@ -116,12 +116,12 @@ a "lazy data frame", ie a <code>tbl</code>.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">dataset</span> <span class="op">=</span> <span class="st">"838ea006-2369-4e2c-b426-b2a744a2b02b"</span></span></span>
-<span class="r-in"><span><span class="va">harmonised_meta</span> <span class="op">=</span> <span class="fu"><a href="get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
+<span class="r-in"><span><span class="va">dataset</span> <span class="op">&lt;-</span> <span class="st">"838ea006-2369-4e2c-b426-b2a744a2b02b"</span></span></span>
+<span class="r-in"><span><span class="va">harmonised_meta</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_metadata.html">get_metadata</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span></span>
 <span class="r-in"><span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">file_id</span> <span class="op">==</span> <span class="va">dataset</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">unharmonised_meta</span> <span class="op">=</span> <span class="fu">get_unharmonised_dataset</span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">unharmonised_meta</span> <span class="op">&lt;-</span> <span class="fu">get_unharmonised_dataset</span><span class="op">(</span><span class="va">dataset</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in get_unharmonised_dataset(dataset):</span> could not find function "get_unharmonised_dataset"</span>
-<span class="r-in"><span><span class="va">unharmonised_tbl</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="va">unharmonised_meta</span><span class="op">[[</span><span class="va">dataset</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">unharmonised_tbl</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="va">unharmonised_meta</span><span class="op">[[</span><span class="va">dataset</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dplyr::collect(unharmonised_meta[[dataset]]):</span> object 'unharmonised_meta' not found</span>
 <span class="r-in"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">harmonised_meta</span>, <span class="va">unharmonised_tbl</span>, by<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"file_id"</span>, <span class="st">"cell_"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in is.data.frame(y):</span> object 'unharmonised_tbl' not found</span>
@@ -136,7 +136,7 @@ a "lazy data frame", ie a <code>tbl</code>.</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Stefano Mangiola, Michael Milton, Silicon Valley Foundation CZF2019-002443, NIH NHGRI 5U24HG004059-18, Victoria Cancer Agnency ECRF21036, NHMRC 1116955.</p>
+  <p></p><p>Developed by Stefano Mangiola, Michael Milton, Silicon Valley Foundation CZF2019-002443, NIH NHGRI 5U24HG004059-18, Victoria Cancer Agency ECRF21036, NHMRC 1116955.</p>
 </div>
 
 <div class="pkgdown">
