@@ -3,23 +3,29 @@ library(SingleCellExperiment)
 library(tidyverse)
 library(purrr)
 library(glue)
-library(HCAquery)
+library(CuratedAtlasQueryR)
+library(HDF5Array)
+
+library(dbplyr)
+library(DBI)
+library(duckdb)
+
 
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
-root_directory = "/vast/projects/RCP/human_cell_atlas" # args[[1]]
-metadata_sql = glue("{root_directory}/metadata_annotated.sqlite")
+metadata_DB = "/vast/projects/cellxgene_curated/metadata_annotated_0.2.3.parquet"
+root_directory = "/vast/projects/cellxgene_curated" # args[[1]]
 raw_data_directory = glue("{root_directory}/splitted_data_0.2")
 
-
-
 samples =
-	# get_metadata(metadata_sql) |>
-	readRDS("/vast/projects/RCP/human_cell_atlas/metadata_annotated.rds") |>
-	distinct(file_id, .sample) |>
+  duckdb() |>
+  dbConnect(drv = _, read_only = TRUE) |>
+  tbl(metadata_DB) |>
+	distinct(file_id, sample_) |>
+  as_tibble() |> 
 	group_by(file_id) |>
 	slice(1) |>
-	pull(.sample)
+	pull(sample_)
 
 # Read gene names
 dir(raw_data_directory, full.names = TRUE) |>

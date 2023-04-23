@@ -302,10 +302,10 @@ contractile cell,
 cord blood hematopoietic stem cell,
 cortical cell of adrenal gland,
 cultured cell,
-DN3 thymocyte,
-DN4 thymocyte,
-double negative thymocyte,
-"double-positive, alpha-beta thymocyte",
+DN3 thymocyte,immune
+DN4 thymocyte,immune
+double negative thymocyte,immune
+"double-positive, alpha-beta thymocyte",immune
 duodenum glandular cell,
 early promyelocyte,
 embryonic stem cell,
@@ -316,16 +316,16 @@ enterocyte,
 enterocyte of epithelium of large intestine,
 enterocyte of epithelium of small intestine,
 enteroendocrine cell,
-enucleate erythrocyte,
+enucleate erythrocyte,immune
 enucleated reticulocyte,
 epicardial adipocyte,
 epidermal cell,
-epidermal Langerhans cell,
-erythroblast,
-erythrocyte,
-erythroid lineage cell,
-erythroid progenitor cell,
-"erythroid progenitor cell, mammalian",
+epidermal Langerhans cell,immune
+erythroblast,immune
+erythrocyte,immune
+erythroid lineage cell,immune
+erythroid progenitor cell,immune
+"erythroid progenitor cell, mammalian",immune
 eukaryotic cell,
 extravillous trophoblast,
 eye photoreceptor cell,
@@ -363,7 +363,7 @@ kidney granular cell,
 kidney interstitial cell,
 kidney interstitial fibroblast,
 Kupffer cell,
-Langerhans cell,
+Langerhans cell,immune
 large intestine goblet cell,
 late promyelocyte,
 lens fiber cell,
@@ -472,7 +472,7 @@ syncytiotrophoblast cell,
 taste receptor cell,
 tendon cell,
 theca cell,
-thymocyte,
+thymocyte,immune
 thyroid follicular cell,
 tongue muscle cell,
 tracheal goblet cell,
@@ -493,3 +493,7 @@ vasa recta descending limb cell,
 vascular leptomeningeal cell,
 vascular lymphangioblast,
 ventricular cardiac muscle cell,
+enterocyte of epithelium proper of ileum,
+smooth muscle fiber of ileum            ,
+ileal goblet cell                       ,
+enteroendocrine cell of small intestine ,
