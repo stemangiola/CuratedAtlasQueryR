@@ -16,7 +16,7 @@ to the location of the parquet database.}
 
 \item{cache_directory}{Optional character vector of length 1. A file path on
 your local system to a directory (not a file) that will be used to store
-metadata.parquet}
+\code{metadata.parquet}}
 
 \item{use_cache}{Optional logical scalar. If \code{TRUE} (the default), and this
 function has been called before with the same parameters, then a cached
@@ -32,7 +32,7 @@ columns, as \code{stringr::str_match} will not work.
 \description{
 Downloads a parquet database of the Human Cell Atlas metadata to a local
 cache, and then opens it as a data frame. It can then be filtered and passed
-into \code{\link[=get_SingleCellExperiment]{get_SingleCellExperiment()}} to obtain a
+into \code{\link[=get_single_cell_experiment]{get_single_cell_experiment()}} to obtain a
 \code{\link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment}}
 }
 \details{
@@ -100,7 +100,7 @@ because of your user or organisation name), the following error can manifest
 
 Error in \code{db_query_fields.DBIConnection()}: ! Can't query fields. Caused by
 error: ! Parser Error: syntax error at or near "/" LINE 2: FROM
-/Users/bob/Library/Cach...
+/Users/bob/Library/Caches...
 
 The solution is to choose a different cache, for example
 

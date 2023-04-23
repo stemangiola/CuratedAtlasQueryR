@@ -8,23 +8,38 @@ cache <- rlang::env(
     metadata_table = rlang::env()
 )
 
+#' URL pointing to the full metadata file
+#' @export
+#' @examples
+#' get_metadata(remote_url = DATABASE_URL)
 DATABASE_URL <- single_line_str(
     "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.3.parquet"
+)
+
+#' URL pointing to the sample metadata file, which is smaller and for test,
+#' demonstration, and vignette purposes only
+#' @export
+#' @examples
+#' get_metadata(remote_url = SAMPLE_DATABASE_URL)
+SAMPLE_DATABASE_URL <- single_line_str(
+    "https://object-store.rc.nectar.org.au/v1/
+    AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/
+    sample_metadata.0.2.3.parquet"
 )
 
 #' Gets the Curated Atlas metadata as a data frame.
 #'
 #' Downloads a parquet database of the Human Cell Atlas metadata to a local
 #' cache, and then opens it as a data frame. It can then be filtered and passed
-#' into [get_SingleCellExperiment()] to obtain a
+#' into [get_single_cell_experiment()] to obtain a
 #' [`SingleCellExperiment::SingleCellExperiment-class`]
 #'
 #' @param remote_url Optional character vector of length 1. An HTTP URL pointing
 #'   to the location of the parquet database.
 #' @param cache_directory Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
-#'   metadata.parquet
+#'   `metadata.parquet`
 #' @param use_cache Optional logical scalar. If `TRUE` (the default), and this
 #'   function has been called before with the same parameters, then a cached
 #'   reference to the table will be returned. If `FALSE`, a new connection will
@@ -116,7 +131,7 @@ DATABASE_URL <- single_line_str(
 #'
 #' Error in `db_query_fields.DBIConnection()`: ! Can't query fields. Caused by
 #' error: ! Parser Error: syntax error at or near "/" LINE 2: FROM
-#' /Users/bob/Library/Cach...
+#' /Users/bob/Library/Caches...
 #'
 #' The solution is to choose a different cache, for example
 #'
@@ -134,13 +149,17 @@ get_metadata <- function(
         cached_connection
     }
     else {
-        report_file_sizes(remote_url)
         db_path <- file.path(cache_directory, "metadata.0.2.3.parquet")
-        sync_remote_file(
-            remote_url,
-            db_path,
-            progress(type = "down", con = stderr())
-        )
+        
+        if (!file.exists(db_path)){
+            report_file_sizes(remote_url)
+            sync_remote_file(
+                remote_url,
+                db_path,
+                progress(type = "down", con = stderr())
+            )
+        }
+
         table <- duckdb() |>
             dbConnect(drv = _, read_only = TRUE) |>
             tbl(db_path)

@@ -185,7 +185,6 @@ hdf5_to_anndata = function(input_directory, output_directory){
     }, env = zellkonverter::zellkonverterAnnDataEnv())
 }
 
-
 #' Converts a series of H5-serialized Seurat to AnnData
 #' @param input_directory A character scalar. The path to a directory containing one or more
 #'  directories created by [SeuratDisk::SaveH5Seurat()].
@@ -251,5 +250,55 @@ h5seurat_to_anndata = function(input_directory, output_directory, assays = "RNA"
         out_path
       }, .progress = "Converting files")
   }, env = zellkonverter::zellkonverterAnnDataEnv())
+}
+
+#' Makes a "downsampled" metadata file that only contains the minimal data
+#' needed to run the vignette.
+#' @param output Character scalar. Path to the output file.
+#' @return NULL
+#' @keywords internal
+downsample_metadata <- function(output = "sample_meta.parquet"){
+    metadata <- get_metadata()
+    
+    # Make a table of rows per dataset
+    dataset_sizes <- metadata |>
+        dplyr::group_by(.data$file_id_db) |>
+        summarise(n = dplyr::n()) |> 
+        dplyr::collect()
+    
+    # Find a minimal set of file_id_dbs we need
+    minimal_file_ids <- rlang::exprs(
+        # Used by the vignette
+        .data$ethnicity == "African" &
+            stringr::str_like(.data$assay, "%10x%") &
+            .data$tissue == "lung parenchyma" &
+            stringr::str_like(.data$cell_type, "%CD4%"),
+        .data$cell_type_harmonised == "nk",
+        .data$cell_type_harmonised == "cd14 mono",
+        .data$tissue == "kidney blood vessel",
+        # Used by tests
+        .data$file_id_db == "3214d8f8986c1e33a85be5322f2db4a9",
+        .data$cell_ == "868417_1"
+    ) |>
+        purrr::map(function(filter){
+            all_ids <- metadata |> 
+                dplyr::filter(!!filter) |>
+                dplyr::group_by(.data$file_id_db) |>
+                dplyr::pull(.data$file_id_db) |> unique()
+                
+            dataset_sizes |>
+                dplyr::filter(.data$file_id_db %in% all_ids) |>
+                dplyr::slice_min(n=50, order_by = .data$n) |>
+                dplyr::pull(.data$file_id_db)
+        }) |>
+        purrr::reduce(union)
+    
+    metadata |>    
+        dplyr::filter(.data$file_id_db %in% minimal_file_ids) |>
+        dplyr::arrange(.data$file_id_db, .data$sample_) |>
+        dplyr::collect() |>
+        arrow::write_parquet(output)
+    
+    NULL
 }
 
