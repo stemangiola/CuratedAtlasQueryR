@@ -31,12 +31,12 @@ clean_cell_types = function(.x){
 }
 
 metadata_file = "/vast/projects/RCP/human_cell_atlas/metadata_0.2.rds"
-file_curated_annotation_merged = "~/PostDoc/HCAquery/dev/cell_type_curated_annotation_0.2.rds"
-file_metadata_annotated = "/vast/projects/RCP/human_cell_atlas/metadata_annotated_0.2.rds"
+file_curated_annotation_merged = "~/PostDoc/CuratedAtlasQueryR/dev/cell_type_curated_annotation_0.2.1.rds"
+file_metadata_annotated = "/vast/projects/RCP/human_cell_atlas/metadata_annotated_0.2.2.rds"
 annotation_directory = "/vast/projects/RCP/human_cell_atlas/annotated_data_0.2/"
 
 # metadata_file = "/vast/projects/RCP/human_cell_atlas/metadata.rds"
-# file_curated_annotation_merged = "~/PostDoc/HCAquery/dev/cell_type_curated_annotation.rds"
+# file_curated_annotation_merged = "~/PostDoc/CuratedAtlasQueryR/dev/cell_type_curated_annotation.rds"
 # file_metadata_annotated = "/vast/projects/RCP/human_cell_atlas/metadata_annotated.rds"
 # annotation_directory = "/vast/projects/RCP/human_cell_atlas/annotated_data_0.1/"
 
@@ -79,12 +79,12 @@ annotation_harmonised =
 
 
 job::job({
-	annotation_harmonised |>  saveRDS("~/PostDoc/HCAquery/dev/annotated_data_0.2_temp_table.rds")
+	annotation_harmonised |>  saveRDS("~/PostDoc/CuratedAtlasQueryR/dev/annotated_data_0.2_temp_table.rds")
 })
 
-# annotation_harmonised = readRDS("/vast/scratch/users/mangiola.s/human_cell_atlas/annotation_harmonised.rds")
+# annotation_harmonised = readRDS("~/PostDoc/CuratedAtlasQueryR/dev/annotated_data_0.2_temp_table.rds")
 
-# library(HCAquery)
+# library(CuratedAtlasQueryR)
 metadata_df = readRDS(metadata_file)
 
 # Integrate with metadata
@@ -93,7 +93,7 @@ annotation =
 	metadata_df |>
 	select(.cell, cell_type, file_id, .sample) |>
 	as_tibble() |>
-	left_join(read_csv("~/PostDoc/HCAquery/dev/metadata_cell_type.csv"),  by = "cell_type") |>
+	left_join(read_csv("~/PostDoc/CuratedAtlasQueryR/dev/metadata_cell_type.csv"),  by = "cell_type") |>
 	left_join(annotation_harmonised, by = c(".cell", ".sample")) |>
 
 	# Clen cell types
@@ -103,11 +103,11 @@ annotation =
 # 	filter(lineage_1=="immune") |>
 # 	count(cell_type, predicted.celltype.l2, blueprint_singler, strong_evidence) |>
 # 	arrange(!strong_evidence, desc(n)) |>
-# 	write_csv("~/PostDoc/HCAquery/dev/annotation_confirm.csv")
+# 	write_csv("~/PostDoc/CuratedAtlasQueryR/dev/annotation_confirm.csv")
 
 
 annotation_crated_confirmed =
-	read_csv("~/PostDoc/HCAquery/dev/annotation_confirm_manually_curated.csv") |>
+	read_csv("~/PostDoc/CuratedAtlasQueryR/dev/annotation_confirm_manually_curated.csv") |>
 
 	# TEMPORARY
 	rename(cell_type_clean = cell_type) |>
@@ -131,7 +131,7 @@ blueprint_definitely_non_immune = c(   "astrocytes" , "chondrocytes"  , "endothe
 annotation_crated_UNconfirmed =
 
 	# Read
-	read_csv("~/PostDoc/HCAquery/dev/annotation_confirm_manually_curated.csv") |>
+	read_csv("~/PostDoc/CuratedAtlasQueryR/dev/annotation_confirm_manually_curated.csv") |>
 
 	# TEMPORARY
 	rename(cell_type_clean = cell_type) |>
@@ -479,18 +479,10 @@ annotation_all =
 	dplyr::select(cell_type_clean, cell_type_harmonised, predicted.celltype.l2, blueprint_singler, confidence_class) |>
 	distinct()
 
-# This is specifci for the 1.5 version
-new_monaco_annotation =
-	get_metadata("/vast/projects/RCP/human_cell_atlas/metadata_annotated_0.2.sqlite") |>
-	select(.cell, file_id, monaco_singler = cell_annotation_monaco_singler) |>
-	as_tibble()
 
 
 curated_annotation =
 	annotation |>
-
-	# This is specifci for the 1.5 version
-	left_join(new_monaco_annotation) |>
 
 	filter(lineage_1=="immune") |>
 	dplyr::select(
@@ -523,12 +515,21 @@ curated_annotation =
 		TRUE ~ cell_type_harmonised
 	)) |>
 
-	# Change CD4 classification for version 0.3
+	# Change CD4 classification for version 0.2.1
+	mutate(confidence_class = if_else(
+		cell_type_harmonised |> str_detect("cd4|mait|treg|tgd") & cell_annotation_monaco_singler %in% c("terminal effector cd4 t", "naive cd4 t", "th2", "th17", "t regulatory", "follicular helper t", "th1/th17", "th1", "nonvd2 gd t", "vd2 gd t"),
+		3,
+		confidence_class
+	)) |>
+
+	# Change CD4 classification for version 0.2.1
 	mutate(cell_type_harmonised = if_else(
 		cell_type_harmonised |> str_detect("cd4|mait|treg|tgd") & cell_annotation_monaco_singler %in% c("terminal effector cd4 t", "naive cd4 t", "th2", "th17", "t regulatory", "follicular helper t", "th1/th17", "th1", "nonvd2 gd t", "vd2 gd t"),
 		cell_annotation_monaco_singler,
 		cell_type_harmonised
 	)) |>
+
+
 	mutate(cell_type_harmonised = cell_type_harmonised |>
 				 	str_replace("naive cd4 t", "cd4 naive") |>
 				 	str_replace("th2", "cd4 th2") |>
@@ -548,6 +549,55 @@ curated_annotation =
 
 	# drop uncommon cells
 	mutate(cell_type_harmonised = if_else(cell_type_harmonised %in% c("cd4 t", "cd8 t", "asdc", "cd4 ctl"), "immune_unclassified", cell_type_harmonised))
+
+
+# Further rescue of unannotated cells, manually
+
+# curated_annotation |>
+# 	filter(cell_type_harmonised == "immune_unclassified") |>
+# 	count(cell_type   ,       cell_type_harmonised ,confidence_class ,cell_annotation_azimuth_l2 ,cell_annotation_blueprint_singler ,cell_annotation_monaco_singler) |>
+# 	arrange(desc(n)) |>
+# 	write_csv("curated_annotation_still_unannotated_0.2.csv")
+
+
+curated_annotation =
+	curated_annotation |>
+	left_join(
+		read_csv("curated_annotation_still_unannotated_0.2_manually_labelled.csv") |>
+			select(cell_type, cell_type_harmonised_manually_curated = cell_type_harmonised, confidence_class_manually_curated = confidence_class, everything()),
+		by = join_by(cell_type, cell_annotation_azimuth_l2, cell_annotation_blueprint_singler, cell_annotation_monaco_singler)
+	) |>
+	mutate(
+		confidence_class = if_else(cell_type_harmonised == "immune_unclassified", confidence_class_manually_curated, confidence_class),
+		cell_type_harmonised = if_else(cell_type_harmonised == "immune_unclassified", cell_type_harmonised_manually_curated, cell_type_harmonised),
+	) |>
+	select(-contains("manually_curated"), -n) |>
+
+	# drop uncommon cells
+	mutate(cell_type_harmonised = if_else(cell_type_harmonised %in% c("cd4 tcm", "cd4 tem"), "immune_unclassified", cell_type_harmonised))
+
+
+
+	# # Recover confidence class == 4
+
+	# curated_annotation |>
+	# 	filter(confidence_class==4) |>
+	# 	count(cell_type   ,       cell_type_harmonised ,confidence_class ,cell_annotation_azimuth_l2 ,cell_annotation_blueprint_singler ,cell_annotation_monaco_singler) |>
+	# 	arrange(desc(n)) |>
+	# 	write_csv("curated_annotation_still_unannotated_0.2_confidence_class_4.csv")
+
+curated_annotation =
+	curated_annotation |>
+	left_join(
+		read_csv("curated_annotation_still_unannotated_0.2_confidence_class_4_manually_labelled.csv") |>
+			select(confidence_class_manually_curated = confidence_class, everything()),
+		by = join_by(cell_type, cell_type_harmonised, cell_annotation_azimuth_l2, cell_annotation_blueprint_singler, cell_annotation_monaco_singler)
+	) |>
+	mutate(
+		confidence_class = if_else(confidence_class == 4 & !is.na(confidence_class_manually_curated), confidence_class_manually_curated, confidence_class)
+	) |>
+	select(-contains("manually_curated"), -n)
+
 
 
 
@@ -584,20 +634,313 @@ metadata_annotated =
 		by=c(".cell", ".sample", "cell_type")
 	)
 
+# Replace `.` with `_` for all column names as it can create difficoulties for MySQL and Python
+colnames(metadata_annotated) = colnames(metadata_annotated) |> str_replace_all("\\.", "_")
+metadata_annotated = metadata_annotated |> rename(cell_ = `_cell`, sample_ = `_sample`)
+
+harmonise_names_non_immune = function(metadata){
+  
+  # grep("\\bfibroblast\\b", c("myofibroblast", "fibroblast", "other fibroblast"))
+  
+  metadata$cell_type_harmonised =  metadata$cell_type
+  
+  table(metadata$cell_type_harmonised[grepl("\\bepithelial\\b", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("\\bepithelial\\b", metadata$cell_type_harmonised),
+                                          "epithelial_cell",  ## does not include myoepithelial.
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("\\bfibroblast\\b", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("\\bfibroblast\\b", metadata$cell_type_harmonised),
+                                          "fibroblast",  ## does not include myofibroblast.
+                                          metadata$cell_type_harmonised)
+  
+  
+  table(metadata$cell_type_harmonised[grepl("\\bendothelial\\b", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("\\bendothelial\\b", metadata$cell_type_harmonised),
+                                          "endothelial_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("Mueller", metadata$cell_type_harmonised)])
+  table(metadata$cell_type_harmonised[grepl("Muller", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(metadata$cell_type_harmonised=="Mueller cell" | metadata$cell_type_harmonised=="Muller cell",
+                                          "Muller_cell",  ## Merge Mueller cells and Muller cells.
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("\\bneuron\\b", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("\\bneuron\\b", metadata$cell_type_harmonised),
+                                          "neuron",  ## does not include interneuron and neuronal receptor cell.
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("amplifying cell", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("amplifying cell", metadata$cell_type_harmonised),
+                                          "amplifying_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("stem cell", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("stem cell", metadata$cell_type_harmonised),
+                                          "stem_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("progenitor cell", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("progenitor cell", metadata$cell_type_harmonised),
+                                          "progenitor_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("acinar cell", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("acinar cell", metadata$cell_type_harmonised),
+                                          "acinar_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("goblet cell", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("goblet cell", metadata$cell_type_harmonised),
+                                          "goblet_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("thymocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("thymocyte", metadata$cell_type_harmonised),
+                                          "thymocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("urothelial", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("urothelial", metadata$cell_type_harmonised),
+                                          "urothelial_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("fat", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("fat", metadata$cell_type_harmonised),
+                                          "fat_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("pneumocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("pneumocyte", metadata$cell_type_harmonised),
+                                          "pneumocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("pneumocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("pneumocyte", metadata$cell_type_harmonised),
+                                          "pneumocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("mesothelial", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("mesothelial", metadata$cell_type_harmonised),
+                                          "mesothelial_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("enteroendocrine", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("enteroendocrine", metadata$cell_type_harmonised),
+                                          "enteroendocrine_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("enterocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("enterocyte", metadata$cell_type_harmonised),
+                                          "enterocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("basal", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("basal", metadata$cell_type_harmonised),
+                                          "basal_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("stromal", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("stromal", metadata$cell_type_harmonised),
+                                          "stromal_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("retina", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("retina", metadata$cell_type_harmonised),
+                                          "retinal_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("ciliated", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("ciliated", metadata$cell_type_harmonised),
+                                          "ciliated_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("pericyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("pericyte", metadata$cell_type_harmonised),
+                                          "pericyte_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("trophoblast", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("trophoblast", metadata$cell_type_harmonised),
+                                          "trophoblast",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("brush", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("brush", metadata$cell_type_harmonised),
+                                          "brush_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("serous", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("serous", metadata$cell_type_harmonised),
+                                          "serous cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("hepatocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("hepatocyte", metadata$cell_type_harmonised),
+                                          "hepatocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("melanocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("melanocyte", metadata$cell_type_harmonised),
+                                          "melanocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("myocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("myocyte", metadata$cell_type_harmonised),
+                                          "myocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("promyelocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("promyelocyte", metadata$cell_type_harmonised),
+                                          "promyelocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("cholangiocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("cholangiocyte", metadata$cell_type_harmonised),
+                                          "cholangiocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("melanocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("melanocyte", metadata$cell_type_harmonised),
+                                          "melanocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("muscle", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("myoblast", metadata$cell_type_harmonised),
+                                          "myoblast", ## Discussed with Stefano on Teams on 16/12/2022.
+                                          metadata$cell_type_harmonised)
+  metadata$cell_type_harmonised <- ifelse(grepl("satellite", metadata$cell_type_harmonised),
+                                          "satellite_cell", ## Discussed with Stefano on Teams on 16/12/2022.
+                                          metadata$cell_type_harmonised)
+  metadata$cell_type_harmonised <- ifelse(grepl("muscle", metadata$cell_type_harmonised),
+                                          "muscle_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("progenitor", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("progenitor", metadata$cell_type_harmonised),
+                                          "progenitor_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("progenitor", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("progenitor", metadata$cell_type_harmonised),
+                                          "progenitor_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("erythrocyte", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("erythrocyte", metadata$cell_type_harmonised),
+                                          "erythrocyte",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("myoepithelial", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("myoepithelial", metadata$cell_type_harmonised),
+                                          "myoepithelial_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("myofibroblast", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("myofibroblast", metadata$cell_type_harmonised),
+                                          "myofibroblast_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("pancreatic", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("pancreatic", metadata$cell_type_harmonised),
+                                          "pancreatic_cell",  ## Discussed with Stefano on Teams on 19/12/2022.
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("renal", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("renal", metadata$cell_type_harmonised),
+                                          "renal_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("epidermal", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("epidermal", metadata$cell_type_harmonised),  ## Includes epidermal cell and epidermal Langerhans cell.
+                                          "epidermal_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("cortical", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("cortical", metadata$cell_type_harmonised),
+                                          "cortical_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("interstitial", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("interstitial", metadata$cell_type_harmonised),
+                                          "interstitial_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("neuroendocrine", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("neuroendocrine", metadata$cell_type_harmonised),
+                                          "neuroendocrine_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("granular", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("granular", metadata$cell_type_harmonised),
+                                          "granular_cell", ## Discussed with Stefano on Teams on 19/12/2022.
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("kidney", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("kidney", metadata$cell_type_harmonised),
+                                          "kidney_cell",  ## Discussed with Stefano on Teams on 19/12/2022.
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("paneth", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("paneth", metadata$cell_type_harmonised),
+                                          "paneth_cell",
+                                          metadata$cell_type_harmonised)
+  
+  table(metadata$cell_type_harmonised[grepl("bipolar", metadata$cell_type_harmonised)])
+  metadata$cell_type_harmonised <- ifelse(grepl("bipolar", metadata$cell_type_harmonised),
+                                          "bipolar_cell",
+                                          metadata$cell_type_harmonised)
+  
+  metadata$cell_type_harmonised <- gsub(" " , "_", metadata$cell_type_harmonised)
+  
+  
+  
+  
+  table(metadata$cell_type_harmonised[grepl("glial", metadata$cell_type_harmonised)])
+  ##  glial cell, microglial cell, radial glial cell
+  ## https://www.simplypsychology.org/glial-cells.html#:~:text=Glial%20cells%20are%20a%20general,that%20keep%20the%20brain%20functioning.
+  
+  table(metadata$cell_type_harmonised[grepl("hematopoietic", metadata$cell_type_harmonised)])
+  ## hematopoietic cell, hematopoietic precursor cell
+  ## precursor cell = stem_cell?
+  
+  table(metadata$cell_type_harmonised[grepl("papillary", metadata$cell_type_harmonised)])
+  ## papillary tips cell = renal_cell ?
+  
+  
+  metadata
+}
+
+dictionary_connie_non_immune = 
+  metadata_annotated |> 
+  filter(cell_type_harmonised == "non_immune") |> 
+  distinct(cell_type) |> 
+  harmonise_names_non_immune() |> 
+  rename(cell_type_harmonised_non_immune = cell_type_harmonised )
+
+metadata_annotated = 
+  metadata_annotated |> 
+  left_join(dictionary_connie_non_immune) |> 
+  mutate(cell_type_harmonised = if_else(cell_type_harmonised=="non_immune", cell_type_harmonised_non_immune, cell_type_harmonised)) |> 
+  select(-cell_type_harmonised_non_immune)
+
+# Save
 metadata_annotated |>
-
 	saveRDS(file_metadata_annotated)
-#
-#
-library(RSQLite)
-library(DBI)
-library(dplyr)
 
-sqllite_output_path = tools::file_path_sans_ext(file_metadata_annotated)
-con <- dbConnect(SQLite(), dbname=glue("{sqllite_output_path}.sqlite"))
-dbWriteTable(con, "metadata", metadata_annotated)
-dbDisconnect(con)
+# # Build SQLite
+# library(RSQLite)
+# library(DBI)
+# library(dplyr)
+# 
+# sqllite_output_path = tools::file_path_sans_ext(file_metadata_annotated)
+# con <- dbConnect(SQLite(), dbname=glue("{sqllite_output_path}.sqlite"))
+# dbWriteTable(con, "metadata", metadata_annotated)
+# dbDisconnect(con)
 
+# Build Parquet
+arrow::write_parquet(metadata_annotated, glue("{tools::file_path_sans_ext(file_metadata_annotated)}.parquet"))
 
 # # Filter samples that do not have immune
 # cell_metadata_with_harmonised_annotation =

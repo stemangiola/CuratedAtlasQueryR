@@ -42,6 +42,28 @@ common_colnames =
 
 print(common_colnames)
 
+# # # Get the rest of uncommon metadata
+# uncommon_metadata =
+#   input_file_paths  |>
+#   enframe(value = "file") |>
+#   mutate(metadata_not_harmonised = imap(
+#     file,
+#     ~ .x %>%
+#       readRDS() |>
+#       select(-one_of(common_colnames), cell_ = .cell, file_id) |> select(cell_, file_id, everything()) |>
+#       mutate(file_id = file_id |> as.character())
+#   )) |>
+#   mutate(file_id = map_chr(metadata_not_harmonised, ~ .x |> distinct(file_id) |> pull(file_id))) |>
+#   select(-name, -file) |>
+#   select(file_id, metadata_not_harmonised) |>
+#   mutate(saved = map2(
+#    metadata_not_harmonised,  file_id,
+#     ~ .x %>%
+#      {print(.y); (.)} |>
+#      saveRDS(glue("/vast/projects/cellxgene_curated/metadata_non_harmonised_0.2/{.y}.rds"), compress = "xz")
+#   ))
+  
+
 # Get all metadata
 
 metadata =
