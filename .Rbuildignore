@@ -8,3 +8,4 @@
 ^Meta$
 makeflow*
 ^R/dev\.R$
+^R$

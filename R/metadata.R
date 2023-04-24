@@ -1,5 +1,8 @@
 # Functions that relate to the harmonised metadata database
 
+#' @include utils.R
+NULL
+
 #' Environment that we use to cache the DuckDB connections
 cache <- rlang::env(
     metadata_table = rlang::env()

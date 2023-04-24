@@ -1,5 +1,8 @@
 # Functions that relate to unharmonised metadata
 
+#' @include utils.R
+NULL
+
 #' Base URL for all the unharmonised data
 UNHARMONISED_URL <- single_line_str(
     "https://object-store.rc.nectar.org.au/v1/
