@@ -40,9 +40,6 @@
     <loc>/reference/cache.html</loc>
   </url>
   <url>
-    <loc>/reference/dir_to_anndata.html</loc>
-  </url>
-  <url>
     <loc>/reference/downsample_metadata.html</loc>
   </url>
   <url>
@@ -65,6 +62,9 @@
   </url>
   <url>
     <loc>/reference/get_unharmonised_metadata.html</loc>
+  </url>
+  <url>
+    <loc>/reference/hdf5_to_anndata.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
