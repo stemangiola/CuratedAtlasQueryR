@@ -10,13 +10,13 @@ library(scMerge)
 library(glue)
 library(DelayedArray)
 library(HDF5Array)
-library(HCAquery)
+# library(CuratedAtlasQueryR)
 library(openssl)
 
 
 # CREATE MAKEFILE
 tab = "\t"
-root_directory = "/vast/scratch/users/mangiola.s/human_cell_atlas"
+root_directory = "/vast/projects/cellxgene_curated"
 splitted_light_data_directory = "/vast/projects/RCP/human_cell_atlas/splitted_light_data" #glue("{root_directory}/splitted_light_data")
 DB_data_directory = glue("{root_directory}/splitted_DB_data")
 gene_names = glue("{root_directory}/gene_names.rds")
