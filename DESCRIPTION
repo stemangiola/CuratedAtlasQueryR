@@ -106,7 +106,8 @@ Suggests:
     forcats,
     ggplot2,
     tidySingleCellExperiment,
-    rprojroot
+    rprojroot,
+    SeuratDisk
 Biarch: true
 biocViews: 
     AssayDomain,
@@ -120,6 +121,7 @@ biocViews:
     Sequencing,
     Transcription,
     Transcriptomics
+Remotes: github::mojaveazure/seurat-disk
 Encoding: UTF-8
 RoxygenNote: 7.2.3
 LazyDataCompression: xz

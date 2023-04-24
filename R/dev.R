@@ -224,8 +224,7 @@ h5seurat_to_anndata = function(input_directory, output_directory, assays = "RNA"
           cli::cli_alert_info("{out_path} already exists. Skipping")
         }
         else {
-          sce <- 
-            LoadH5Seurat(seurat_file, assays = assays) |> 
+          sce <- SeuratDisk::LoadH5Seurat(seurat_file, assays = assays) |> 
             Seurat::as.SingleCellExperiment()
           
           single_column <- length(colnames(sce)) == 1
