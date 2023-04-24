@@ -145,7 +145,7 @@ update_unharmonised <- function(unharmonised_parquet_dir, ...){
 #'     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_scaled_0.2.1"
 #' )
 #' }
-hdf5_to_anndata = function(input_directory, output_directory){
+hdf5_to_anndata <- function(input_directory, output_directory){
     dir.create(output_directory, showWarnings = FALSE)
     # This is a quick utility script to convert the SCE files into AnnData format for use in Pythonlist.files("/vast/projects/RCP/human_cell_atlas/splitted_DB2_data", full.names = FALSE) |>  purrr::walk(function(dir){
     basilisk::basiliskRun(fun = function(sce) {
@@ -185,72 +185,72 @@ hdf5_to_anndata = function(input_directory, output_directory){
     }, env = zellkonverter::zellkonverterAnnDataEnv())
 }
 
-#' Converts a series of H5-serialized Seurat to AnnData
-#' @param input_directory A character scalar. The path to a directory containing one or more
-#'  directories created by [SeuratDisk::SaveH5Seurat()].
-#' @param output_directory A character scalar. The path to a directory in which to save the
-#'  created anndata files.
-#' @keywords internal
-#' @return A character vector of the newly-created anndata files
-#' @examples
-#' \donttest{
-#' h5seurat_to_anndata(
-#'     "/vast/projects/cellxgene_curated/splitted_DB2_data_0.2.1",
-#'     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_0.2.1"
-#' )
-#' h5seurat_to_anndata(
-#'     "/vast/projects/cellxgene_curated/splitted_DB2_data_scaled_0.2.1",
-#'     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_scaled_0.2.1"
-#' )
-#' }
-h5seurat_to_anndata = function(input_directory, output_directory, assays = "RNA"){
-  
-  # Check if package is loaded
-  if(!"SeuratDisk" %in% (.packages()))
-    stop("CuratedCellAtlas says: please manually load the SeuratDisk package first. Execute `library(SeuratDisk)`")
-    
-    
-  dir.create(output_directory, showWarnings = FALSE)
-  # This is a quick utility script to convert the SCE files into AnnData format for use in Pythonlist.files("/vast/projects/RCP/human_cell_atlas/splitted_DB2_data", full.names = FALSE) |>  purrr::walk(function(dir){
-  basilisk::basiliskRun(fun = function(sce) {
-    dir(input_directory, full.names = TRUE) |>
-      purrr::map_chr(function(seurat_file){
-        cli::cli_alert_info("Processing {seurat_file}.")
-        prefix <- basename(seurat_file)
-        out_path <- glue::glue("{prefix}.h5ad") |>
-          file.path(output_directory, name=_)
-        
-        if (file.exists(out_path)) {
-          cli::cli_alert_info("{out_path} already exists. Skipping")
-        }
-        else {
-          sce <- 
-            LoadH5Seurat(seurat_file, assays = assays) |> 
-            Seurat::as.SingleCellExperiment()
-          
-          single_column <- length(colnames(sce)) == 1
-          if (single_column){
-            # Hack, so that single-column SCEs will convert 
-            # correctly
-            cli::cli_alert_info(
-              "{seurat_file} has only 1 column. Duplicating column."
-            )
-            sce <- cbind(sce, sce)
-            single_column <- TRUE
-          }
-          ad <- zellkonverter::SCE2AnnData(sce)
-          if (single_column){
-            # Remove the duplicate column
-            sce$X <- sce$X[1]
-          }
-          # TODO: customize chunking here, when anndata supports it
-          # (see https://github.com/scverse/anndata/issues/961)
-          ad$write_h5ad(out_path)
-        }
-        out_path
-      }, .progress = "Converting files")
-  }, env = zellkonverter::zellkonverterAnnDataEnv())
-}
+# Converts a series of H5-serialized Seurat to AnnData
+# @param input_directory A character scalar. The path to a directory containing one or more
+#  directories created by [SeuratDisk::SaveH5Seurat()].
+# @param output_directory A character scalar. The path to a directory in which to save the
+# created anndata files.
+# @keywords internal
+# @return A character vector of the newly-created anndata files
+# @noRd
+# @examples
+# \donttest{
+# h5seurat_to_anndata(
+#     "/vast/projects/cellxgene_curated/splitted_DB2_data_0.2.1",
+#     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_0.2.1"
+# )
+# h5seurat_to_anndata(
+#     "/vast/projects/cellxgene_curated/splitted_DB2_data_scaled_0.2.1",
+#     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_scaled_0.2.1"
+# )
+# }
+# h5seurat_to_anndata <- function(input_directory, output_directory, assays = "RNA"){
+#   
+#   # Check if package is loaded
+#   if(!"SeuratDisk" %in% (.packages()))
+#     stop("CuratedCellAtlas says: please manually load the SeuratDisk package first. Execute `library(SeuratDisk)`")
+#     
+#     
+#   dir.create(output_directory, showWarnings = FALSE)
+#   # This is a quick utility script to convert the SCE files into AnnData format for use in Pythonlist.files("/vast/projects/RCP/human_cell_atlas/splitted_DB2_data", full.names = FALSE) |>  purrr::walk(function(dir){
+#   basilisk::basiliskRun(fun = function(sce) {
+#     dir(input_directory, full.names = TRUE) |>
+#       purrr::map_chr(function(seurat_file){
+#         cli::cli_alert_info("Processing {seurat_file}.")
+#         prefix <- basename(seurat_file)
+#         out_path <- glue::glue("{prefix}.h5ad") |>
+#           file.path(output_directory, name=_)
+#         
+#         if (file.exists(out_path)) {
+#           cli::cli_alert_info("{out_path} already exists. Skipping")
+#         }
+#         else {
+#           sce <- SeuratDisk::LoadH5Seurat(seurat_file, assays = assays) |> 
+#             Seurat::as.SingleCellExperiment()
+#           
+#           single_column <- length(colnames(sce)) == 1
+#           if (single_column){
+#             # Hack, so that single-column SCEs will convert 
+#             # correctly
+#             cli::cli_alert_info(
+#               "{seurat_file} has only 1 column. Duplicating column."
+#             )
+#             sce <- cbind(sce, sce)
+#             single_column <- TRUE
+#           }
+#           ad <- zellkonverter::SCE2AnnData(sce)
+#           if (single_column){
+#             # Remove the duplicate column
+#             sce$X <- sce$X[1]
+#           }
+#           # TODO: customize chunking here, when anndata supports it
+#           # (see https://github.com/scverse/anndata/issues/961)
+#           ad$write_h5ad(out_path)
+#         }
+#         out_path
+#       }, .progress = "Converting files")
+#   }, env = zellkonverter::zellkonverterAnnDataEnv())
+# }
 
 #' Makes a "downsampled" metadata file that only contains the minimal data
 #' needed to run the vignette.
