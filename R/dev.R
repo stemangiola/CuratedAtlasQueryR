@@ -15,7 +15,6 @@
 #'   character scalar
 #' @return `NULL`, invisibly
 #' @keywords internal
-#' @noRd
 upload_swift <- function(
     source,
     container,
@@ -91,7 +90,6 @@ upload_swift <- function(
 #' }
 #' @keywords internal
 #' @inherit upload_swift return
-#' @noRd
 update_database <- function(metadata, version, ...){
     # These are optional dev packages
     rlang::check_installed(c("arrow", "glue", "basilisk"))
@@ -137,7 +135,6 @@ update_unharmonised <- function(unharmonised_parquet_dir, ...){
 #'  created anndata files.
 #' @keywords internal
 #' @return A character vector of the newly-created anndata files
-#' @noRd
 #' @examples
 #' \donttest{
 #' hdf5_to_anndata(
@@ -261,7 +258,6 @@ hdf5_to_anndata = function(input_directory, output_directory){
 #' @param output Character scalar. Path to the output file.
 #' @return NULL
 #' @keywords internal
-#' @noRd
 downsample_metadata <- function(output = "sample_meta.parquet"){
     metadata <- get_metadata()
     
