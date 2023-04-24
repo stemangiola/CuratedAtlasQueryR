@@ -145,7 +145,7 @@ update_unharmonised <- function(unharmonised_parquet_dir, ...){
 #'     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_scaled_0.2.1"
 #' )
 #' }
-hdf5_to_anndata = function(input_directory, output_directory){
+hdf5_to_anndata <- function(input_directory, output_directory){
     dir.create(output_directory, showWarnings = FALSE)
     # This is a quick utility script to convert the SCE files into AnnData format for use in Pythonlist.files("/vast/projects/RCP/human_cell_atlas/splitted_DB2_data", full.names = FALSE) |>  purrr::walk(function(dir){
     basilisk::basiliskRun(fun = function(sce) {
@@ -204,7 +204,7 @@ hdf5_to_anndata = function(input_directory, output_directory){
 #     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_scaled_0.2.1"
 # )
 # }
-# h5seurat_to_anndata = function(input_directory, output_directory, assays = "RNA"){
+# h5seurat_to_anndata <- function(input_directory, output_directory, assays = "RNA"){
 #   
 #   # Check if package is loaded
 #   if(!"SeuratDisk" %in% (.packages()))
