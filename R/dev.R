@@ -110,7 +110,6 @@ update_database <- function(metadata, version, ...){
 #' @inherit upload_swift return
 #' @keywords internal
 #' @examples
-#' @noRd
 #' \dontrun{
 #' update_unharmonised(
 #'     "/vast/projects/cellxgene_curated/metadata_non_harmonised_parquet_0.2", 
@@ -186,25 +185,25 @@ hdf5_to_anndata = function(input_directory, output_directory){
     }, env = zellkonverter::zellkonverterAnnDataEnv())
 }
 
-#' Converts a series of H5-serialized Seurat to AnnData
-#' @param input_directory A character scalar. The path to a directory containing one or more
-#'  directories created by [SeuratDisk::SaveH5Seurat()].
-#' @param output_directory A character scalar. The path to a directory in which to save the
-#'  created anndata files.
-#' @keywords internal
-#' @return A character vector of the newly-created anndata files
-#' @noRd
-#' @examples
-#' \donttest{
-#' h5seurat_to_anndata(
-#'     "/vast/projects/cellxgene_curated/splitted_DB2_data_0.2.1",
-#'     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_0.2.1"
-#' )
-#' h5seurat_to_anndata(
-#'     "/vast/projects/cellxgene_curated/splitted_DB2_data_scaled_0.2.1",
-#'     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_scaled_0.2.1"
-#' )
-#' }
+# Converts a series of H5-serialized Seurat to AnnData
+# @param input_directory A character scalar. The path to a directory containing one or more
+#  directories created by [SeuratDisk::SaveH5Seurat()].
+# @param output_directory A character scalar. The path to a directory in which to save the
+# created anndata files.
+# @keywords internal
+# @return A character vector of the newly-created anndata files
+# @noRd
+# @examples
+# \donttest{
+# h5seurat_to_anndata(
+#     "/vast/projects/cellxgene_curated/splitted_DB2_data_0.2.1",
+#     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_0.2.1"
+# )
+# h5seurat_to_anndata(
+#     "/vast/projects/cellxgene_curated/splitted_DB2_data_scaled_0.2.1",
+#     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_scaled_0.2.1"
+# )
+# }
 # h5seurat_to_anndata = function(input_directory, output_directory, assays = "RNA"){
 #   
 #   # Check if package is loaded
