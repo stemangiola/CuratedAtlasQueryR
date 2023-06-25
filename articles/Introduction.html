@@ -134,7 +134,7 @@ functionality.</p>
 <span><span class="va">metadata</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_metadata.html">get_metadata</a></span><span class="op">(</span>remote_url <span class="op">=</span> <span class="va">METADATA_URL</span><span class="op">)</span></span>
 <span><span class="va">metadata</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Source:   table&lt;/github/home/.cache/R/CuratedAtlasQueryR/metadata.0.2.3.parquet&gt; [?? x 56]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1036-azure:R 4.2.3/:memory:]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1040-azure:R 4.2.3/:memory:]</span></span></span>
 <span><span class="co">#&gt;    cell_               sample_   cell_type cell_type_harmonised confidence_class</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> TTATGCTAGGGTGTTG_12 039c558c… mature N… immune_unclassified                 5</span></span>
@@ -164,7 +164,7 @@ subsequent queries.</p>
 <code class="sourceCode R"><span><span class="va">metadata</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">tissue</span>, <span class="va">file_id</span><span class="op">)</span> </span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Source:   SQL [?? x 2]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1036-azure:R 4.2.3/:memory:]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1040-azure:R 4.2.3/:memory:]</span></span></span>
 <span><span class="co">#&gt;    tissue                      file_id                             </span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                               </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> transition zone of prostate d0a2b5d0-ded0-4ed0-af22-a6dde2799513</span></span>
@@ -461,7 +461,7 @@ a nested data frame.</p>
 <code class="sourceCode R"><span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">unharmonised</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [[1]]</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Source:   SQL [?? x 17]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1036-azure:R 4.2.3/:memory:]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1040-azure:R 4.2.3/:memory:]</span></span></span>
 <span><span class="co">#&gt;    cell_        file_id donor_age donor_uuid library_uuid mapped_reference_ann…¹</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 4602STDY701… 63523a… 27 months a8536b6a-… 5ddaeac7-0f… GENCODE 24            </span></span>
@@ -483,7 +483,7 @@ a nested data frame.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; [[2]]</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># Source:   SQL [?? x 12]</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1036-azure:R 4.2.3/:memory:]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># Database: DuckDB 0.7.1 [unknown@Linux 5.15.0-1040-azure:R 4.2.3/:memory:]</span></span></span>
 <span><span class="co">#&gt;    cell_ file_id      orig.ident nCount_RNA nFeature_RNA seurat_clusters Project</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1069  8fee7b82-17… 4602STDY7…      <span style="text-decoration: underline;">16</span>082 3997         25              Experi…</span></span>
