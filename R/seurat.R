@@ -4,7 +4,7 @@
 #' @importFrom methods as
 #' @importFrom SeuratObject as.sparse
 #' @exportS3Method
-as.sparse.DelayedMatrix <- function(x) {
+as.sparse.DelayedMatrix <- function(x, ...) {
     # This is glue to ensure the SCE -> Seurat conversion works properly with
     # DelayedArray types
     as(x, "dgCMatrix")
