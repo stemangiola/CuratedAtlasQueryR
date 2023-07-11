@@ -4,12 +4,14 @@
 NULL
 
 #' Environment that we use to cache the DuckDB connections
+#' @noRd
 cache <- rlang::env(
     metadata_table = rlang::env()
 )
 
 #' URL pointing to the full metadata file
 #' @export
+#' @return A character scalar consisting of the URL
 #' @examples
 #' get_metadata(remote_url = DATABASE_URL)
 DATABASE_URL <- single_line_str(
@@ -20,6 +22,7 @@ DATABASE_URL <- single_line_str(
 #' URL pointing to the sample metadata file, which is smaller and for test,
 #' demonstration, and vignette purposes only
 #' @export
+#' @return A character scalar consisting of the URL
 #' @examples
 #' get_metadata(remote_url = SAMPLE_DATABASE_URL)
 SAMPLE_DATABASE_URL <- single_line_str(

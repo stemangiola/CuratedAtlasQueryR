@@ -254,6 +254,7 @@ hdf5_to_anndata <- function(input_directory, output_directory){
 
 #' Makes a "downsampled" metadata file that only contains the minimal data
 #' needed to run the vignette.
+#' @noRd
 #' @param output Character scalar. Path to the output file.
 #' @return NULL
 #' @keywords internal

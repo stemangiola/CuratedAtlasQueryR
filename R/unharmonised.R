@@ -4,6 +4,7 @@
 NULL
 
 #' Base URL for all the unharmonised data
+#' @noRd
 UNHARMONISED_URL <- single_line_str(
     "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/unharmonised_metadata"

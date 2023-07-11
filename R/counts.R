@@ -20,6 +20,7 @@ COUNTS_URL <- single_line_str(
 )
 #' Current version of the counts. This will be incremented when a newer
 #' version is released
+#' @noRd
 COUNTS_VERSION <- "0.2.1"
 
 #' @inherit get_single_cell_experiment

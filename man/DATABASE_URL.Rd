@@ -10,6 +10,9 @@ An object of class \code{character} of length 1.
 \usage{
 DATABASE_URL
 }
+\value{
+A character scalar consisting of the URL
+}
 \description{
 URL pointing to the full metadata file
 }
