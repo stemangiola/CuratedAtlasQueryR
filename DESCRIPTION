@@ -93,7 +93,8 @@ Imports:
     utils,
     dbplyr (>= 2.3.0),
     duckdb,
-    stringr
+    stringr,
+    Matrix (>= 1.5.3)
 Suggests:
     zellkonverter,
     rmarkdown,
