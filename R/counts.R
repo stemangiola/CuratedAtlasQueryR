@@ -14,6 +14,7 @@ assay_map <- c(
 )
 
 #' Base URL pointing to the count data at the current version
+#' @noRd
 COUNTS_URL <- single_line_str(
     "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/cellxgene-0.2.1-hdf5"
