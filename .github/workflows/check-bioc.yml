@@ -185,8 +185,7 @@ jobs:
       - name: Fix Matrix on MacOS
         if: matrix.config.os == 'macOS-latest'
         run: |
-            print(packageVersion("Matrix"))
-            install.packages("Matrix")
+            install.packages(c("Seurat", "SeuratObject"), type="source")
         shell: Rscript {0}
 
       - name: Install BiocGenerics
