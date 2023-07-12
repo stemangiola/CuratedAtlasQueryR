@@ -181,6 +181,13 @@ jobs:
           remotes::install_cran("rcmdcheck")
           BiocManager::install("BiocCheck")
         shell: Rscript {0}
+        
+      - name: Fix Matrix on MacOS
+        if: matrix.config.os == 'macOS-latest'
+        run: |
+            print(packageVersion("Matrix"))
+            install.packages("Matrix")
+        shell: Rscript {0}
 
       - name: Install BiocGenerics
         if:  env.has_RUnit == 'true'

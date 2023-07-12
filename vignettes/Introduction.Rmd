@@ -14,7 +14,7 @@ knit: >
             x,
             output_format = "html_document",
             params = list(
-                demo_metadata = FALSE
+                demo_metadata = TRUE
             )
         )
         rmarkdown::render(
@@ -189,7 +189,7 @@ The returned `SingleCellExperiment` can be saved with two modalities, as `.rds` 
 
 ### Saving as RDS (fast saving, slow reading)
 
-Saving as `.rds` has the advantage of being fast, and the `.rds` file occupies very little disk space as it only stores the links to the files in your cache.
+Saving as `.rds` has the advantage of being fast, andd the `.rds` file occupies very little disk space as it only stores the links to the files in your cache.
 
 However it has the disadvantage that for big `SingleCellExperiment` objects, which merge a lot of HDF5 from your `get_single_cell_experiment`, the display and manipulation is going to be slow.
 In addition, an `.rds` saved in this way is not portable: you will not be able
@@ -215,7 +215,7 @@ single_cell_counts |> HDF5Array::saveHDF5SummarizedExperiment("single_cell_count
 
 We can gather all CD14 monocytes cells and plot the distribution of HLA-A across all tissues
 
-```{r, echo=TRUE}
+```{r, results='hide'}
 suppressPackageStartupMessages({
     library(ggplot2)
 })
@@ -253,13 +253,11 @@ counts |>
   ggtitle("HLA-A in CD14 monocytes by disease") 
 ```
 
-With the full metadata file, this looks like:
-
-```{r echo=FALSE, out.width="100%"}
+```{r echo=FALSE}
 find_figure("HLA_A_disease_plot.png") |> knitr::include_graphics()
 ```
 
-```{r}
+```{r, results='hide'}
 # Plot by tissue
 counts |> 
   dplyr::with_groups(tissue_harmonised, ~ .x |> dplyr::mutate(median_count = median(`HLA.A`, rm.na=TRUE))) |> 
@@ -277,10 +275,7 @@ counts |>
   ggtitle("HLA-A in CD14 monocytes by tissue") + 
   theme(legend.position = "none")
 ```
-
-With the full metadata file, this looks like:
-
-```{r echo=FALSE, out.width="100%"}
+```{r echo=FALSE}
 find_figure("HLA_A_tissue_plot.png") |> knitr::include_graphics()
 ```
 
