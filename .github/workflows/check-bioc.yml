@@ -182,7 +182,10 @@ jobs:
           BiocManager::install("BiocCheck")
         shell: Rscript {0}
         
-      - name: Fix Matrix on MacOS
+      # This is a hack to fix this bug: https://stackoverflow.com/q/73700130/2148718
+      # Basically the Seurat and SeuratObject binary packages are compiled against an
+      # older version of Matrix, which causes an error we can fix by re-compiling from source
+      - name: Fix Matrix on MacOS.
         if: matrix.config.os == 'macOS-latest'
         run: |
             install.packages(c("Seurat", "SeuratObject"), type="source")
