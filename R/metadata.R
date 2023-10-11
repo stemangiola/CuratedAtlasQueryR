@@ -154,12 +154,12 @@ get_metadata <- function(
     else {
         db_path <- file.path(cache_directory, "metadata.0.2.3.parquet")
         
-            report_file_sizes(remote_url)
-            sync_remote_file(
-                remote_url,
-                db_path,
-                progress(type = "down", con = stderr())
-            )
+          report_file_sizes(remote_url)
+          sync_remote_file(
+              remote_url,
+              db_path,
+              progress(type = "down", con = stderr())
+          )
 
         table <- duckdb() |>
             dbConnect(drv = _, read_only = TRUE) |>
