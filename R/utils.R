@@ -61,7 +61,11 @@ get_default_cache_dir <- function() {
 #' @return `NULL`, invisibly
 #' @keywords internal
 sync_remote_file <- function(full_url, output_file, ...) {
-    if (!file.exists(output_file)) {
+    user_over <- NA
+    if (file.exists(output_file)) {
+      user_over <- tolower(readline(prompt = "Cached file already exists. Overwrite? (Y/N):"))
+    }
+    if (!file.exists(output_file) | user_over == "y") {
         output_dir <- dirname(output_file)
         dir.create(output_dir,
                    recursive = TRUE,
@@ -70,7 +74,7 @@ sync_remote_file <- function(full_url, output_file, ...) {
         cli_alert_info("Downloading {full_url} to {output_file}")
         
         tryCatch(
-            GET(full_url, write_disk(output_file), ...) |> stop_for_status(),
+            GET(full_url, write_disk(output_file, overwrite = TRUE), ...) |> stop_for_status(),
             error = function(e) {
                 # Clean up if we had an error
                 file.remove(output_file)
