@@ -70,7 +70,7 @@ sync_remote_file <- function(full_url, output_file, ...) {
         user_over <- 1
       }
     }
-    if (!file.exists(output_file) | user_over == 1) {
+    if (!file.exists(output_file) || user_over == 1) {
         output_dir <- dirname(output_file)
         dir.create(output_dir,
                    recursive = TRUE,
