@@ -58,10 +58,19 @@ get_default_cache_dir <- function() {
 #' Synchronises a single remote file with a local path
 #' @importFrom httr write_disk GET stop_for_status
 #' @importFrom cli cli_abort cli_alert_info
+#' @importFrom rlang is_interactive
 #' @return `NULL`, invisibly
 #' @keywords internal
 sync_remote_file <- function(full_url, output_file, ...) {
-    if (!file.exists(output_file)) {
+    user_over <- NA
+    if (file.exists(output_file)) {
+      if (is_interactive()) {
+        user_over <- menu(c("Yes", "No"), title = "Cached file alread exists. Overwrite?") 
+      } else {
+        user_over <- 1
+      }
+    }
+    if (!file.exists(output_file) || user_over == 1) {
         output_dir <- dirname(output_file)
         dir.create(output_dir,
                    recursive = TRUE,
@@ -70,7 +79,7 @@ sync_remote_file <- function(full_url, output_file, ...) {
         cli_alert_info("Downloading {full_url} to {output_file}")
         
         tryCatch(
-            GET(full_url, write_disk(output_file), ...) |> stop_for_status(),
+            GET(full_url, write_disk(output_file, overwrite = TRUE), ...) |> stop_for_status(),
             error = function(e) {
                 # Clean up if we had an error
                 file.remove(output_file)
