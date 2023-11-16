@@ -64,9 +64,11 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #'
 #' @importFrom DBI dbConnect
 #' @importFrom duckdb duckdb
+#' @importFrom dbplyr sql
 #' @importFrom dplyr tbl
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info hash_sha256
+#' @importFrom glue glue
 #'
 #' @details
 #'
@@ -162,10 +164,13 @@ get_metadata <- function(
                 progress(type = "down", con = stderr())
             )
         }
-
+        
+        # Since dbplyr 2.4.0, raw file paths aren't handled very well
+        # See: https://github.com/duckdb/duckdb-r/issues/38
+        select <- glue("FROM read_parquet('{db_path}')") |> sql()
         table <- duckdb() |>
             dbConnect(drv = _, read_only = TRUE) |>
-            tbl(db_path)
+            tbl(select)
         cache$metadata_table[[hash]] <- table
         table
     }
