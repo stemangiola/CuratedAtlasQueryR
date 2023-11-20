@@ -64,7 +64,8 @@ get_unharmonised_dataset <- function(
             local_path,
             progress(type = "down", con = stderr())
         )
-    tbl(conn, local_path) |>
+    
+    read_parquet(conn, local_path) |>
         filter(.data$cell_ %in% cells)
 }
 

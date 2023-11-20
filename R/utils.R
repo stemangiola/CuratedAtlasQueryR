@@ -80,3 +80,20 @@ sync_remote_file <- function(full_url, output_file, ...) {
     }
     invisible(NULL)
 }
+
+#' Returns a tibble from a parquet file path
+#' 
+#' Since dbplyr 2.4.0, raw file paths aren't handled very well
+#' See: https://github.com/duckdb/duckdb-r/issues/38
+#' Hence the need for this method
+#' @importFrom glue glue
+#' @importFrom dplyr tbl
+#' @importFrom dbplyr sql
+#' @return An SQL data frame
+#' @keywords internal
+read_parquet <- function(conn, path){
+    from_clause <- glue("FROM read_parquet('{path}')") |> sql()
+    tbl(conn, from_clause)
+}
+
+
