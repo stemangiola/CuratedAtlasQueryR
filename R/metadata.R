@@ -67,6 +67,7 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' @importFrom dplyr tbl
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info hash_sha256
+#' @importFrom glue glue
 #'
 #' @details
 #'
@@ -162,10 +163,10 @@ get_metadata <- function(
                 progress(type = "down", con = stderr())
             )
         }
-
+        
         table <- duckdb() |>
             dbConnect(drv = _, read_only = TRUE) |>
-            tbl(db_path)
+            read_parquet(db_path)
         cache$metadata_table[[hash]] <- table
         table
     }
