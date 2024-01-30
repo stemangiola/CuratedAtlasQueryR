@@ -71,8 +71,8 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #'
 #' @details
 #'
-#' The metadata was collected from the Bioconductor package `cellxgenedp`. it's
-#' vignette `using_cellxgenedp` provides an overview of the columns in the
+#' The metadata was collected from the Bioconductor package `cellxgenedp`.
+#' [`vignette("using_cellxgenedp", package="cellxgenedp")`] provides an overview of the columns in the
 #' metadata. The data for which the column `organism_name` included "Homo
 #' sapiens" was collected collected from `cellxgenedp`.
 #'
@@ -82,7 +82,7 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' Our representation, harmonises the metadata at dataset, sample and cell
 #' levels, in a unique coherent database table.
 #'
-#' Dataset-specific columns (definitions available at cellxgene.cziscience.com)
+#' Dataset-specific columns (definitions available at cellxgene.cziscience.com):
 #' `cell_count`, `collection_id`, `created_at.x`, `created_at.y`,
 #' `dataset_deployments`, `dataset_id`, `file_id`, `filename`, `filetype`,
 #' `is_primary_data.y`, `is_valid`, `linked_genesets`, `mean_genes_per_cell`,
@@ -90,8 +90,7 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' `schema_version`, `tombstone`, `updated_at.x`, `updated_at.y`,
 #' `user_submitted`, `x_normalization`
 #'
-#' Sample-specific columns (definitions available at cellxgene.cziscience.com)
-#'
+#' Sample-specific columns (definitions available at cellxgene.cziscience.com):
 #' `sample_`, `.sample_name`, `age_days`, `assay`, `assay_ontology_term_id`,
 #' `development_stage`, `development_stage_ontology_term_id`, `ethnicity`,
 #' `ethnicity_ontology_term_id`, `experiment___`, `organism`,
@@ -100,14 +99,13 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' `tissue_ontology_term_id`, `disease`, `disease_ontology_term_id`,
 #' `is_primary_data.x`
 #'
-#' Cell-specific columns (definitions available at cellxgene.cziscience.com)
-#'
+#' Cell-specific columns (definitions available at cellxgene.cziscience.com):
 #' `cell_`, `cell_type`, `cell_type_ontology_term_idm`, `cell_type_harmonised`,
 #' `confidence_class`, `cell_annotation_azimuth_l2`,
 #' `cell_annotation_blueprint_singler`
 #'
-#' Through harmonisation and curation we introduced custom column, not present
-#' in the original CELLxGENE metadata
+#' Through harmonisation and curation we introduced custom columns not present
+#' in the original CELLxGENE metadata:
 #'
 #' - `tissue_harmonised`: a coarser tissue name for better filtering
 #' - `age_days`: the number of days corresponding to the age
@@ -127,20 +125,21 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' - `sample_`: Sample ID
 #' - `.sample_name`: How samples were defined
 #'
-#'
 #' **Possible cache path issues**
 #'
 #' If your default R cache path includes non-standard characters (e.g. dash
-#' because of your user or organisation name), the following error can manifest
+#' because of your user or organisation name), the following error can occur.
 #'
+#' ```
 #' Error in `db_query_fields.DBIConnection()`: ! Can't query fields. Caused by
 #' error: ! Parser Error: syntax error at or near "/" LINE 2: FROM
 #' /Users/bob/Library/Caches...
+#' ```
 #'
 #' The solution is to choose a different cache, for example
-#'
+#' ```R
 #' get_metadata(cache_directory = path.expand('~'))
-#' 
+#' ```
 get_metadata <- function(
     remote_url = DATABASE_URL,
     cache_directory = get_default_cache_dir(),
