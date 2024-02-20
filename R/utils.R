@@ -70,7 +70,7 @@ sync_remote_file <- function(full_url, output_file, ...) {
         cli_alert_info("Downloading {full_url} to {output_file}")
         
         tryCatch(
-            GET(url, write_disk(output_file), ...) |> stop_for_status(),
+            GET(full_url, write_disk(output_file), ...) |> stop_for_status(),
             error = function(e) {
                 # Clean up if we had an error
                 file.remove(output_file)
@@ -93,7 +93,7 @@ sync_remote_file <- function(full_url, output_file, ...) {
 #' @keywords internal
 read_parquet <- function(conn, path){
     path_list <- paste0("'", path, "'") |> paste(collapse = ", ")
-    from_clause <- glue("FROM read_parquet([{path_list}])")  |> sql()
+    from_clause <- glue("FROM read_parquet([{path_list}], union_by_name = true)")  |> sql()
     tbl(conn, from_clause)
 }
 
