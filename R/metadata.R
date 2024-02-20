@@ -14,11 +14,16 @@ cache <- rlang::env(
 #' @return A character scalar consisting of the URL
 #' @examples
 #' get_metadata(remote_url = DATABASE_URL)
-DATABASE_URL <- single_line_str(
-    "https://object-store.rc.nectar.org.au/v1/
-    AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/metadata.0.2.3.parquet"
-)
 
+
+DATABASE_URL <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")) {
+    glue::glue(
+      "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/{databases}"
+    ) |>
+    setNames(databases)
+}
+
+ 
 #' URL pointing to the sample metadata file, which is smaller and for test,
 #' demonstration, and vignette purposes only
 #' @export
@@ -142,7 +147,7 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' get_metadata(cache_directory = path.expand('~'))
 #' 
 get_metadata <- function(
-    remote_url = DATABASE_URL,
+    remote_url = DATABASE_URL(),
     cache_directory = get_default_cache_dir(),
     use_cache = TRUE
 ) {
@@ -153,7 +158,7 @@ get_metadata <- function(
         cached_connection
     }
     else {
-        db_path <- file.path(cache_directory, "metadata.0.2.3.parquet")
+        db_path <- file.path(cache_directory, remote_url |> names())
         
         if (!file.exists(db_path)){
             report_file_sizes(remote_url)
@@ -171,3 +176,4 @@ get_metadata <- function(
         table
     }
 }
+

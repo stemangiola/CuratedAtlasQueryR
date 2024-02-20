@@ -190,3 +190,15 @@ test_that("get_metadata() is cached", {
     
     identical(table, table_2) |> expect_true()
 })
+
+test_that("database_url() expect character ", {
+  DATABASE_URL() |>
+    expect_s3_class("character")
+})
+
+test_that("get_metadata() returns fibrosis data when specify", {
+  fibro_url = DATABASE_URL("fibrosis.0.2.3.parquet")
+  fibro = get_metadata(remote_url = fibro_url) |> 
+    filter(str_like(sample_, "%GSE122960%")) |> as_tibble()
+  expect_true(nrow(fibro) >= 1)
+}) 
