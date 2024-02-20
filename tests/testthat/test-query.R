@@ -202,3 +202,15 @@ test_that("get_metadata() returns fibrosis data when specify", {
     filter(str_like(sample_, "%GSE122960%")) |> as_tibble()
   expect_true(nrow(fibro) >= 1)
 }) 
+
+test_that("get_metadata() returns cellxgene and fibrosis data together", {
+  databases = c("fibrosis.0.2.3.parquet", "metadata.0.2.3.parquet")
+  metadata = get_metadata(remote_url = DATABASE_URL(databases)) |>
+    filter(str_like(sample_, "%GSE122960%") | str_like(sample_, "bd54ab01e2d9cafabe482e9a1a599780")) |>
+    as_tibble()
+  expect_true(nrow(metadata) >2)
+})
+  
+  
+
+

@@ -146,6 +146,8 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #'
 #' get_metadata(cache_directory = path.expand('~'))
 #' 
+
+
 get_metadata <- function(
     remote_url = DATABASE_URL(),
     cache_directory = get_default_cache_dir(),
@@ -158,16 +160,17 @@ get_metadata <- function(
         cached_connection
     }
     else {
-        db_path <- file.path(cache_directory, remote_url |> names())
-        
-        if (!file.exists(db_path)){
-            report_file_sizes(remote_url)
+        db_path <- file.path(cache_directory, remote_url |> names()) 
+        purrr::map2(remote_url, db_path, function(url, db_path) {
+          if (!file.exists(db_path)) {
+            report_file_sizes(url)
             sync_remote_file(
-                remote_url,
-                db_path,
-                progress(type = "down", con = stderr())
+              url,
+              db_path,
+              progress(type = "down", con = stderr())
             )
-        }
+          }
+        })
         
         table <- duckdb() |>
             dbConnect(drv = _, read_only = TRUE) |>
