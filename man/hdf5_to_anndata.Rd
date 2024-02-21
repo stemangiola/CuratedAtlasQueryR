@@ -20,7 +20,7 @@ A character vector of the newly-created anndata files
 Converts a series of HDF5Array-serialized SingleCellExperiments to AnnData
 }
 \examples{
-\donttest{
+\dontrun{
 hdf5_to_anndata(
     "/vast/projects/cellxgene_curated/splitted_DB2_data_0.2.1",
     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_0.2.1"

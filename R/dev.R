@@ -135,7 +135,7 @@ update_unharmonised <- function(unharmonised_parquet_dir, ...){
 #' @keywords internal
 #' @return A character vector of the newly-created anndata files
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' hdf5_to_anndata(
 #'     "/vast/projects/cellxgene_curated/splitted_DB2_data_0.2.1",
 #'     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_0.2.1"
@@ -194,7 +194,7 @@ hdf5_to_anndata <- function(input_directory, output_directory){
 # @return A character vector of the newly-created anndata files
 # @noRd
 # @examples
-# \donttest{
+# \dontrun{
 # h5seurat_to_anndata(
 #     "/vast/projects/cellxgene_curated/splitted_DB2_data_0.2.1",
 #     "/vast/projects/cellxgene_curated/splitted_DB2_anndata_0.2.1"
