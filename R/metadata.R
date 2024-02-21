@@ -9,14 +9,14 @@ cache <- rlang::env(
     metadata_table = rlang::env()
 )
 
-#' URL pointing to the full metadata file
+#' prints out the URLs for all metadata files 
 #' @export
 #' @return A character scalar from glue interpolation consisting of the URLs
 #' @examples
-#' get_metadata(remote_url = DATABASE_URL())
+#' get_metadata(remote_url = get_database_url("metadata.0.2.3.parquet"))
 
 
-DATABASE_URL <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")) {
+get_database_url <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")) {
     glue::glue(
       "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/{databases}"
     ) |>
@@ -43,8 +43,8 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' into [get_single_cell_experiment()] to obtain a
 #' [`SingleCellExperiment::SingleCellExperiment-class`]
 #'
-#' @param remote_url Optional character vector of length 1. An HTTP URL pointing
-#'   to the location of the parquet database.
+#' @param remote_url Optional character vector of any length. HTTP URL/URLs pointing
+#'   to the name and location of parquet database/databases.
 #' @param cache_directory Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
@@ -150,7 +150,7 @@ SAMPLE_DATABASE_URL <- single_line_str(
 
 
 get_metadata <- function(
-    remote_url = DATABASE_URL(),
+    remote_url = get_database_url(),
     cache_directory = get_default_cache_dir(),
     use_cache = TRUE
 ) {
@@ -161,7 +161,7 @@ get_metadata <- function(
         cached_connection
     }
     else {
-      db_path <- file.path(cache_directory, remote_url |> names())
+      db_path <- file.path(cache_directory, remote_url |> basename())
       walk2(remote_url, db_path, function(url, path) {
         if (!file.exists(path)) {
           report_file_sizes(url)
