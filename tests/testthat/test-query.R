@@ -192,23 +192,14 @@ test_that("get_metadata() is cached", {
 })
 
 test_that("database_url() expect character ", {
-  DATABASE_URL() |>
+  get_database_url() |>
     expect_s3_class("character")
 })
 
-test_that("get_metadata() returns fibrosis data when specify", {
-  fibro_url = DATABASE_URL("fibrosis.0.2.3.parquet")
-  fibro = get_metadata(remote_url = fibro_url) |> 
-    filter(str_like(sample_, "%GSE122960%")) |> as_tibble()
-  expect_true(nrow(fibro) >= 1)
-}) 
 
-test_that("get_metadata() returns cellxgene and fibrosis data together", {
-  databases = c("fibrosis.0.2.3.parquet", "metadata.0.2.3.parquet")
-  metadata = get_metadata(remote_url = DATABASE_URL(databases)) |>
-    filter(str_like(sample_, "%GSE122960%") | str_like(sample_, "bd54ab01e2d9cafabe482e9a1a599780")) |>
-    as_tibble()
-  expect_true(nrow(metadata) >2)
+test_that("get_metadata() expect a unique cell_type `b` is present, which comes from fibrosis database", {
+  n_cell <- get_metadata() |> filter(cell_type_harmonised == 'b') |> as_tibble() |> nrow()
+  expect_true(n_cell > 0)
 })
   
   
