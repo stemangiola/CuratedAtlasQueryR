@@ -9,9 +9,9 @@ cache <- rlang::env(
     metadata_table = rlang::env()
 )
 
-#' prints out the URLs for all metadata files 
+#' Returns the URLs for all metadata files 
 #' @export
-#' @return A character scalar from glue interpolation consisting of the URLs
+#' @return A named character vector whose names are parquet file names, and whose values are URLs
 #' @examples
 #' get_metadata(remote_url = get_database_url("metadata.0.2.3.parquet"))
 
