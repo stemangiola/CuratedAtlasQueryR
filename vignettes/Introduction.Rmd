@@ -51,7 +51,7 @@ find_figure <- function(names){
 }
 METADATA_URL = if (params$demo_metadata)
         CuratedAtlasQueryR::SAMPLE_DATABASE_URL else
-        CuratedAtlasQueryR::DATABASE_URL
+        CuratedAtlasQueryR::get_database_url
 ```
 
 <!-- badges: start -->

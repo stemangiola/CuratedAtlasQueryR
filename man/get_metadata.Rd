@@ -5,7 +5,7 @@
 \title{Gets the Curated Atlas metadata as a data frame.}
 \usage{
 get_metadata(
-  remote_url = DATABASE_URL,
+  remote_url = get_database_url(),
   cache_directory = get_default_cache_dir(),
   use_cache = TRUE
 )
