@@ -112,7 +112,7 @@ get_single_cell_experiment <- function(
         has_name(raw_data, c("cell_", "file_id_db"))
     )
 
-    versioned_cache_directory <- file.path(cache_directory, COUNTS_VERSION)
+    versioned_cache_directory <- cache_directory
     versioned_cache_directory |> dir.create(
         showWarnings = FALSE,
         recursive = TRUE

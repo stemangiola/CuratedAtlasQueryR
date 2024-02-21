@@ -41,7 +41,7 @@ single_line_str <- function(text){
     str_remove_all(text, r"(\n\s*)")
 }
 
-#' Returns the default cache directory
+#' Returns the default cache directory with a version number
 #' @return A length one character vector.
 #' @importFrom tools R_user_dir
 #' @importFrom utils packageName
@@ -51,6 +51,7 @@ get_default_cache_dir <- function() {
         R_user_dir(
             "cache"
         ) |>
+        file.path(COUNTS_VERSION) |>
         normalizePath() |>
         suppressWarnings()
 }

@@ -131,7 +131,7 @@ test_that("get_SingleCellExperiment() assigns the right cell ID to each cell", {
     
     # Load the SCE from cache directly
     assay_1 = CuratedAtlasQueryR:::get_default_cache_dir() |>
-        file.path(CuratedAtlasQueryR:::COUNTS_VERSION, "original", id) |>
+        file.path("original", id) |>
         HDF5Array::loadHDF5SummarizedExperiment() |>
         assay("X") |>
         as.matrix()

@@ -54,7 +54,6 @@ get_unharmonised_dataset <- function(
 ){
     unharmonised_root <- file.path(
       cache_directory,
-      COUNTS_VERSION,
       "unharmonised"
     )
     file_name <- glue::glue("{dataset_id}.parquet")
