@@ -11,9 +11,9 @@ cache <- rlang::env(
 
 #' URL pointing to the full metadata file
 #' @export
-#' @return A character scalar consisting of the URL
+#' @return A character scalar from glue interpolation consisting of the URLs
 #' @examples
-#' get_metadata(remote_url = DATABASE_URL)
+#' get_metadata(remote_url = DATABASE_URL())
 
 
 DATABASE_URL <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")) {
@@ -73,6 +73,7 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info hash_sha256
 #' @importFrom glue glue
+#' @importFrom purrr walk2
 #'
 #' @details
 #'
@@ -160,17 +161,15 @@ get_metadata <- function(
         cached_connection
     }
     else {
-        db_path <- file.path(cache_directory, remote_url |> names()) 
-        purrr::map2(remote_url, db_path, function(url, db_path) {
-          if (!file.exists(db_path)) {
-            report_file_sizes(url)
-            sync_remote_file(
-              url,
-              db_path,
-              progress(type = "down", con = stderr())
-            )
-          }
-        })
+      db_path <- file.path(cache_directory, remote_url |> names())
+      walk2(remote_url, db_path, function(url, path) {
+        if (!file.exists(path)) {
+          report_file_sizes(url)
+          sync_remote_file(url,
+                           path,
+                           progress(type = "down", con = stderr()))
+        }
+      })
         
         table <- duckdb() |>
             dbConnect(drv = _, read_only = TRUE) |>

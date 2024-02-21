@@ -89,11 +89,11 @@ sync_remote_file <- function(full_url, output_file, ...) {
 #' @importFrom glue glue
 #' @importFrom dplyr tbl
 #' @importFrom dbplyr sql
+#' @importFrom glue glue_sql
 #' @return An SQL data frame
 #' @keywords internal
 read_parquet <- function(conn, path){
-    path_list <- paste0("'", path, "'") |> paste(collapse = ", ")
-    from_clause <- glue("FROM read_parquet([{path_list}], union_by_name = true)")  |> sql()
+    from_clause <- glue_sql("FROM read_parquet([{`path`*}], union_by_name=true)", .con=conn) |> sql()
     tbl(conn, from_clause)
 }
 
