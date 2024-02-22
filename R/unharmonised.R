@@ -37,7 +37,7 @@ UNHARMONISED_URL <- single_line_str(
 #' @return A named list, where each name is a dataset file ID, and each value is
 #'   a "lazy data frame", ie a `tbl`.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' dataset <- "838ea006-2369-4e2c-b426-b2a744a2b02b"
 #' harmonised_meta <- get_metadata() |> 
 #'     dplyr::filter(file_id == dataset) |> dplyr::collect()
@@ -54,7 +54,6 @@ get_unharmonised_dataset <- function(
 ){
     unharmonised_root <- file.path(
       cache_directory,
-      COUNTS_VERSION,
       "unharmonised"
     )
     file_name <- glue::glue("{dataset_id}.parquet")
