@@ -19,7 +19,7 @@ test_that("get_default_cache_dir() returns the correct directory on Linux", {
     grepl("linux", version$platform, fixed = TRUE) |>
         skip_if_not()
 
-    "~/.cache/R/CuratedAtlasQueryR" |>
+    "~/.cache/R/CuratedAtlasQueryR/0.2.1" |>
         normalizePath() |>
         expect_equal(
             get_default_cache_dir(),
