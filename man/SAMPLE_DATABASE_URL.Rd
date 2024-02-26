@@ -19,6 +19,6 @@ URL pointing to the sample metadata file, which is smaller and for test,
 demonstration, and vignette purposes only
 }
 \examples{
-get_metadata(remote_url = SAMPLE_DATABASE_URL)
+get_metadata(remote_url = SAMPLE_DATABASE_URL, cache_directory = tempdir())
 }
 \keyword{datasets}

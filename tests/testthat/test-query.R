@@ -48,7 +48,7 @@ test_that("sync_assay_files() syncs appropriate files", {
 })
 
 test_that("get_SingleCellExperiment() syncs appropriate files", {
-    temp <- tempfile()
+    temp <- get_default_cache_dir()
     test_file <- "00095cb0de0dc9528316b636fc9b3446"
 
     meta <- get_metadata() |> head(2)

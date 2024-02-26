@@ -11,25 +11,20 @@ cache <- rlang::env(
 
 #' Returns the URLs for all metadata files 
 #' @export
-#' @return A named character vector whose names are parquet file names, and whose values are URLs
+#' @return A character vector of URLs to parquet files to download
 #' @examples
 #' get_metadata(remote_url = get_database_url("metadata.0.2.3.parquet"))
-
-
 get_database_url <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")) {
     glue::glue(
-      "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/{databases}"
-    ) |>
-    setNames(databases)
+      "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/{databases}")
 }
 
- 
 #' URL pointing to the sample metadata file, which is smaller and for test,
 #' demonstration, and vignette purposes only
 #' @export
 #' @return A character scalar consisting of the URL
 #' @examples
-#' get_metadata(remote_url = SAMPLE_DATABASE_URL)
+#' get_metadata(remote_url = SAMPLE_DATABASE_URL, cache_directory = tempdir())
 SAMPLE_DATABASE_URL <- single_line_str(
     "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/
@@ -73,7 +68,7 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' @importFrom httr progress
 #' @importFrom cli cli_alert_info hash_sha256
 #' @importFrom glue glue
-#' @importFrom purrr walk2
+#' @importFrom purrr walk
 #'
 #' @details
 #'
@@ -147,33 +142,37 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #'
 #' get_metadata(cache_directory = path.expand('~'))
 #' 
-
-
 get_metadata <- function(
     remote_url = get_database_url(),
     cache_directory = get_default_cache_dir(),
     use_cache = TRUE
 ) {
-    hash <- c(remote_url, cache_directory) |> paste0(collapse="") |>
+  # Synchronize remote files
+  walk(remote_url, function(url) {
+    # Calculate the file path from the URL
+    path <- file.path(cache_directory, url |> basename())
+    if (!file.exists(path)) {
+      report_file_sizes(url)
+      sync_remote_file(url,
+                       path,
+                       progress(type = "down", con = stderr()))
+    }
+  })
+    all_parquet <- file.path(cache_directory, dir(cache_directory, pattern = ".parquet$"))
+    # We try to avoid re-reading a set of parquet files 
+    # that is identical to a previous set by hashing the file list
+    hash <- all_parquet |> paste0(collapse="") |>
         hash_sha256()
     cached_connection <- cache$metadata_table[[hash]]
+    
     if (!is.null(cached_connection) && isTRUE(use_cache)) {
+      # If the file list is identical, just re-use the database table
         cached_connection
     }
     else {
-      db_path <- file.path(cache_directory, remote_url |> basename())
-      walk2(remote_url, db_path, function(url, path) {
-        if (!file.exists(path)) {
-          report_file_sizes(url)
-          sync_remote_file(url,
-                           path,
-                           progress(type = "down", con = stderr()))
-        }
-      })
-        
         table <- duckdb() |>
             dbConnect(drv = _, read_only = TRUE) |>
-            read_parquet(db_path)
+            read_parquet(path = all_parquet)
         cache$metadata_table[[hash]] <- table
         table
     }
