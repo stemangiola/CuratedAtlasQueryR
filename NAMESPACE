@@ -2,8 +2,10 @@
 
 S3method(as.sparse,DelayedMatrix)
 export(SAMPLE_DATABASE_URL)
+export(clear_cache)
 export(get_SingleCellExperiment)
 export(get_database_url)
+export(get_default_cache_dir)
 export(get_metadata)
 export(get_seurat)
 export(get_single_cell_experiment)
