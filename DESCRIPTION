@@ -1,7 +1,7 @@
 Type: Package
 Package: CuratedAtlasQueryR
 Title: Queries the Human Cell Atlas
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(
     person(
         "Stefano",
