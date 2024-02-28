@@ -11,8 +11,8 @@ get_metadata(
 )
 }
 \arguments{
-\item{remote_url}{Optional character vector of length 1. An HTTP URL pointing
-to the location of the parquet database.}
+\item{remote_url}{Optional character vector of any length. HTTP URL/URLs pointing
+to the name and location of parquet database/databases.}
 
 \item{cache_directory}{Optional character vector of length 1. A file path on
 your local system to a directory (not a file) that will be used to store
