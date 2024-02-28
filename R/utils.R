@@ -41,7 +41,7 @@ single_line_str <- function(text){
     str_remove_all(text, r"(\n\s*)")
 }
 
-#' Returns the default cache directory
+#' Returns the default cache directory with a version number
 #' @return A length one character vector.
 #' @importFrom tools R_user_dir
 #' @importFrom utils packageName
@@ -51,6 +51,7 @@ get_default_cache_dir <- function() {
         R_user_dir(
             "cache"
         ) |>
+        file.path(COUNTS_VERSION) |>
         normalizePath() |>
         suppressWarnings()
 }
@@ -89,10 +90,11 @@ sync_remote_file <- function(full_url, output_file, ...) {
 #' @importFrom glue glue
 #' @importFrom dplyr tbl
 #' @importFrom dbplyr sql
+#' @importFrom glue glue_sql
 #' @return An SQL data frame
 #' @keywords internal
 read_parquet <- function(conn, path){
-    from_clause <- glue("FROM read_parquet('{path}')") |> sql()
+    from_clause <- glue_sql("FROM read_parquet([{`path`*}], union_by_name=true)", .con=conn) |> sql()
     tbl(conn, from_clause)
 }
 

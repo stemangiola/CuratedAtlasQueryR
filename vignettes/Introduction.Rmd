@@ -50,8 +50,9 @@ find_figure <- function(names){
         file.path("man", "figures", names) 
 }
 METADATA_URL = if (params$demo_metadata)
-        CuratedAtlasQueryR::SAMPLE_DATABASE_URL else
-        CuratedAtlasQueryR::DATABASE_URL
+       CuratedAtlasQueryR::SAMPLE_DATABASE_URL else
+       CuratedAtlasQueryR::get_database_url
+
 ```
 
 <!-- badges: start -->
@@ -98,11 +99,19 @@ library(CuratedAtlasQueryR)
 
 ### Load the metadata
 
-```{r}
+```{r, eval=FALSE}
 # Note: in real applications you should use the default value of remote_url 
 metadata <- get_metadata(remote_url = METADATA_URL)
 metadata
 ```
+
+```{r, echo=FALSE}
+# Note: a custom cache is used here ONLY for R CHECK compliance purposes. Users will NOT need to specify a custom cache
+metadata <- get_metadata(remote_url = METADATA_URL, cache_directory = tempdir())
+metadata
+```
+ 
+
 
 The `metadata` variable can then be re-used for all subsequent queries.
 
