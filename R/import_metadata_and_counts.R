@@ -5,26 +5,17 @@ library(assertthat)
 library(checkmate)
 library(arrow)
 
-# import_metadata_and_counts(metadata_tbl, list_of_count_matriced)
-# 
-# 
-# will accept
-# 
-# - single_cell_expeirment object, with certain characteristics (we need to decide the checks to do)
-# 
-# - tibble of metadata, with certain characteristics (we need to decide the checks to do)
-# 
-# what will do
-
-# - the metadata has the minimum set of columns, with the right types (we could use https://github.com/mllg/checkmate)
-# 
-# - check that the cache does not include multiple version of the same metadata_file
-
-
-
 # Maps user provided assay names to their corresponding paths in the repository
 assay_map <- c(counts = "original",
                cpm = "cpm")
+
+cols <- get_metadata(remote_url = get_database_url("fibrosis.0.2.3.parquet")) |>
+  select(1:22) |> head(10) |> as_tibble()
+
+col_map <- tibble(
+  colnames = names(cols),
+  class = sapply(cols, class)
+)
 
 import_metadata_counts <- function(meta_input,
                                    cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
@@ -41,6 +32,7 @@ import_metadata_counts <- function(meta_input,
     get_single_cell_experiment()
   se <- meta_input |> 
     get_seurat()
+  
   counts_data <- assays(sce)$counts |> 
     as_tibble()
   assert_that(inherits(sce, "SingleCellExperiment"),
@@ -52,6 +44,18 @@ import_metadata_counts <- function(meta_input,
   all(meta_input |> pull(file_id_db) %in% dir(file.path(cache_dir, counts))) |> 
     assert_that(msg = "The metadata sample file ID and the count file ID does not match")
   arrow::write_parquet(meta_input, file.path(cache_dir, glue("{meta_output}.{version}.parquet")))
+  
+  # check the number of sub directories in original match cpm 
+  check_set_equal(length(list.dirs(file.path(cache_dir, counts))), length(list.dirs(file.path(cache_dir, cpm))))
+  
+  # check the metadata has the minimum set of columns names 
+  check_subset(names(cols), names(meta_input))
+  
+  # check the metadata has the correct column types
+  common_columns <- intersect(names(meta_input), names(cols))
+  meta_input_class <- sapply(meta_input[, common_columns, drop=FALSE], class)
+  col_map_class <- col_map$class
+  check_set_equal(meta_input_class, col_map_class)
   
   # if checkpoints above pass, generate cpm
   cli_alert_info("Generating cpm from {.path {cache_dir}/{counts}}. ")
@@ -71,9 +75,6 @@ import_metadata_counts <- function(meta_input,
   }
   
   cli_alert_info("cpm are generated in {.path {cache_dir}/{cpm}}. ")
-  
-  # check the number of sub directories in original match cpm 
-  check_set_equal(length(list.dirs(file.path(cache_dir, counts))), length(list.dirs(file.path(cache_dir, cpm))))
   
 }
 
