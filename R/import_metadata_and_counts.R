@@ -41,7 +41,6 @@ import_metadata_counts <- function(meta_input,
     get_single_cell_experiment()
   se <- meta_input |> 
     get_seurat()
-  
   counts_data <- assays(sce)$counts |> 
     as_tibble()
   assert_that(inherits(sce, "SingleCellExperiment"),
@@ -53,6 +52,28 @@ import_metadata_counts <- function(meta_input,
   all(meta_input |> pull(file_id_db) %in% dir(file.path(cache_dir, counts))) |> 
     assert_that(msg = "The metadata sample file ID and the count file ID does not match")
   arrow::write_parquet(meta_input, file.path(cache_dir, glue("{meta_output}.{version}.parquet")))
+  
+  # if checkpoints above pass, generate cpm
+  cli_alert_info("Generating cpm from {.path {cache_dir}/{counts}}. ")
+  check_file_exists("count_per_millions.R")
+  
+  input_dir <- file.path(cache_dir, counts)
+  output_dir <- file.path(cache_dir, cpm)
+  
+  for (subdir in list.files(input_dir, full.names = TRUE)) {
+    file_name <- basename(subdir)
+    count_path <- glue("{input_dir}/{file_name}/")
+    cpm_path <- glue("{output_dir}/{file_name}/")
+    # Iterate count_per_millions.R to generate cpm for each raw count
+    command <-
+      glue("Rscript ./count_per_millions.R {count_path} {cpm_path}" )
+    system(command)
+  }
+  
+  cli_alert_info("cpm are generated in {.path {cache_dir}/{cpm}}. ")
+  
+  # check the number of sub directories in original match cpm 
+  check_set_equal(length(list.dirs(file.path(cache_dir, counts))), length(list.dirs(file.path(cache_dir, cpm))))
   
 }
 
