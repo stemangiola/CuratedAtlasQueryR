@@ -19,14 +19,13 @@ col_map <- tibble(
 
 import_metadata_counts <- function(meta_input,
                                    cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
-                                   # it will be solved once the pull request is submitted and merged
                                    meta_output,
                                    version = "0.2.3") {
   # A few checks from here
   counts <- assay_map["counts"]
   cpm <- assay_map['cpm']
   checkTibble(meta_input)
-  check_directory_exists(cache_dir) # should we add the constraint, if exist, delete? if not, continue?
+  check_directory_exists(cache_dir)
   check_directory_exists(file.path(cache_dir, counts))
   sce <- meta_input |> 
     get_single_cell_experiment()
@@ -48,14 +47,19 @@ import_metadata_counts <- function(meta_input,
   # check the number of sub directories in original match cpm 
   check_set_equal(length(list.dirs(file.path(cache_dir, counts))), length(list.dirs(file.path(cache_dir, cpm))))
   
-  # check the metadata has the minimum set of columns names 
-  check_subset(names(cols), names(meta_input))
+  # check the metadata contains cell_, file_id_db, sample_ with correct types
+  check_true("cell_" %in% names(meta_input))
+  check_true("file_id_db" %in% names(meta_input)) 
+  check_true("sample_" %in% names(meta_input))
+  meta_input |> select(cell_, file_id_db, sample_) |> sapply(class) |> check_character()
   
-  # check the metadata has the correct column types
-  common_columns <- intersect(names(meta_input), names(cols))
-  meta_input_class <- sapply(meta_input[, common_columns, drop=FALSE], class)
-  col_map_class <- col_map$class
-  check_set_equal(meta_input_class, col_map_class)
+  # check age_days is either -99 or greater than 365
+  assert_that(any(meta_input$age_days==-99 | meta_input$age_days> 365),
+              msg = "age_days should be either -99 for unknown or greater than 365")
+  
+  # check sex capitalisation then convert to lower case 
+  meta_input <- meta_input |> mutate(sex = tolower(sex))
+  meta_input |> distinct(sex) |> pull() |> check_subset(c('female','male','unknown'))
   
   # if checkpoints above pass, generate cpm
   cli_alert_info("Generating cpm from {.path {cache_dir}/{counts}}. ")
