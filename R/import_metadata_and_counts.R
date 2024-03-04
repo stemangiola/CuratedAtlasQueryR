@@ -1,21 +1,33 @@
-library(CuratedAtlasQueryR)
-library(dplyr)
-library(SingleCellExperiment)
-library(assertthat)
-library(checkmate)
-library(arrow)
-
 # Maps user provided assay names to their corresponding paths in the repository
 assay_map <- c(counts = "original",
                cpm = "cpm")
 
-cols <- get_metadata(remote_url = get_database_url("fibrosis.0.2.3.parquet")) |>
-  select(1:22) |> head(10) |> as_tibble()
+#' Checks metadata meets importing criteria. 
+#' Returns 
+#' Calculating counts per million from raw counts
+#' Gets the Curated Atlas metadata as a data frame.
+#'
+#'
+#' @param meta_input
+#' @param cache_dir Optional character vector of length 1. A file path on
+#'   your local system to a directory (not a file) that will be used to store
+#'   `metadata.parquet`
+#' @param meta_output
+#' @return A directory stores counts per million
+#' @export
+#' @examples
+#' example_metadata <- get_metadata() |> head(3) |> as_tibble()
+#' check_new_metadata <- import_metadata_counts(meta_input = example_metadata,
+#'                                              meta_output = "example_metadata",
+#'                                              cache_dir = tempdir())
+#'
+#' @importFrom assertthat assertthat
+#' @importFrom checkmate check_tibble check_directory_exists check_set_equal check_true check_character check_subset check_file_exists
+#' @importFrom dplyr tbl
+#' @importFrom cli cli_alert_info
+#' @importFrom glue glue
+#' @importFrom arrow read_parquet
 
-col_map <- tibble(
-  colnames = names(cols),
-  class = sapply(cols, class)
-)
 
 import_metadata_counts <- function(meta_input,
                                    cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
@@ -24,7 +36,7 @@ import_metadata_counts <- function(meta_input,
   # A few checks from here
   counts <- assay_map["counts"]
   cpm <- assay_map['cpm']
-  checkTibble(meta_input)
+  check_tibble(meta_input)
   check_directory_exists(cache_dir)
   check_directory_exists(file.path(cache_dir, counts))
   sce <- meta_input |> 
@@ -42,7 +54,7 @@ import_metadata_counts <- function(meta_input,
               msg = "Counts for SingleCellExperiment cannot be negative.")
   all(meta_input |> pull(file_id_db) %in% dir(file.path(cache_dir, counts))) |> 
     assert_that(msg = "The metadata sample file ID and the count file ID does not match")
-  arrow::write_parquet(meta_input, file.path(cache_dir, glue("{meta_output}.{version}.parquet")))
+  write_parquet(meta_input, file.path(cache_dir, glue("{meta_output}.{version}.parquet")))
   
   # check the number of sub directories in original match cpm 
   check_set_equal(length(list.dirs(file.path(cache_dir, counts))), length(list.dirs(file.path(cache_dir, cpm))))
