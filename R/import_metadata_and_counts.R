@@ -2,17 +2,14 @@
 assay_map <- c(counts = "original",
                cpm = "cpm")
 
-#' Checks metadata meets importing criteria. 
-#' Returns 
+#' Checks importing criteria for new atlas 
 #' Calculating counts per million from raw counts
-#' Gets the Curated Atlas metadata as a data frame.
 #'
-#'
-#' @param meta_input
+#' @param meta_input A tibble
 #' @param cache_dir Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
-#' @param meta_output
+#' @param meta_output A parquet
 #' @return A directory stores counts per million
 #' @export
 #' @examples
@@ -21,12 +18,11 @@ assay_map <- c(counts = "original",
 #'                                              meta_output = "example_metadata",
 #'                                              cache_dir = tempdir())
 #'
-#' @importFrom assertthat assertthat
 #' @importFrom checkmate check_tibble check_directory_exists check_set_equal check_true check_character check_subset check_file_exists
 #' @importFrom dplyr tbl
 #' @importFrom cli cli_alert_info
 #' @importFrom glue glue
-#' @importFrom arrow read_parquet
+#' @importFrom arrow write_parquet
 
 
 import_metadata_counts <- function(meta_input,
@@ -86,7 +82,7 @@ import_metadata_counts <- function(meta_input,
     cpm_path <- glue("{output_dir}/{file_name}/")
     # Iterate count_per_millions.R to generate cpm for each raw count
     command <-
-      glue("Rscript ./count_per_millions.R {count_path} {cpm_path}" )
+      glue("Rscript {cache_dir}/count_per_millions.R {count_path} {cpm_path}" )
     system(command)
   }
   

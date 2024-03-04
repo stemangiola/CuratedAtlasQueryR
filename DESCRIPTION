@@ -131,6 +131,7 @@ Collate:
     'utils.R'
     'counts.R'
     'dev.R'
+    'import_metadata_and_counts.R'
     'metadata.R'
     'seurat.R'
     'unharmonised.R'
