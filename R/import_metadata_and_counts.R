@@ -44,10 +44,8 @@ import_metadata_counts <- function(meta_input,
               msg = "Gene names cannot contain Ensembl IDs.")
   assert_that(all(counts_data >= 0), 
               msg = "Counts for SingleCellExperiment cannot be negative.")
-  all_file_exist <- all(meta_input |> pull(file_id_db) %in% dir(file.path(cache_dir, "original")))
-  assert_that(all_file_exist, "The metadata sample file ID and the count file ID does not match" )
-  #all(meta_input |> pull(file_id_db) %in% dir(file.path(cache_dir, "original"))) |> 
-  #  assert_that(msg = "The metadata sample file ID and the count file ID does not match")
+  all(meta_input |> pull(file_id_db) %in% dir(file.path(cache_dir, "original"))) |> 
+    assert_that(msg = "The metadata sample file ID and the count file ID does not match")
   write_parquet(meta_input, file.path(cache_dir, glue("{meta_output}.{version}.parquet")))
   
   # check the number of sub directories in original match cpm 
