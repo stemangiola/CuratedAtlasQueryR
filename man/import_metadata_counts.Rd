@@ -2,10 +2,8 @@
 % Please edit documentation in R/import_metadata_and_counts.R
 \name{import_metadata_counts}
 \alias{import_metadata_counts}
-\title{Checks metadata meets importing criteria.
-Returns
-Calculating counts per million from raw counts
-Gets the Curated Atlas metadata as a data frame.}
+\title{Checks importing criteria for new atlas
+Calculating counts per million from raw counts}
 \usage{
 import_metadata_counts(
   meta_input,
@@ -27,15 +25,13 @@ your local system to a directory (not a file) that will be used to store
 A directory stores counts per million
 }
 \description{
-Checks metadata meets importing criteria.
-Returns
+Checks importing criteria for new atlas
 Calculating counts per million from raw counts
-Gets the Curated Atlas metadata as a data frame.
 }
 \examples{
 example_metadata <- get_metadata() |> head(3) |> as_tibble()
-check_new_metadata <- import_metadata_counts(meta_input = example_metadata,
-                                             meta_output = "example_metadata",
-                                             cache_dir = tempdir())
+import_metadata_counts(meta_input = example_metadata,
+                       meta_output = "example_metadata",
+                       cache_dir = tempdir())
 
 }

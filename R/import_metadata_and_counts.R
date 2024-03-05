@@ -1,6 +1,4 @@
-# Maps user provided assay names to their corresponding paths in the repository
-assay_map <- c(counts = "original",
-               cpm = "cpm")
+
 
 #' Checks importing criteria for new atlas 
 #' Calculating counts per million from raw counts
@@ -10,36 +8,34 @@ assay_map <- c(counts = "original",
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
 #' @param meta_output A parquet
-#' @return A directory stores counts per million
 #' @export
+#' @return A directory stores counts per million
 #' @examples
 #' example_metadata <- get_metadata() |> head(3) |> as_tibble()
-#' check_new_metadata <- import_metadata_counts(meta_input = example_metadata,
-#'                                              meta_output = "example_metadata",
-#'                                              cache_dir = tempdir())
+#' import_metadata_counts(meta_input = example_metadata,
+#'                        meta_output = "example_metadata",
+#'                        cache_dir = tempdir())
 #'
+#' @importFrom assertthat assert_that
 #' @importFrom checkmate check_tibble check_directory_exists check_set_equal check_true check_character check_subset check_file_exists
 #' @importFrom dplyr tbl
 #' @importFrom cli cli_alert_info
 #' @importFrom glue glue
 #' @importFrom arrow write_parquet
-
-
 import_metadata_counts <- function(meta_input,
                                    cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
                                    meta_output,
                                    version = "0.2.3") {
-  # A few checks from here
-  counts <- assay_map["counts"]
-  cpm <- assay_map['cpm']
+  # Convert to tibble if meta_input is not a tibble 
+  meta_input <- meta_input |> as_tibble()
   check_tibble(meta_input)
   check_directory_exists(cache_dir)
-  check_directory_exists(file.path(cache_dir, counts))
+  check_directory_exists(file.path(cache_dir, "original"))
   sce <- meta_input |> 
     get_single_cell_experiment()
   se <- meta_input |> 
     get_seurat()
-  
+
   counts_data <- assays(sce)$counts |> 
     as_tibble()
   assert_that(inherits(sce, "SingleCellExperiment"),
@@ -48,12 +44,12 @@ import_metadata_counts <- function(meta_input,
               msg = "Gene names cannot contain Ensembl IDs.")
   assert_that(all(counts_data >= 0), 
               msg = "Counts for SingleCellExperiment cannot be negative.")
-  all(meta_input |> pull(file_id_db) %in% dir(file.path(cache_dir, counts))) |> 
+  all(meta_input |> pull(file_id_db) %in% dir(file.path(cache_dir, "original"))) |> 
     assert_that(msg = "The metadata sample file ID and the count file ID does not match")
   write_parquet(meta_input, file.path(cache_dir, glue("{meta_output}.{version}.parquet")))
   
   # check the number of sub directories in original match cpm 
-  check_set_equal(length(list.dirs(file.path(cache_dir, counts))), length(list.dirs(file.path(cache_dir, cpm))))
+  check_set_equal(length(list.dirs(file.path(cache_dir, "original"))), length(list.dirs(file.path(cache_dir, "cpm"))))
   
   # check the metadata contains cell_, file_id_db, sample_ with correct types
   check_true("cell_" %in% names(meta_input))
@@ -70,11 +66,11 @@ import_metadata_counts <- function(meta_input,
   meta_input |> distinct(sex) |> pull() |> check_subset(c('female','male','unknown'))
   
   # if checkpoints above pass, generate cpm
-  cli_alert_info("Generating cpm from {.path {cache_dir}/{counts}}. ")
+  cli_alert_info("Generating cpm from {.path {cache_dir}/original}. ")
   check_file_exists("count_per_millions.R")
   
-  input_dir <- file.path(cache_dir, counts)
-  output_dir <- file.path(cache_dir, cpm)
+  input_dir <- file.path(cache_dir, "original")
+  output_dir <- file.path(cache_dir, "cpm")
   
   for (subdir in list.files(input_dir, full.names = TRUE)) {
     file_name <- basename(subdir)
@@ -86,7 +82,7 @@ import_metadata_counts <- function(meta_input,
     system(command)
   }
   
-  cli_alert_info("cpm are generated in {.path {cache_dir}/{cpm}}. ")
+  cli_alert_info("cpm are generated in {.path {cache_dir}/cpm}. ")
   
 }
 
