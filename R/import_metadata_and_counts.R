@@ -14,8 +14,9 @@
 #' @examples
 #' example_metadata <- get_metadata() |> head(3) |> as_tibble()
 #' import_metadata_counts(metadata_tbl = example_metadata,
-#'                        cache_dir = get_default_cache_dir()),
-#'                        counts_path = "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T//RtmpUjWDqt/original"
+#'                        cache_dir = get_default_cache_dir(),
+#'                        counts_path = "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T//RtmpUjWDqt/original",
+#'                        counts_to_cpm_file = "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T//RtmpUjWDqt/counts_per_million.R"
 #'
 #' @importFrom assertthat assert_that
 #' @importFrom checkmate check_tibble check_directory_exists check_set_equal check_true check_character check_subset check_file_exists
@@ -33,7 +34,8 @@ import_metadata_counts <- function(metadata_tbl,
   check_tibble(metadata_tbl)
   check_directory_exists(cache_dir)
   check_directory_exists(counts_path)
-  fs::dir_copy(counts_path, cache_dir)
+  dir_copy(counts_path, cache_dir)
+  file_copy(counts_to_cpm_file, cache_dir)
   check_directory_exists(file.path(cache_dir, "original"))
   sce <- metadata_tbl |> 
     get_single_cell_experiment()
@@ -71,7 +73,6 @@ import_metadata_counts <- function(metadata_tbl,
   
   # if checkpoints above pass, generate cpm
   cli_alert_info("Generating cpm from {.path {cache_dir}/original}. ")
-  check_file_exists("count_per_millions.R")
   
   input_dir <- file.path(cache_dir, "original")
   output_dir <- file.path(cache_dir, "cpm")
@@ -80,10 +81,9 @@ import_metadata_counts <- function(metadata_tbl,
     file_name <- basename(subdir)
     count_path <- glue("{input_dir}/{file_name}/")
     cpm_path <- glue("{output_dir}/{file_name}/")
-    # Iterate count_per_millions.R to generate cpm for each raw count
-    command <-
-      glue("Rscript {cache_dir}/count_per_millions.R {count_path} {cpm_path}" )
-    system(command)
+    # Iterate get_counts_per_million function to generate cpm for each raw count
+    get_counts_per_million(input_file = count_path,
+                           output_file = cpm_path)
   }
   
   cli_alert_info("cpm are generated in {.path {cache_dir}/cpm}. ")

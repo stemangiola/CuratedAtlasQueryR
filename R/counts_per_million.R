@@ -14,6 +14,8 @@
 #' @importFrom glue glue
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment saveHDF5SummarizedExperiment
 #' @importFrom scuttle calculateCPM
+#' @importFrom DelayedArray realize
+#' @importFrom purrr map
 
 get_counts_per_million <- function(input_file, output_file) {
   
@@ -24,10 +26,10 @@ get_counts_per_million <- function(input_file, output_file) {
   data = loadHDF5SummarizedExperiment(input_file)
   
   # Avoid completely empty cells
-  col_sums = colSums(as.matrix(data@assays@data$X))
+  col_sums = colSums(data@assays@data$X)
   which_to_select = which(col_sums >0 & col_sums < Inf)
   
-  sce = SingleCellExperiment(list(counts_per_million = calculateCPM(data[,which_to_select ,drop=FALSE ], assay.type = "X")))
+  sce = SingleCellExperiment(list(counts_per_million = scuttle::calculateCPM(data[,which_to_select ,drop=FALSE ], assay.type = "X")))
   rownames(sce) = rownames(data[,which_to_select  ])
   colnames(sce) = colnames(data[,which_to_select  ])
   
@@ -43,6 +45,9 @@ get_counts_per_million <- function(input_file, output_file) {
 
   rm(data)
   gc()
+  
+  # Check if there is a memory issue 
+  assays(sce) <- assays(sce) |> map(realize)
   
   sce |>	saveHDF5SummarizedExperiment(output_file, replace=TRUE)
 } 
