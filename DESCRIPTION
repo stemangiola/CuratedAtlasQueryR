@@ -130,6 +130,7 @@ Roxygen: list(markdown = TRUE)
 Collate: 
     'utils.R'
     'counts.R'
+    'counts_per_million.R'
     'dev.R'
     'import_metadata_and_counts.R'
     'metadata.R'
