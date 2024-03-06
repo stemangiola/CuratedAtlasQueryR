@@ -34,7 +34,6 @@ Calculating counts per million from raw counts
 example_metadata <- get_metadata() |> head(3) |> as_tibble()
 import_metadata_counts(metadata_tbl = example_metadata,
                        cache_dir = get_default_cache_dir(),
-                       counts_path = "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T//RtmpUjWDqt/original",
-                       counts_to_cpm_file = "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T//RtmpUjWDqt/counts_per_million.R"
+                       counts_path = "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T/RtmpeAFYzL/original")
 
 }
