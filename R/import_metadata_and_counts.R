@@ -3,18 +3,19 @@
 #' Checks importing criteria for new atlas 
 #' Calculating counts per million from raw counts
 #'
-#' @param meta_input A tibble
+#' @param metadata_tbl A tibble
 #' @param cache_dir Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
-#' @param meta_output A parquet
+#' @param counts_path A character vector of original counts path
+#' @param version A character vector of metadata version. Default is 0.2.3 
 #' @export
-#' @return A directory stores counts per million
+#' @return A metadata.parquet with version, and a directory stores counts per million in cache directory
 #' @examples
 #' example_metadata <- get_metadata() |> head(3) |> as_tibble()
-#' import_metadata_counts(meta_input = example_metadata,
-#'                        meta_output = "example_metadata",
-#'                        cache_dir = tempdir())
+#' import_metadata_counts(metadata_tbl = example_metadata,
+#'                        cache_dir = get_default_cache_dir()),
+#'                        counts_path = "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T//RtmpUjWDqt/original"
 #'
 #' @importFrom assertthat assert_that
 #' @importFrom checkmate check_tibble check_directory_exists check_set_equal check_true check_character check_subset check_file_exists
@@ -22,18 +23,21 @@
 #' @importFrom cli cli_alert_info
 #' @importFrom glue glue
 #' @importFrom arrow write_parquet
-import_metadata_counts <- function(meta_input,
+#' @importFrom fs dir_copy
+import_metadata_counts <- function(metadata_tbl,
                                    cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
-                                   meta_output,
-                                   version = "0.2.3") {
-  # Convert to tibble if meta_input is not a tibble 
-  meta_input <- meta_input |> as_tibble()
-  check_tibble(meta_input)
+                                   version = "0.2.3",
+                                   counts_path) {
+  # Convert to tibble if metadata_tbl is not a tibble 
+  metadata_tbl <- metadata_tbl |> as_tibble()
+  check_tibble(metadata_tbl)
   check_directory_exists(cache_dir)
+  check_directory_exists(counts_path)
+  fs::dir_copy(counts_path, cache_dir)
   check_directory_exists(file.path(cache_dir, "original"))
-  sce <- meta_input |> 
+  sce <- metadata_tbl |> 
     get_single_cell_experiment()
-  se <- meta_input |> 
+  se <- metadata_tbl |> 
     get_seurat()
 
   counts_data <- assays(sce)$counts |> 
@@ -44,26 +48,26 @@ import_metadata_counts <- function(meta_input,
               msg = "Gene names cannot contain Ensembl IDs.")
   assert_that(all(counts_data >= 0), 
               msg = "Counts for SingleCellExperiment cannot be negative.")
-  all(meta_input |> pull(file_id_db) %in% dir(file.path(cache_dir, "original"))) |> 
+  all(metadata_tbl |> pull(file_id_db) %in% dir(file.path(cache_dir, "original"))) |> 
     assert_that(msg = "The metadata sample file ID and the count file ID does not match")
-  write_parquet(meta_input, file.path(cache_dir, glue("{meta_output}.{version}.parquet")))
+  write_parquet(metadata_tbl, file.path(cache_dir, glue("metadata.{version}.parquet")))
   
   # check the number of sub directories in original match cpm 
   check_set_equal(length(list.dirs(file.path(cache_dir, "original"))), length(list.dirs(file.path(cache_dir, "cpm"))))
   
   # check the metadata contains cell_, file_id_db, sample_ with correct types
-  check_true("cell_" %in% names(meta_input))
-  check_true("file_id_db" %in% names(meta_input)) 
-  check_true("sample_" %in% names(meta_input))
-  meta_input |> select(cell_, file_id_db, sample_) |> sapply(class) |> check_character()
+  check_true("cell_" %in% names(metadata_tbl))
+  check_true("file_id_db" %in% names(metadata_tbl)) 
+  check_true("sample_" %in% names(metadata_tbl))
+  metadata_tbl |> select(cell_, file_id_db, sample_) |> sapply(class) |> check_character()
   
   # check age_days is either -99 or greater than 365
-  assert_that(any(meta_input$age_days==-99 | meta_input$age_days> 365),
+  assert_that(any(metadata_tbl$age_days==-99 | metadata_tbl$age_days> 365),
               msg = "age_days should be either -99 for unknown or greater than 365")
   
   # check sex capitalisation then convert to lower case 
-  meta_input <- meta_input |> mutate(sex = tolower(sex))
-  meta_input |> distinct(sex) |> pull() |> check_subset(c('female','male','unknown'))
+  metadata_tbl <- metadata_tbl |> mutate(sex = tolower(sex))
+  metadata_tbl |> distinct(sex) |> pull() |> check_subset(c('female','male','unknown'))
   
   # if checkpoints above pass, generate cpm
   cli_alert_info("Generating cpm from {.path {cache_dir}/original}. ")

@@ -6,23 +6,25 @@
 Calculating counts per million from raw counts}
 \usage{
 import_metadata_counts(
-  meta_input,
+  metadata_tbl,
   cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
-  meta_output,
-  version = "0.2.3"
+  version = "0.2.3",
+  counts_path
 )
 }
 \arguments{
-\item{meta_input}{A tibble}
+\item{metadata_tbl}{A tibble}
 
 \item{cache_dir}{Optional character vector of length 1. A file path on
 your local system to a directory (not a file) that will be used to store
 \code{metadata.parquet}}
 
-\item{meta_output}{A parquet}
+\item{version}{A character vector of metadata version. Default is 0.2.3}
+
+\item{counts_path}{A character vector of original counts path}
 }
 \value{
-A directory stores counts per million
+A metadata.parquet with version, and a directory stores counts per million in cache directory
 }
 \description{
 Checks importing criteria for new atlas
@@ -30,8 +32,8 @@ Calculating counts per million from raw counts
 }
 \examples{
 example_metadata <- get_metadata() |> head(3) |> as_tibble()
-import_metadata_counts(meta_input = example_metadata,
-                       meta_output = "example_metadata",
-                       cache_dir = tempdir())
+import_metadata_counts(metadata_tbl = example_metadata,
+                       cache_dir = get_default_cache_dir()),
+                       counts_path = "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T//RtmpUjWDqt/original"
 
 }
