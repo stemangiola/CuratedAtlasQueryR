@@ -26,7 +26,7 @@ get_counts_per_million <- function(input_file, output_file) {
   data = loadHDF5SummarizedExperiment(input_file)
   
   # Avoid completely empty cells
-  col_sums = colSums(data@assays@data$X)
+  col_sums = colSums(as.matrix(data@assays@data$X))
   which_to_select = which(col_sums >0 & col_sums < Inf)
   
   sce = SingleCellExperiment(list(counts_per_million = scuttle::calculateCPM(data[,which_to_select ,drop=FALSE ], assay.type = "X")))

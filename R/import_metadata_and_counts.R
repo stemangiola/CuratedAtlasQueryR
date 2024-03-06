@@ -34,7 +34,6 @@ import_metadata_counts <- function(metadata_tbl,
   check_directory_exists(cache_dir)
   check_directory_exists(counts_path)
   dir_copy(counts_path, cache_dir)
-  file_copy(counts_to_cpm_file, cache_dir)
   check_directory_exists(file.path(cache_dir, "original"))
   sce <- metadata_tbl |> 
     get_single_cell_experiment()
@@ -49,9 +48,10 @@ import_metadata_counts <- function(metadata_tbl,
               msg = "Gene names cannot contain Ensembl IDs.")
   assert_that(all(counts_data >= 0), 
               msg = "Counts for SingleCellExperiment cannot be negative.")
+  
+  # check metadata sample file ID match the count file ID
   all(metadata_tbl |> pull(file_id_db) %in% dir(file.path(cache_dir, "original"))) |> 
     assert_that(msg = "The metadata sample file ID and the count file ID does not match")
-  write_parquet(metadata_tbl, file.path(cache_dir, glue("metadata.{version}.parquet")))
   
   # check the number of sub directories in original match cpm 
   check_set_equal(length(list.dirs(file.path(cache_dir, "original"))), length(list.dirs(file.path(cache_dir, "cpm"))))
@@ -62,6 +62,10 @@ import_metadata_counts <- function(metadata_tbl,
   check_true("sample_" %in% names(metadata_tbl))
   metadata_tbl |> select(cell_, file_id_db, sample_) |> sapply(class) |> check_character()
   
+  # check cell_ values are not duplicated when join with parquet
+  cells <- get_metadata() |> select(cell_) |> as_tibble()
+  any(metadata_tbl$cell_ %in% cells$cell_) |> assert_that(msg = "cell_ cannot be duplicates (cell_ exists in API)")
+  
   # check age_days is either -99 or greater than 365
   assert_that(any(metadata_tbl$age_days==-99 | metadata_tbl$age_days> 365),
               msg = "age_days should be either -99 for unknown or greater than 365")
@@ -69,6 +73,9 @@ import_metadata_counts <- function(metadata_tbl,
   # check sex capitalisation then convert to lower case 
   metadata_tbl <- metadata_tbl |> mutate(sex = tolower(sex))
   metadata_tbl |> distinct(sex) |> pull() |> check_subset(c('female','male','unknown'))
+  
+  # convert metadata_tbl to parquet if above checkpoints pass
+  write_parquet(metadata_tbl, file.path(cache_dir, glue("metadata.{version}.parquet")))
   
   # if checkpoints above pass, generate cpm
   cli_alert_info("Generating cpm from {.path {cache_dir}/original}. ")
