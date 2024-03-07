@@ -62,9 +62,12 @@ import_metadata_counts <- function(metadata_tbl,
   check_true("sample_" %in% names(metadata_tbl))
   metadata_tbl |> select(cell_, file_id_db, sample_) |> sapply(class) |> check_character()
   
+  # check cell_ values in metadata_tbl is unique
+  (anyDuplicated(metadata_tbl$cell_) == 0 ) |> assert_that(msg = "cell_ in the metadata must be unique")
+  
   # check cell_ values are not duplicated when join with parquet
   cells <- get_metadata() |> select(cell_) |> as_tibble()
-  any(metadata_tbl$cell_ %in% cells$cell_) |> assert_that(msg = "cell_ cannot be duplicates (cell_ exists in API)")
+  any(metadata_tbl$cell_ %in% cells$cell_) |> assert_that(msg = "cell_ in the metadata must not exist in API")
   
   # check age_days is either -99 or greater than 365
   assert_that(any(metadata_tbl$age_days==-99 | metadata_tbl$age_days> 365),
