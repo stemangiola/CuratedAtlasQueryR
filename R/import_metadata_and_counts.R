@@ -7,7 +7,7 @@
 #' @param cache_dir Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
-#' @param counts_path A character vector of original counts path
+#' @param counts_path A character vector of original counts path defined by users
 #' @param version A character vector of metadata version. Default is 0.2.3 
 #' @export
 #' @return A metadata.parquet with version, and a directory stores counts per million in cache directory
@@ -15,7 +15,7 @@
 #' example_metadata <- get_metadata() |> head(3) |> as_tibble()
 #' import_metadata_counts(metadata_tbl = example_metadata,
 #'                        cache_dir = get_default_cache_dir(),
-#'                        counts_path = "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T/RtmpeAFYzL/original")
+#'                        counts_path = "/Users/shen.m/projects/caq/import_api_pipelines/original")
 #'
 #' @importFrom assertthat assert_that
 #' @importFrom checkmate check_tibble check_directory_exists check_set_equal check_true check_character check_subset check_file_exists
@@ -33,7 +33,14 @@ import_metadata_counts <- function(metadata_tbl,
   check_tibble(metadata_tbl)
   check_directory_exists(cache_dir)
   check_directory_exists(counts_path)
-  dir_copy(counts_path, cache_dir)
+  
+  # check count H5 directory name not included in the cache directory original
+  all(!dir(file.path(counts_path)) %in% dir(file.path(cache_dir, 'original'))) |> 
+    check_false() |> 
+    assert(msg='Count H5 directory name should not duplicate with that in cache directory')
+  
+  dir_copy(counts_path, file.path(cache_dir, "original"))
+  
   check_directory_exists(file.path(cache_dir, "original"))
   sce <- metadata_tbl |> 
     get_single_cell_experiment()
@@ -67,7 +74,7 @@ import_metadata_counts <- function(metadata_tbl,
   
   # check cell_ values are not duplicated when join with parquet
   cells <- get_metadata() |> select(cell_) |> as_tibble()
-  any(metadata_tbl$cell_ %in% cells$cell_) |> assert_that(msg = "cell_ in the metadata must not exist in API")
+  any(metadata_tbl$cell_ %in% cells$cell_) |> assert_that(msg = "cell_ in the metadata should not duplicate with that exists in API")
   
   # check age_days is either -99 or greater than 365
   assert_that(any(metadata_tbl$age_days==-99 | metadata_tbl$age_days> 365),

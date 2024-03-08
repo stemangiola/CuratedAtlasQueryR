@@ -3,12 +3,11 @@
 \name{import_metadata_counts}
 \alias{import_metadata_counts}
 \title{Checks importing criteria for new atlas
-Calculating counts per million from raw counts}
+Generating counts per million from provided raw counts}
 \usage{
 import_metadata_counts(
   metadata_tbl,
   cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
-  version = "0.2.3",
   counts_path
 )
 }
@@ -19,21 +18,19 @@ import_metadata_counts(
 your local system to a directory (not a file) that will be used to store
 \code{metadata.parquet}}
 
-\item{version}{A character vector of metadata version. Default is 0.2.3}
-
-\item{counts_path}{A character vector of original counts path}
+\item{counts_path}{A character vector of original counts path defined by users}
 }
 \value{
 A metadata.parquet with version, and a directory stores counts per million in cache directory
 }
 \description{
 Checks importing criteria for new atlas
-Calculating counts per million from raw counts
+Generating counts per million from provided raw counts
 }
 \examples{
 example_metadata <- get_metadata() |> head(3) |> as_tibble()
 import_metadata_counts(metadata_tbl = example_metadata,
                        cache_dir = get_default_cache_dir(),
-                       counts_path = "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T/RtmpeAFYzL/original")
+                       counts_path = "/Users/shen.m/projects/caq/import_api_pipelines/original")
 
 }

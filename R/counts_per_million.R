@@ -5,8 +5,8 @@
 #' @export
 #' @return A directory stores counts per million 
 #' @examples
-#' input_file <- "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T/RtmpUjWDqt/original/12eb5fe25994253c1d320ca590a6e681"
-#' output_file <- "/var/folders/ls/99n281zx4bbd73kllmc1rc0h0005lj/T/RtmpUjWDqt/cpm/12eb5fe25994253c1d320ca590a6e681"
+#' input_file <- "/Users/shen.m/projects/caq/import_api_pipelines/original/12eb5fe25994253c1d320ca590a6e681"
+#' output_file <- "/Users/shen.m/projects/caq/import_api_pipelines/cpm/12eb5fe25994253c1d320ca590a6e681"
 #' get_counts_per_million(input_file, output_file)
 #'
 #' @importFrom SingleCellExperiment SingleCellExperiment
