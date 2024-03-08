@@ -33,7 +33,7 @@ import_metadata_counts <- function(metadata_tbl,
   # check count H5 directory name not included in the cache directory original
   all(!dir(file.path(counts_path)) %in% dir(file.path(cache_dir, 'original'))) |>
     check_true() |>
-    assert(msg = 'Count H5 directory name should not duplicate with that in cache directory')
+    assert_that(msg = 'Count H5 directory name should not duplicate with that in cache directory')
   
   dir_copy(counts_path, file.path(cache_dir))
   
