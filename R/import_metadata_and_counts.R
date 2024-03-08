@@ -1,14 +1,11 @@
-
-
 #' Checks importing criteria for new atlas 
-#' Calculating counts per million from raw counts
+#' Generating counts per million from provided raw counts
 #'
 #' @param metadata_tbl A tibble
 #' @param cache_dir Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
 #' @param counts_path A character vector of original counts path defined by users
-#' @param version A character vector of metadata version. Default is 0.2.3 
 #' @export
 #' @return A metadata.parquet with version, and a directory stores counts per million in cache directory
 #' @examples
@@ -26,34 +23,31 @@
 #' @importFrom fs dir_copy
 import_metadata_counts <- function(metadata_tbl,
                                    cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
-                                   version = "0.2.3",
                                    counts_path) {
   # Convert to tibble if metadata_tbl is not a tibble 
   metadata_tbl <- metadata_tbl |> as_tibble()
-  check_tibble(metadata_tbl)
   check_directory_exists(cache_dir)
   check_directory_exists(counts_path)
+  check_directory_exists(file.path(cache_dir, "original"))
   
   # check count H5 directory name not included in the cache directory original
-  all(!dir(file.path(counts_path)) %in% dir(file.path(cache_dir, 'original'))) |> 
-    check_false() |> 
-    assert(msg='Count H5 directory name should not duplicate with that in cache directory')
+  all(!dir(file.path(counts_path)) %in% dir(file.path(cache_dir, 'original'))) |>
+    check_true() |>
+    assert(msg = 'Count H5 directory name should not duplicate with that in cache directory')
   
-  dir_copy(counts_path, file.path(cache_dir, "original"))
+  dir_copy(counts_path, file.path(cache_dir))
   
-  check_directory_exists(file.path(cache_dir, "original"))
-  sce <- metadata_tbl |> 
-    get_single_cell_experiment()
-  se <- metadata_tbl |> 
-    get_seurat()
-
-  counts_data <- assays(sce)$counts |> 
+  sce <- metadata_tbl |>
+    get_single_cell_experiment(cache_directory = cache_dir)
+  se <- metadata_tbl |> get_seurat(cache_directory = cache_dir)
+  
+  counts_data <- assays(sce)$counts |>
     as_tibble()
   assert_that(inherits(sce, "SingleCellExperiment"),
               msg = "SingleCellExperiment Object is not created from metadata.")
   assert_that(!'^ENS' %in% rownames(se[['originalexp']]),
               msg = "Gene names cannot contain Ensembl IDs.")
-  assert_that(all(counts_data >= 0), 
+  assert_that(all(counts_data >= 0),
               msg = "Counts for SingleCellExperiment cannot be negative.")
   
   # check metadata sample file ID match the count file ID
@@ -74,7 +68,7 @@ import_metadata_counts <- function(metadata_tbl,
   
   # check cell_ values are not duplicated when join with parquet
   cells <- get_metadata() |> select(cell_) |> as_tibble()
-  any(metadata_tbl$cell_ %in% cells$cell_) |> assert_that(msg = "cell_ in the metadata should not duplicate with that exists in API")
+  (!any(metadata_tbl$cell_ %in% cells$cell_)) |> assert_that(msg = "cell_ in the metadata should not duplicate with that exists in API")
   
   # check age_days is either -99 or greater than 365
   assert_that(any(metadata_tbl$age_days==-99 | metadata_tbl$age_days> 365),
@@ -85,7 +79,7 @@ import_metadata_counts <- function(metadata_tbl,
   metadata_tbl |> distinct(sex) |> pull() |> check_subset(c('female','male','unknown'))
   
   # convert metadata_tbl to parquet if above checkpoints pass
-  write_parquet(metadata_tbl, file.path(cache_dir, glue("metadata.{version}.parquet")))
+  write_parquet(metadata_tbl, file.path(cache_dir, glue("metadata.parquet")))
   
   # if checkpoints above pass, generate cpm
   cli_alert_info("Generating cpm from {.path {cache_dir}/original}. ")
