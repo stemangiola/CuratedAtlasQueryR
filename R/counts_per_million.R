@@ -1,13 +1,13 @@
-#' Generating counts per million
+#' Generating counts per million from SingleCellExperiment RDS
 #'
-#' @param input_file A character vector of raw counts path
+#' @param input_file_rds A character vector of raw counts path
 #' @param output_file A character vector of counts per million path
 #' @export
 #' @return A directory stores counts per million 
 #' @examples
-#' input_file <- "/Users/shen.m/projects/caq/import_api_pipelines/original/12eb5fe25994253c1d320ca590a6e681"
-#' output_file <- "/Users/shen.m/projects/caq/import_api_pipelines/cpm/12eb5fe25994253c1d320ca590a6e681"
-#' get_counts_per_million(input_file, output_file)
+#' input_file_rds <- "/Users/shen.m/projects/caq/import_api_pipelines/12eb5fe25994253c1d320ca590a6e999/sce.rds"
+#' output_file <- "/Users/shen.m/projects/caq/cache_for_testing/cpm/12eb5fe25994253c1d320ca590a6e999/"
+#' get_counts_per_million(input_file_rds, output_file)
 #'
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom dplyr tbl
@@ -17,13 +17,18 @@
 #' @importFrom DelayedArray realize
 #' @importFrom purrr map
 
-get_counts_per_million <- function(input_file, output_file) {
+get_counts_per_million <- function(input_file_rds, output_file) {
   
   # Create directory
   output_file |>  dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
   
   # Read file_cell_types
-  data = loadHDF5SummarizedExperiment(input_file)
+  data = readRDS(input_file_rds)
+  
+  # Assign HDF5 matrix for counts data
+  hdf5_file <- file.path(dirname(input_file_rds), "assays.h5")
+  hdf5_counts <- writeHDF5Array(assays(data)$counts, filepath = hdf5_file, name = "assays.h5")
+  assays(data, withDimnames = FALSE)[["X"]] <- hdf5_counts
   
   # Avoid completely empty cells
   col_sums = colSums(as.matrix(data@assays@data$X))
@@ -47,8 +52,9 @@ get_counts_per_million <- function(input_file, output_file) {
   gc()
   
   # Check if there is a memory issue 
-  assays(sce) <- assays(sce) |> map(realize)
+  assays(sce) <- assays(sce) |> purrr::map(realize)
   
-  sce |>	saveHDF5SummarizedExperiment(output_file, replace=TRUE)
+  sce |>	saveRDS(file.path(output_file,"se.rds"))
+  sce |> saveHDF5SummarizedExperiment(output_file)
 } 
 
