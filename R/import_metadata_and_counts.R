@@ -12,7 +12,7 @@
 #' example_metadata <- get_metadata() |> head(3) |> as_tibble()
 #' import_metadata_counts(metadata_tbl = example_metadata,
 #'                        cache_dir = get_default_cache_dir(),
-#'                        counts_path = "/Users/shen.m/projects/caq/import_api_pipelines/original")
+#'                        counts_path = "/Users/shen.m/projects/caq/import_api_pipelines")
 #'
 #' @importFrom assertthat assert_that
 #' @importFrom checkmate check_tibble check_directory_exists check_set_equal check_true check_character check_subset check_file_exists
@@ -28,14 +28,47 @@ import_metadata_counts <- function(metadata_tbl,
   metadata_tbl <- metadata_tbl |> as_tibble()
   check_directory_exists(cache_dir)
   check_directory_exists(counts_path)
-  check_directory_exists(file.path(cache_dir, "original"))
+  
+  # create original and cpm folders in cache directory if not exist (in order to append new counts to existing ones)
+  if (!dir.exists(file.path(cache_dir, "original"))) {
+    dir.create(cache_dir, "original", recursive = TRUE)
+  }
+  
+  if (!dir.exists(file.path(cache_dir, "cpm"))) {
+    dir.create(cache_dir, "cpm", recursive = TRUE)
+  }
   
   # check count H5 directory name not included in the cache directory original
   all(!dir(file.path(counts_path)) %in% dir(file.path(cache_dir, 'original'))) |>
     check_true() |>
     assert_that(msg = 'Count H5 directory name should not duplicate with that in cache directory')
   
-  dir_copy(counts_path, file.path(cache_dir))
+  # if checkpoints above pass, generate cpm
+  cli_alert_info("Generating cpm from {.path {counts_path}/}. ")
+  
+  input_dir <- counts_path
+  #output_dir <- file.path(cache_dir, "cpm")
+  
+  for (subdir in list.files(input_dir, full.names = TRUE)) {
+    # Iterate get_counts_per_million function to generate cpm for each raw count
+    file_rds = dir(subdir, pattern = "*.rds", full.names = TRUE)
+    cpm_path = file.path(cache_dir, "cpm", basename(subdir))
+    
+    get_counts_per_million(
+      input_file_rds = file_rds,
+      output_file = cpm_path
+    )
+    
+    dir_copy(subdir, file.path(cache_dir, "original"))
+    data = readRDS(file_rds)
+    saveHDF5SummarizedExperiment(data, file.path(cache_dir,"original",basename(subdir)), replace=TRUE)
+  }
+  
+  
+  cli_alert_info("cpm are generated in {.path {cache_dir}/cpm}. ")
+  
+  #dir_copy(counts_path, file.path(cache_dir, "original"))
+  
   
   sce <- metadata_tbl |>
     get_single_cell_experiment(cache_directory = cache_dir)
@@ -81,22 +114,7 @@ import_metadata_counts <- function(metadata_tbl,
   # convert metadata_tbl to parquet if above checkpoints pass
   write_parquet(metadata_tbl, file.path(cache_dir, glue("metadata.parquet")))
   
-  # if checkpoints above pass, generate cpm
-  cli_alert_info("Generating cpm from {.path {cache_dir}/original}. ")
   
-  input_dir <- file.path(cache_dir, "original")
-  output_dir <- file.path(cache_dir, "cpm")
-  
-  for (subdir in list.files(input_dir, full.names = TRUE)) {
-    file_name <- basename(subdir)
-    count_path <- glue("{input_dir}/{file_name}/")
-    cpm_path <- glue("{output_dir}/{file_name}/")
-    # Iterate get_counts_per_million function to generate cpm for each raw count
-    get_counts_per_million(input_file = count_path,
-                           output_file = cpm_path)
-  }
-  
-  cli_alert_info("cpm are generated in {.path {cache_dir}/cpm}. ")
   
 }
 

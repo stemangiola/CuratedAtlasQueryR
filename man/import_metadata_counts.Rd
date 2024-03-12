@@ -31,6 +31,6 @@ Generating counts per million from provided raw counts
 example_metadata <- get_metadata() |> head(3) |> as_tibble()
 import_metadata_counts(metadata_tbl = example_metadata,
                        cache_dir = get_default_cache_dir(),
-                       counts_path = "/Users/shen.m/projects/caq/import_api_pipelines/original")
+                       counts_path = "/Users/shen.m/projects/caq/import_api_pipelines")
 
 }

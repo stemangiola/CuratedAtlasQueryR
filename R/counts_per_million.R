@@ -5,7 +5,7 @@
 #' @export
 #' @return A directory stores counts per million 
 #' @examples
-#' input_file_rds <- "/Users/shen.m/projects/caq/import_api_pipelines/12eb5fe25994253c1d320ca590a6e999/sce.rds"
+#' input_file_rds <- "/Users/shen.m/projects/caq/import_api_pipelines/12eb5fe25994253c1d320ca590a6e999/se.rds"
 #' output_file <- "/Users/shen.m/projects/caq/cache_for_testing/cpm/12eb5fe25994253c1d320ca590a6e999/"
 #' get_counts_per_million(input_file_rds, output_file)
 #'
@@ -21,6 +21,7 @@ get_counts_per_million <- function(input_file_rds, output_file) {
   
   # Create directory
   output_file |>  dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
+  output_file |> dir.create( showWarnings = FALSE, recursive = TRUE)
   
   # Read file_cell_types
   data = readRDS(input_file_rds)
@@ -55,6 +56,6 @@ get_counts_per_million <- function(input_file_rds, output_file) {
   assays(sce) <- assays(sce) |> purrr::map(realize)
   
   sce |>	saveRDS(file.path(output_file,"se.rds"))
-  sce |> saveHDF5SummarizedExperiment(output_file)
+  sce |> saveHDF5SummarizedExperiment(output_file, replace = TRUE)
 } 
 

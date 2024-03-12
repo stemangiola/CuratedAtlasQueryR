@@ -2,12 +2,12 @@
 % Please edit documentation in R/counts_per_million.R
 \name{get_counts_per_million}
 \alias{get_counts_per_million}
-\title{Generating counts per million}
+\title{Generating counts per million from SingleCellExperiment RDS}
 \usage{
-get_counts_per_million(input_file, output_file)
+get_counts_per_million(input_file_rds, output_file)
 }
 \arguments{
-\item{input_file}{A character vector of raw counts path}
+\item{input_file_rds}{A character vector of raw counts path}
 
 \item{output_file}{A character vector of counts per million path}
 }
@@ -15,11 +15,11 @@ get_counts_per_million(input_file, output_file)
 A directory stores counts per million
 }
 \description{
-Generating counts per million
+Generating counts per million from SingleCellExperiment RDS
 }
 \examples{
-input_file <- "/Users/shen.m/projects/caq/import_api_pipelines/original/12eb5fe25994253c1d320ca590a6e681"
-output_file <- "/Users/shen.m/projects/caq/import_api_pipelines/cpm/12eb5fe25994253c1d320ca590a6e681"
-get_counts_per_million(input_file, output_file)
+input_file_rds <- "/Users/shen.m/projects/caq/import_api_pipelines/12eb5fe25994253c1d320ca590a6e999/se.rds"
+output_file <- "/Users/shen.m/projects/caq/cache_for_testing/cpm/12eb5fe25994253c1d320ca590a6e999/"
+get_counts_per_million(input_file_rds, output_file)
 
 }
