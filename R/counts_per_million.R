@@ -28,7 +28,7 @@ get_counts_per_million <- function(input_file_rds, output_file) {
   
   # Assign HDF5 matrix for counts data
   hdf5_file <- file.path(dirname(input_file_rds), "assays.h5")
-  hdf5_counts <- writeHDF5Array(assays(data)$counts, filepath = hdf5_file, name = "assays.h5")
+  hdf5_counts <- writeHDF5Array(assays(data)$X, filepath = hdf5_file, name = "assays.h5")
   assays(data, withDimnames = FALSE)[["X"]] <- hdf5_counts
   
   # Avoid completely empty cells
