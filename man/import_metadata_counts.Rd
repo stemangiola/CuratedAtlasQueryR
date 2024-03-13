@@ -8,7 +8,7 @@ Generating counts per million from provided raw counts}
 import_metadata_counts(
   metadata_tbl,
   cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
-  counts_path
+  counts_path_df
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ import_metadata_counts(
 your local system to a directory (not a file) that will be used to store
 \code{metadata.parquet}}
 
-\item{counts_path}{A character vector of original counts path defined by users}
+\item{counts_path_df}{A data.frame RDS of original counts defined by users}
 }
 \value{
 A metadata.parquet with version, and a directory stores counts per million in cache directory
@@ -31,6 +31,6 @@ Generating counts per million from provided raw counts
 example_metadata <- get_metadata() |> head(3) |> as_tibble()
 import_metadata_counts(metadata_tbl = example_metadata,
                        cache_dir = get_default_cache_dir(),
-                       counts_path = "/Users/shen.m/projects/caq/import_api_pipelines")
+                       counts_path_df = "/Users/shen.m/projects/caq/my_counts_df.rds")
 
 }
