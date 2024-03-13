@@ -60,6 +60,10 @@ import_metadata_counts <- function(metadata_tbl,
       cpm_path = file.path(cache_dir, "cpm", basename(file_id))
     )
   
+  # existing metadata genes
+  genes <- get_metadata() |> head(1) |> 
+    get_single_cell_experiment(cache_directory = cache_dir) |> rownames()
+  
   purrr::walk2(counts_path$file_path, counts_path$cpm_path, ~{
     get_counts_per_million(
       input_file_rds = .x,
@@ -67,6 +71,12 @@ import_metadata_counts <- function(metadata_tbl,
     )
     dir_copy(.x |> dirname(), file.path(cache_dir, "original"))
     data = readRDS(.x)
+    
+    # check whether new data has the same gene set as existing metadata
+    (rownames(data) |> length() == genes |> length()) |>
+      assert_that(msg = "CuratedAtlasQuery reports:
+                  The number of genes in the existing metadata count does not match the number of genes specified")
+    
     saveHDF5SummarizedExperiment(data, counts_path$original_path, replace=TRUE)
   })
   
