@@ -5,14 +5,14 @@
 #' @param cache_dir Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
-#' @param counts_path A character vector of original counts path defined by users
+#' @param counts_path_df A data.frame RDS of original counts defined by users
 #' @export
 #' @return A metadata.parquet with version, and a directory stores counts per million in cache directory
 #' @examples
 #' example_metadata <- get_metadata() |> head(3) |> as_tibble()
 #' import_metadata_counts(metadata_tbl = example_metadata,
 #'                        cache_dir = get_default_cache_dir(),
-#'                        counts_path = "/Users/shen.m/projects/caq/import_api_pipelines")
+#'                        counts_path_df = "/Users/shen.m/projects/caq/my_counts_df.rds")
 #'
 #' @importFrom assertthat assert_that
 #' @importFrom checkmate check_tibble check_directory_exists check_set_equal check_true check_character check_subset check_file_exists
@@ -21,13 +21,19 @@
 #' @importFrom glue glue
 #' @importFrom arrow write_parquet
 #' @importFrom fs dir_copy
+#' @importFrom purrr walk2
 import_metadata_counts <- function(metadata_tbl,
                                    cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
-                                   counts_path) {
+                                   counts_path_df) {
+  # Load counts_path dataframe from RDS
+  counts_path <- readRDS(counts_path_df)
+  
   # Convert to tibble if metadata_tbl is not a tibble 
   metadata_tbl <- metadata_tbl |> as_tibble()
   check_directory_exists(cache_dir)
   check_directory_exists(counts_path)
+  
+  
   
   # create original and cpm folders in cache directory if not exist (in order to append new counts to existing ones)
   if (!dir.exists(file.path(cache_dir, "original"))) {
@@ -44,31 +50,25 @@ import_metadata_counts <- function(metadata_tbl,
     assert_that(msg = 'Count H5 directory name should not duplicate with that in cache directory')
   
   # if checkpoints above pass, generate cpm
-  cli_alert_info("Generating cpm from {.path {counts_path}/}. ")
+  cli_alert_info("Generating cpm from {.path {counts_path$file_path}}. ")
   
-  input_dir <- counts_path
-  #output_dir <- file.path(cache_dir, "cpm")
-  
-  for (subdir in list.files(input_dir, full.names = TRUE)) {
-    # Iterate get_counts_per_million function to generate cpm for each raw count
-    file_rds = dir(subdir, pattern = "*.rds", full.names = TRUE)
-    cpm_path = file.path(cache_dir, "cpm", basename(subdir))
-    
-    get_counts_per_million(
-      input_file_rds = file_rds,
-      output_file = cpm_path
+  counts_path <-
+    counts_path |> mutate(
+      original_path = file.path(original_dir, basename(file_id)),
+      cpm_path = file.path(cache_dir, "cpm", basename(file_id))
     )
-    
-    dir_copy(subdir, file.path(cache_dir, "original"))
-    data = readRDS(file_rds)
-    saveHDF5SummarizedExperiment(data, file.path(cache_dir,"original",basename(subdir)), replace=TRUE)
-  }
   
+  purrr::walk2(counts_path$file_path, counts_path$cpm_path, ~{
+    get_counts_per_million(
+      input_file_rds = .x,
+      output_file = .y
+    )
+    dir_copy(.x |> dirname(), file.path(cache_dir, "original"))
+    data = readRDS(.x)
+    saveHDF5SummarizedExperiment(data, counts_path$original_path, replace=TRUE)
+  })
   
   cli_alert_info("cpm are generated in {.path {cache_dir}/cpm}. ")
-  
-  #dir_copy(counts_path, file.path(cache_dir, "original"))
-  
   
   sce <- metadata_tbl |>
     get_single_cell_experiment(cache_directory = cache_dir)
