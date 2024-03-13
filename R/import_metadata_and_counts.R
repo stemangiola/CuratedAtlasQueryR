@@ -52,6 +52,8 @@ import_metadata_counts <- function(metadata_tbl,
   # if checkpoints above pass, generate cpm
   cli_alert_info("Generating cpm from {.path {counts_path$file_path}}. ")
   
+  original_dir <- file.path(cache_dir, "original")
+  
   counts_path <-
     counts_path |> mutate(
       original_path = file.path(original_dir, basename(file_id)),
