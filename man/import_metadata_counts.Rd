@@ -3,34 +3,26 @@
 \name{import_metadata_counts}
 \alias{import_metadata_counts}
 \title{Checks importing criteria for new atlas
-Generating counts per million from provided raw counts}
+Generats counts per million from provided raw counts}
 \usage{
-import_metadata_counts(
-  metadata_tbl,
-  cache_dir = CuratedAtlasQueryR:::get_default_cache_dir(),
-  counts_path_df
-)
+import_metadata_counts(sce_rds = data, cache_dir = get_default_cache_dir())
 }
 \arguments{
-\item{metadata_tbl}{A tibble}
+\item{sce_rds}{A SingleCellExperiment object Rds}
 
 \item{cache_dir}{Optional character vector of length 1. A file path on
 your local system to a directory (not a file) that will be used to store
 \code{metadata.parquet}}
-
-\item{counts_path_df}{A data.frame RDS of original counts defined by users}
 }
 \value{
-A metadata.parquet with version, and a directory stores counts per million in cache directory
+A metadata.parquet, and a counts per million directory in provided cache directory
 }
 \description{
 Checks importing criteria for new atlas
-Generating counts per million from provided raw counts
+Generats counts per million from provided raw counts
 }
 \examples{
-example_metadata <- get_metadata() |> head(3) |> as_tibble()
-import_metadata_counts(metadata_tbl = example_metadata,
-                       cache_dir = get_default_cache_dir(),
-                       counts_path_df = "/Users/shen.m/projects/caq/my_counts_df.rds")
+import_metadata_counts(sce_rds = "~/projects/caq/import_api_pipelines/12eb5fe25994253c1d320ca590a6e999/se.rds",
+                       cache_directory = "~/projects/caq/cache_for_testing")
 
 }

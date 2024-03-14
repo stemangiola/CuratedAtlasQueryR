@@ -93,7 +93,12 @@ Imports:
     utils,
     dbplyr (>= 2.3.0),
     duckdb,
-    stringr
+    stringr,
+    DelayedArray,
+    arrow,
+    checkmate,
+    fs,
+    scuttle
 Suggests:
     zellkonverter,
     rmarkdown,
