@@ -37,6 +37,14 @@ import_metadata_counts <- function(
   # create file_id_db from dataset_id
   metadata_tbl <- metadata_tbl |> mutate(file_id_db = dataset_id |> md5() |> as.character())
   
+  metadata(sce_obj)$data <- metadata_tbl
+  
+  # save updated sce_obj with file_id_db in metadata
+  saveRDS(sce_obj, sce_rds)
+  
+  # load back
+  sce_obj <- readRDS(sce_rds)
+  
   # create original and cpm folders in cache directory if not exist (in order to append new counts to existing ones)
   if (!dir.exists(original_dir)) {
     dir.create(cache_dir, "original", recursive = TRUE)
@@ -100,7 +108,7 @@ import_metadata_counts <- function(
   # Generate cpm from counts
   get_counts_per_million(input_file_rds = sce_rds, output_file = counts_path$cpm_path)
   dir_copy(sce_rds |> dirname(), counts_path$original_path)
-  rds_data = readRDS(sce_rds)
+  rds_data = readRDS(sce_obj)
   # check whether new data has the same gene set as existing metadata
   (rownames(rds_data) |> length() == genes |> length()) |>
     assert_that(msg = "CuratedAtlasQuery reports:
