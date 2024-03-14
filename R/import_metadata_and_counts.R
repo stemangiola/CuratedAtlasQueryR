@@ -29,7 +29,7 @@ import_metadata_counts <- function(
   # Load sce, identify metadata and counts matrix
   sce_obj <- readRDS(sce_rds)
   metadata_tbl <- metadata(sce_obj)$data
-  counts_matrix <- sce@assays@data$X
+  counts_matrix <- sce_obj@assays@data$X
   
   # Convert to tibble if metadata_tbl is not a tibble
   metadata_tbl <- metadata_tbl |> as_tibble()
