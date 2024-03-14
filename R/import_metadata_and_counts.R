@@ -44,6 +44,7 @@ import_metadata_counts <- function(
   
   # load back
   sce_obj <- readRDS(sce_rds)
+  metadata_tbl <- metadata(sce_obj)$data
   
   # create original and cpm folders in cache directory if not exist (in order to append new counts to existing ones)
   if (!dir.exists(original_dir)) {
@@ -108,12 +109,12 @@ import_metadata_counts <- function(
   # Generate cpm from counts
   get_counts_per_million(input_file_rds = sce_rds, output_file = counts_path$cpm_path)
   dir_copy(sce_rds |> dirname(), counts_path$original_path)
-  rds_data = readRDS(sce_obj)
+  
   # check whether new data has the same gene set as existing metadata
-  (rownames(rds_data) |> length() == genes |> length()) |>
+  (rownames(sce_obj) |> length() == genes |> length()) |>
     assert_that(msg = "CuratedAtlasQuery reports:
                   The number of genes in the existing metadata count does not match the number of genes specified")
-  saveHDF5SummarizedExperiment(rds_data, counts_path$original_path, replace=TRUE)
+  saveHDF5SummarizedExperiment(sce_obj, counts_path$original_path, replace=TRUE)
   
   cli_alert_info("cpm are generated in {.path {counts_path$cpm_path}}. ")
   
