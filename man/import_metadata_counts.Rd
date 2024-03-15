@@ -5,10 +5,10 @@
 \title{Checks importing criteria for new atlas
 Generats counts per million from provided raw counts}
 \usage{
-import_metadata_counts(sce_rds = data, cache_dir = get_default_cache_dir())
+import_metadata_counts(sce_obj = data, cache_dir = get_default_cache_dir())
 }
 \arguments{
-\item{sce_rds}{A SingleCellExperiment object Rds}
+\item{sce_obj}{A SingleCellExperiment object read from RDS}
 
 \item{cache_dir}{Optional character vector of length 1. A file path on
 your local system to a directory (not a file) that will be used to store
@@ -22,7 +22,7 @@ Checks importing criteria for new atlas
 Generats counts per million from provided raw counts
 }
 \examples{
-import_metadata_counts(sce_rds = "~/projects/caq/import_api_pipelines/12eb5fe25994253c1d320ca590a6e999/se.rds",
+import_metadata_counts(sce_obj = sample_sce_obj,
                        cache_directory = "~/projects/caq/cache_for_testing")
 
 }

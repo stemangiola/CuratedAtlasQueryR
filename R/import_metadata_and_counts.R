@@ -1,14 +1,14 @@
 #' Checks importing criteria for new atlas 
 #' Generats counts per million from provided raw counts
 #'
-#' @param sce_rds A SingleCellExperiment object Rds
+#' @param sce_obj A SingleCellExperiment object read from RDS
 #' @param cache_dir Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
 #' @export
 #' @return A metadata.parquet, and a counts per million directory in provided cache directory
 #' @examples
-#' import_metadata_counts(sce_rds = "~/projects/caq/import_api_pipelines/12eb5fe25994253c1d320ca590a6e999/se.rds",
+#' import_metadata_counts(sce_obj = sample_sce_obj,
 #'                        cache_directory = "~/projects/caq/cache_for_testing")
 #'
 #' @importFrom assertthat assert_that
@@ -17,17 +17,14 @@
 #' @importFrom cli cli_alert_info
 #' @importFrom glue glue
 #' @importFrom arrow write_parquet
-#' @importFrom fs dir_copy
-#' @importFrom purrr walk2
 #' @importFrom openssl md5
 import_metadata_counts <- function(
-  sce_rds = data,  
+  sce_obj = data,  
   cache_dir = get_default_cache_dir()) {
   
   original_dir <- file.path(cache_dir, "original")
   
-  # Load sce, identify metadata and counts matrix
-  sce_obj <- readRDS(sce_rds)
+  # Identify metadata and counts matrix
   metadata_tbl <- metadata(sce_obj)$data
   counts_matrix <- sce_obj@assays@data$X
   
@@ -38,13 +35,6 @@ import_metadata_counts <- function(
   metadata_tbl <- metadata_tbl |> mutate(file_id_db = dataset_id |> md5() |> as.character())
   
   metadata(sce_obj)$data <- metadata_tbl
-  
-  # save updated sce_obj with file_id_db in metadata
-  saveRDS(sce_obj, sce_rds)
-  
-  # load back
-  sce_obj <- readRDS(sce_rds)
-  metadata_tbl <- metadata(sce_obj)$data
   
   # create original and cpm folders in cache directory if not exist (in order to append new counts to existing ones)
   if (!dir.exists(original_dir)) {
@@ -98,7 +88,6 @@ import_metadata_counts <- function(
   
   counts_path <-
     metadata_tbl |> select(file_id_db) |> mutate(
-      file_path = sce_rds,
       original_path = file.path(original_dir, basename(file_id_db)),
       cpm_path = file.path(cache_dir, "cpm", basename(file_id_db))
     )
@@ -107,8 +96,7 @@ import_metadata_counts <- function(
   cli_alert_info("Generating cpm from {.path {metadata_tbl$file_id_db}}. ")
   
   # Generate cpm from counts
-  get_counts_per_million(input_file_rds = sce_rds, output_file = counts_path$cpm_path)
-  dir_copy(sce_rds |> dirname(), counts_path$original_path)
+  get_counts_per_million(input_sce_obj = sce_obj, output_dir = counts_path$cpm_path, hd5_file_dir = counts_path$original_path)
   
   # check whether new data has the same gene set as existing metadata
   (rownames(sce_obj) |> length() == genes |> length()) |>

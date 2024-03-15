@@ -2,24 +2,27 @@
 % Please edit documentation in R/counts_per_million.R
 \name{get_counts_per_million}
 \alias{get_counts_per_million}
-\title{Generating counts per million from SingleCellExperiment RDS}
+\title{Generating counts per million from SingleCellExperiment object}
 \usage{
-get_counts_per_million(input_file_rds, output_file)
+get_counts_per_million(input_sce_obj, output_dir, hd5_file_dir)
 }
 \arguments{
-\item{input_file_rds}{A character vector of raw counts path}
+\item{input_sce_obj}{A SingleCellExperiment object read from RDS}
 
-\item{output_file}{A character vector of counts per million path}
+\item{output_dir}{A character vector of counts per million path}
+
+\item{hd5_file_dir}{A character vector of HDF5 file path after converting from RDS}
 }
 \value{
 A directory stores counts per million
 }
 \description{
-Generating counts per million from SingleCellExperiment RDS
+Generating counts per million from SingleCellExperiment object
 }
 \examples{
-input_file_rds <- "/Users/shen.m/projects/caq/import_api_pipelines/12eb5fe25994253c1d320ca590a6e999/se.rds"
-output_file <- "/Users/shen.m/projects/caq/cache_for_testing/cpm/12eb5fe25994253c1d320ca590a6e999/"
-get_counts_per_million(input_file_rds, output_file)
+input_sce_obj <- sample_sce_obj
+output_dir <- "~/projects/caq/cache_for_testing/cpm/8df700ab083ab215e618fe732e2f3dfe"
+hd5_file_dir <- "~/projects/caq/cache_for_testing/original/8df700ab083ab215e618fe732e2f3dfe"
+get_counts_per_million(input_sce_obj, output_dir, hd5_file_dir)
 
 }

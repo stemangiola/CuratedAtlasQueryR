@@ -1,13 +1,15 @@
-#' Generating counts per million from SingleCellExperiment RDS
+#' Generating counts per million from SingleCellExperiment object
 #'
-#' @param input_file_rds A character vector of raw counts path
-#' @param output_file A character vector of counts per million path
+#' @param input_sce_obj A SingleCellExperiment object read from RDS
+#' @param output_dir A character vector of counts per million path
+#' @param hd5_file_dir A character vector of HDF5 file path after converting from RDS
 #' @export
 #' @return A directory stores counts per million 
 #' @examples
-#' input_file_rds <- "/Users/shen.m/projects/caq/import_api_pipelines/12eb5fe25994253c1d320ca590a6e999/se.rds"
-#' output_file <- "/Users/shen.m/projects/caq/cache_for_testing/cpm/12eb5fe25994253c1d320ca590a6e999/"
-#' get_counts_per_million(input_file_rds, output_file)
+#' input_sce_obj <- sample_sce_obj
+#' output_dir <- "~/projects/caq/cache_for_testing/cpm/8df700ab083ab215e618fe732e2f3dfe"
+#' hd5_file_dir <- "~/projects/caq/cache_for_testing/original/8df700ab083ab215e618fe732e2f3dfe"
+#' get_counts_per_million(input_sce_obj, output_dir, hd5_file_dir)
 #'
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom dplyr tbl
@@ -17,17 +19,19 @@
 #' @importFrom DelayedArray realize
 #' @importFrom purrr map
 
-get_counts_per_million <- function(input_file_rds, output_file) {
+get_counts_per_million <- function(input_sce_obj, output_dir, hd5_file_dir) {
   
-  # Create directory
-  output_file |>  dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
-  output_file |> dir.create( showWarnings = FALSE, recursive = TRUE)
+  # Create directories
+  output_dir |>  dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
+  output_dir |> dir.create( showWarnings = FALSE, recursive = TRUE)
+  hd5_file_dir |> dir.create(showWarnings = FALSE, recursive = TRUE)
   
-  # Read file_cell_types
-  data = readRDS(input_file_rds)
+  saveRDS(input_sce_obj, file.path(hd5_file_dir, "se.rds"))
+  
+  data = input_sce_obj
   
   # Assign HDF5 matrix for counts data
-  hdf5_file <- file.path(dirname(input_file_rds), "assays.h5")
+  hdf5_file <- file.path(hd5_file_dir, "assays.h5")
   hdf5_counts <- writeHDF5Array(assays(data)$X, filepath = hdf5_file, name = "assays.h5")
   assays(data, withDimnames = FALSE)[["X"]] <- hdf5_counts
   
@@ -55,7 +59,7 @@ get_counts_per_million <- function(input_file_rds, output_file) {
   # Check if there is a memory issue 
   assays(sce) <- assays(sce) |> purrr::map(realize)
   
-  sce |>	saveRDS(file.path(output_file,"se.rds"))
-  sce |> saveHDF5SummarizedExperiment(output_file, replace = TRUE)
+  sce |>	saveRDS(file.path(output_dir,"se.rds"))
+  sce |> saveHDF5SummarizedExperiment(output_dir, replace = TRUE)
 } 
 
