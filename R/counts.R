@@ -85,94 +85,99 @@ get_single_cell_experiment <- function(
     repository = COUNTS_URL,
     features = NULL
 ) {
-    # Parameter validation
-    
-    assays %in% names(assay_map) |>
-        all() |>
-        assert_that(
-            msg = 'assays must be a character vector containing "counts" and/or
+  # Parameter validation
+  assays %in% names(assay_map) |>
+    all() |>
+    assert_that(
+      msg = 'assays must be a character vector containing "counts" and/or
             "cpm"'
-        )
-    assert_that(
-        !anyDuplicated(assays),
-        inherits(cache_directory, "character"),
-        is.null(repository) || is.character(repository),
-        is.null(features) || is.character(features)
     )
-
-    # Data parameter validation (last, because it's slower)
-    ## Evaluate the promise now so that we get a sensible error message
-    force(data)
-    ## We have to convert to an in-memory table here, or some of the dplyr
-    ## operations will fail when passed a database connection
-    cli_alert_info("Realising metadata.")
-    raw_data <- collect(data)
-    assert_that(
-        inherits(raw_data, "tbl"),
-        has_name(raw_data, c("cell_", "file_id_db"))
-    )
-
-    versioned_cache_directory <- cache_directory
-    versioned_cache_directory |> dir.create(
-        showWarnings = FALSE,
-        recursive = TRUE
-    )
-
-    subdirs <- assay_map[assays]
-
-    # The repository is optional. If not provided we load only from the cache
-    if (!is.null(repository)) {
-        cli_alert_info("Synchronising files")
-        parsed_repo <- parse_url(repository)
-        parsed_repo$scheme |>
-            `%in%`(c("http", "https")) |>
-            assert_that()
-
-        files_to_read <-
-            raw_data |>
-            pull(.data$file_id_db) |>
-            unique() |>
-            as.character() |>
-            sync_assay_files(
-                url = parsed_repo,
-                cache_dir = versioned_cache_directory,
-                files = _,
-                subdirs = subdirs
-            )
-    }
-
-    cli_alert_info("Reading files.")
-    sces <- subdirs |>
-        imap(function(current_subdir, current_assay) {
-            # Build up an SCE for each assay
-            dir_prefix <- file.path(
-                versioned_cache_directory,
-                current_subdir
-            )
-
-            raw_data |>
-                dplyr::group_by(.data$file_id_db) |>
-                # Load each file and attach metadata
-                dplyr::summarise(sces = list(group_to_sce(
-                    dplyr::cur_group_id(),
-                    dplyr::cur_data_all(),
-                    dir_prefix,
-                    features
-                ))) |>
-                dplyr::pull(sces) |>
-                # Combine each sce by column, since each sce has a different set
-                # of cells
-                do.call(cbind, args = _)
-        })
-
-    cli_alert_info("Compiling Single Cell Experiment.")
-    # Combine all the assays
-    sce <- sces[[1]]
-    SummarizedExperiment::assays(sce) <- map(sces, function(sce) {
-        SummarizedExperiment::assays(sce)[[1]]
+  assert_that(
+    !anyDuplicated(assays),
+    inherits(cache_directory, "character"),
+    is.null(repository) || is.character(repository),
+    is.null(features) || is.character(features)
+  )
+  
+  # Data parameter validation (last, because it's slower)
+  ## Evaluate the promise now so that we get a sensible error message
+  force(data)
+  ## We have to convert to an in-memory table here, or some of the dplyr
+  ## operations will fail when passed a database connection
+  cli_alert_info("Realising metadata.")
+  raw_data <- collect(data)
+  assert_that(
+    inherits(raw_data, "tbl"),
+    has_name(raw_data, c("cell_", "file_id_db"))
+  )
+  
+  versioned_cache_directory <- cache_directory
+  versioned_cache_directory |> dir.create(
+    showWarnings = FALSE,
+    recursive = TRUE
+  )
+  
+  subdirs <- assay_map[assays]
+  
+  # The repository is optional. If not provided we load only from the cache
+  if (!is.null(repository)) {
+    cli_alert_info("Synchronising files")
+    parsed_repo <- parse_url(repository)
+    parsed_repo$scheme |>
+      `%in%`(c("http", "https")) |>
+      assert_that()
+    
+    files_to_read <-
+      raw_data |>
+      pull(.data$file_id_db) |>
+      unique() |>
+      as.character() |>
+      sync_assay_files(
+        url = parsed_repo,
+        cache_dir = versioned_cache_directory,
+        files = _,
+        subdirs = subdirs
+      )
+  }
+  
+  cli_alert_info("Reading files.")
+  sces <- subdirs |>
+    imap(function(current_subdir, current_assay) {
+      # Build up an SCE for each assay
+      dir_prefix <- file.path(
+        versioned_cache_directory,
+        current_subdir
+      )
+      
+      sce_list <- raw_data |>
+        dplyr::group_by(.data$file_id_db) |>
+        # Load each file and attach metadata
+        dplyr::summarise(sces = list(
+          group_to_sce(
+            dplyr::cur_group_id(),
+            dplyr::cur_data_all(),
+            dir_prefix,
+            features
+          )
+        )) |>
+        dplyr::pull(sces)
+      
+      # Check whether genes in a list of SCEs overlap, use gene intersection if overlap
+      commonGenes <- sce_list |> check_gene_overlap()
+      sce_list <- map(sce_list, function(sce) {
+        sce[commonGenes,]
+      }) |>
+        do.call(cbind, args = _)
     })
-
-    sce
+  
+  cli_alert_info("Compiling Single Cell Experiment.")
+  # Combine all the assays
+  sce <- sces[[1]]
+  SummarizedExperiment::assays(sce) <- map(sces, function(sce) {
+    SummarizedExperiment::assays(sce)[[1]]
+  })
+  
+  sce
 }
 
 #' Converts a data frame into a single SCE
