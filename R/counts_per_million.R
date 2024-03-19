@@ -5,20 +5,18 @@
 #' @param hd5_file_dir A character vector of HDF5 file path after converting from RDS
 #' @export
 #' @return A directory stores counts per million 
-#' @examples
-#' input_sce_obj <- sample_sce_obj
-#' output_dir <- "~/projects/caq/cache_for_testing/cpm/8df700ab083ab215e618fe732e2f3dfe"
-#' hd5_file_dir <- "~/projects/caq/cache_for_testing/original/8df700ab083ab215e618fe732e2f3dfe"
-#' get_counts_per_million(input_sce_obj, output_dir, hd5_file_dir)
-#'
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom dplyr tbl
 #' @importFrom glue glue
 #' @importFrom HDF5Array saveHDF5SummarizedExperiment
-#' @importFrom scuttle calculateCPM
-#' @importFrom DelayedArray realize
 #' @importFrom purrr map
-
+#' @examples
+#' \dontrun{
+#' input_sce_obj <- readRDS("~/path/sample_sce.rds")
+#' output_dir <- "~/cache_directory/cpm/file_id_db"
+#' hd5_file_dir <- "~/cache_directory/original/file_id_db"
+#' get_counts_per_million(input_sce_obj, output_dir, hd5_file_dir)
+#' }
 get_counts_per_million <- function(input_sce_obj, output_dir, hd5_file_dir) {
   
   # Create directories
@@ -51,7 +49,7 @@ get_counts_per_million <- function(input_sce_obj, output_dir, hd5_file_dir) {
   gc()
   
   # Check if there is a memory issue 
-  assays(sce) <- assays(sce) |> purrr::map(realize)
+  SummarizedExperiment::assays(sce) <- SummarizedExperiment::assays(sce) |> map(DelayedArray::realize)
   
   sce |> saveHDF5SummarizedExperiment(output_dir)
 } 

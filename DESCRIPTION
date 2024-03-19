@@ -94,11 +94,7 @@ Imports:
     dbplyr (>= 2.3.0),
     duckdb,
     stringr,
-    DelayedArray,
-    arrow,
-    checkmate,
-    fs,
-    scuttle
+    checkmate
 Suggests:
     zellkonverter,
     rmarkdown,
@@ -111,7 +107,10 @@ Suggests:
     forcats,
     ggplot2,
     tidySingleCellExperiment,
-    rprojroot
+    rprojroot,
+    openssl,
+    scuttle,
+    DelayedArray
 Biarch: true
 biocViews: 
     AssayDomain,

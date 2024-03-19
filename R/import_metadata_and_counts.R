@@ -1,42 +1,45 @@
 #' Checks importing criteria for new atlas 
 #' Generats counts per million from provided raw counts
 #'
-#' @param sce_obj A SingleCellExperiment object read from RDS
+#' @param sce_obj A SingleCellExperiment object from RDS
 #' @param cache_dir Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
 #' @export
-#' @return A metadata.parquet, and a counts per million directory in provided cache directory
-#' @examples
-#' import_metadata_counts(sce_obj = sample_sce_obj,
-#'                        cache_directory = "~/projects/caq/cache_for_testing")
-#'
+#' @return A metadata.parquet strip from SCE object. 
+#' Directories store counts and counts per million in the provided cache directory.
 #' @importFrom assertthat assert_that
 #' @importFrom checkmate check_tibble check_directory_exists check_set_equal check_true check_character check_subset check_file_exists
-#' @importFrom dplyr tbl
+#' @importFrom dplyr tbl select
 #' @importFrom cli cli_alert_info
 #' @importFrom glue glue
-#' @importFrom arrow write_parquet
-#' @importFrom openssl md5
+#' @importFrom rlang .data
+#' @examples
+#' \dontrun{
+#' sample_sce_obj <- readRDS("~/path/sample_sce.rds")
+#' import_metadata_counts(sce_obj = sample_sce_obj,
+#'                        cache_directory = "~/cache_directory")
+#' }
 import_metadata_counts <- function(
-  sce_obj = data,  
+  sce_obj,  
   cache_dir = get_default_cache_dir()) {
   original_dir <- file.path(cache_dir, "original")
   
   # Identify metadata and counts matrix
-  metadata_tbl <- metadata(sce_obj)$data
+  metadata_tbl <- sce_obj@metadata$data
   counts_matrix <- sce_obj@assays@data$X
   
   # Convert to tibble if metadata_tbl is not a tibble
   metadata_tbl <- metadata_tbl |> as_tibble()
   
   # Create file_id_db from dataset_id
-  metadata_tbl <- metadata_tbl |> mutate(file_id_db = dataset_id |> md5() |> as.character())
-  metadata(sce_obj)$data <- metadata_tbl
+  metadata_tbl <-
+    metadata_tbl |> mutate(file_id_db = .data$dataset_id |> openssl::md5() |> as.character())
+  sce_obj@metadata$data <- metadata_tbl
   
   # Remove existing reducedDim slot to enable get_SCE API functionality 
-  if (length(names(reducedDims(sce_obj))) >0 ) {
-    reducedDims(sce_obj) <- NULL
+  if (length(names(SingleCellExperiment::reducedDims(sce_obj))) >0 ) {
+    SingleCellExperiment::reducedDims(sce_obj) <- NULL
   }
   
   # create original and cpm folders in cache directory if not exist (in order to append new counts to existing ones)
@@ -68,13 +71,15 @@ import_metadata_counts <- function(
   # check the metadata contains cell_, file_id_db, sample_ with correct types
   check_true("cell_" %in% names(metadata_tbl))
   check_true("file_id_db" %in% names(metadata_tbl)) 
-  metadata_tbl |> select(cell_, file_id_db) |> sapply(class) |> check_character()
+  select(metadata_tbl, .data$cell_) |> class() |> check_character()
+  select(metadata_tbl, .data$file_id_db) |> class() |> check_character()
+  #metadata_tbl |> select(cell_, file_id_db) |> sapply(class) |> check_character()
   
   # check cell_ values in metadata_tbl is unique
   (anyDuplicated(metadata_tbl$cell_) == 0 ) |> assert_that(msg = "cell_ in the metadata must be unique")
   
   # check cell_ values are not duplicated when join with parquet
-  cells <- get_metadata() |> select(cell_) |> as_tibble()
+  cells <- select(get_metadata(), .data$cell_) |> as_tibble()
   (!any(metadata_tbl$cell_ %in% cells$cell_)) |> assert_that(msg = "cell_ in the metadata should not duplicate with that exists in API")
   
   # check age_days is either -99 or greater than 365
@@ -85,13 +90,13 @@ import_metadata_counts <- function(
   
   # check sex capitalisation then convert to lower case 
   if (any(colnames(metadata_tbl) == "sex")) {
-    metadata_tbl <- metadata_tbl |> mutate(sex = tolower(sex))
-    metadata_tbl |> distinct(sex) |> pull() |> check_subset(c("female","male","unknown"))
+    metadata_tbl <- metadata_tbl |> mutate(sex = tolower(.data$sex))
+    dplyr::distinct(metadata_tbl, .data$sex) |> dplyr::pull() |> check_subset(c("female","male","unknown"))
   }
   counts_path <-
-    metadata_tbl |> select(file_id_db) |> mutate(
-      original_path = file.path(original_dir, basename(file_id_db)),
-      cpm_path = file.path(cache_dir, "cpm", basename(file_id_db))
+    select(metadata_tbl, .data$file_id_db) |> mutate(
+      original_path = file.path(original_dir, basename(.data$file_id_db)),
+      cpm_path = file.path(cache_dir, "cpm", basename(.data$file_id_db))
     )
   
   # if checkpoints above pass, generate cpm
@@ -104,11 +109,11 @@ import_metadata_counts <- function(
   cli_alert_info("cpm are generated in {.path {counts_path$cpm_path}}. ")
   
   # check metadata sample file ID match the count file ID in cache directory
-  all(metadata_tbl |> pull(file_id_db) %in% dir(original_dir)) |> 
+  all(metadata_tbl |> pull(.data$file_id_db) %in% dir(original_dir)) |> 
     assert_that(msg = "The metadata sample file ID and the count file ID does not match")
   
   # convert metadata_tbl to parquet if above checkpoints pass
-  write_parquet(metadata_tbl, file.path(cache_dir, glue("metadata.parquet")))
+  arrow::write_parquet(metadata_tbl, file.path(cache_dir, glue("metadata.parquet")))
 }
 
 

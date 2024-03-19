@@ -20,9 +20,10 @@ A directory stores counts per million
 Generating counts per million from SingleCellExperiment object
 }
 \examples{
-input_sce_obj <- sample_sce_obj
-output_dir <- "~/projects/caq/cache_for_testing/cpm/8df700ab083ab215e618fe732e2f3dfe"
-hd5_file_dir <- "~/projects/caq/cache_for_testing/original/8df700ab083ab215e618fe732e2f3dfe"
+\dontrun{
+input_sce_obj <- readRDS("~/path/sample_sce.rds")
+output_dir <- "~/cache_directory/cpm/file_id_db"
+hd5_file_dir <- "~/cache_directory/original/file_id_db"
 get_counts_per_million(input_sce_obj, output_dir, hd5_file_dir)
-
+}
 }
