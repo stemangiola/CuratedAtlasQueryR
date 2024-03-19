@@ -21,7 +21,6 @@
 import_metadata_counts <- function(
   sce_obj = data,  
   cache_dir = get_default_cache_dir()) {
-  
   original_dir <- file.path(cache_dir, "original")
   
   # Identify metadata and counts matrix
@@ -31,10 +30,14 @@ import_metadata_counts <- function(
   # Convert to tibble if metadata_tbl is not a tibble
   metadata_tbl <- metadata_tbl |> as_tibble()
   
-  # create file_id_db from dataset_id
+  # Create file_id_db from dataset_id
   metadata_tbl <- metadata_tbl |> mutate(file_id_db = dataset_id |> md5() |> as.character())
-  
   metadata(sce_obj)$data <- metadata_tbl
+  
+  # Remove existing reducedDim slot to enable get_SCE API functionality 
+  if (assert_that(length(names(reducedDims(sce_obj))) >0 )) {
+    reducedDims(sce_obj) <- NULL
+  }
   
   # create original and cpm folders in cache directory if not exist (in order to append new counts to existing ones)
   if (!dir.exists(original_dir)) {
@@ -85,7 +88,6 @@ import_metadata_counts <- function(
     metadata_tbl <- metadata_tbl |> mutate(sex = tolower(sex))
     metadata_tbl |> distinct(sex) |> pull() |> check_subset(c("female","male","unknown"))
   }
-  
   counts_path <-
     metadata_tbl |> select(file_id_db) |> mutate(
       original_path = file.path(original_dir, basename(file_id_db)),
@@ -97,11 +99,6 @@ import_metadata_counts <- function(
   
   # Generate cpm from counts
   get_counts_per_million(input_sce_obj = sce_obj, output_dir = counts_path$cpm_path, hd5_file_dir = counts_path$original_path)
-  
-  # check whether new data has the same gene set as existing metadata
-  (rownames(sce_obj) |> length() == genes |> length()) |>
-    assert_that(msg = "CuratedAtlasQuery reports:
-                  The number of genes in the existing metadata count does not match the number of genes specified")
   saveHDF5SummarizedExperiment(sce_obj, counts_path$original_path, replace=TRUE)
   
   cli_alert_info("cpm are generated in {.path {counts_path$cpm_path}}. ")

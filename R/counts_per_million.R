@@ -23,17 +23,11 @@ get_counts_per_million <- function(input_sce_obj, output_dir, hd5_file_dir) {
   
   # Create directories
   output_dir |>  dirname() |> dir.create( showWarnings = FALSE, recursive = TRUE)
-  output_dir |> dir.create( showWarnings = FALSE, recursive = TRUE)
-  hd5_file_dir |> dir.create(showWarnings = FALSE, recursive = TRUE)
+
+  # Save SCE to the cache directory counts folder
+  input_sce_obj |> saveHDF5SummarizedExperiment(hd5_file_dir)
   
-  saveRDS(input_sce_obj, file.path(hd5_file_dir, "se.rds"))
-  
-  data = input_sce_obj
-  
-  # Assign HDF5 matrix for counts data
-  hdf5_file <- file.path(hd5_file_dir, "assays.h5")
-  hdf5_counts <- writeHDF5Array(assays(data)$X, filepath = hdf5_file, name = "assays.h5")
-  assays(data, withDimnames = FALSE)[["X"]] <- hdf5_counts
+  data <- input_sce_obj
   
   # Avoid completely empty cells
   col_sums = colSums(as.matrix(data@assays@data$X))
@@ -59,7 +53,6 @@ get_counts_per_million <- function(input_sce_obj, output_dir, hd5_file_dir) {
   # Check if there is a memory issue 
   assays(sce) <- assays(sce) |> purrr::map(realize)
   
-  sce |>	saveRDS(file.path(output_dir,"se.rds"))
-  sce |> saveHDF5SummarizedExperiment(output_dir, replace = TRUE)
+  sce |> saveHDF5SummarizedExperiment(output_dir)
 } 
 
