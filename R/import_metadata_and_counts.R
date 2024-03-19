@@ -35,7 +35,7 @@ import_metadata_counts <- function(
   metadata(sce_obj)$data <- metadata_tbl
   
   # Remove existing reducedDim slot to enable get_SCE API functionality 
-  if (assert_that(length(names(reducedDims(sce_obj))) >0 )) {
+  if (length(names(reducedDims(sce_obj))) >0 ) {
     reducedDims(sce_obj) <- NULL
   }
   
