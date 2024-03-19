@@ -8,6 +8,9 @@ get_database_url(
   databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")
 )
 }
+\arguments{
+\item{databases}{A character vector specifying the names of the metadata files. Default is c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")}
+}
 \value{
 A character vector of URLs to parquet files to download
 }
@@ -15,5 +18,5 @@ A character vector of URLs to parquet files to download
 Returns the URLs for all metadata files
 }
 \examples{
-get_metadata(remote_url = get_database_url("metadata.0.2.3.parquet"))
+get_database_url("metadata.0.2.3.parquet")
 }

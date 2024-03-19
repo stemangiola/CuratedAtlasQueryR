@@ -1,7 +1,7 @@
 Type: Package
 Package: CuratedAtlasQueryR
 Title: Queries the Human Cell Atlas
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: c(
     person(
         "Stefano",
@@ -93,7 +93,8 @@ Imports:
     utils,
     dbplyr (>= 2.3.0),
     duckdb,
-    stringr
+    stringr,
+    checkmate
 Suggests:
     zellkonverter,
     rmarkdown,
@@ -106,7 +107,10 @@ Suggests:
     forcats,
     ggplot2,
     tidySingleCellExperiment,
-    rprojroot
+    rprojroot,
+    openssl,
+    scuttle,
+    DelayedArray
 Biarch: true
 biocViews: 
     AssayDomain,
@@ -130,7 +134,9 @@ Roxygen: list(markdown = TRUE)
 Collate: 
     'utils.R'
     'counts.R'
+    'counts_per_million.R'
     'dev.R'
+    'import_metadata_and_counts.R'
     'metadata.R'
     'seurat.R'
     'unharmonised.R'

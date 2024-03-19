@@ -6,17 +6,18 @@ NULL
 #' Environment that we use to cache the DuckDB connections
 #' @noRd
 cache <- rlang::env(
-    metadata_table = rlang::env()
+  metadata_table = rlang::env()
 )
 
 #' Returns the URLs for all metadata files 
+#' @param databases A character vector specifying the names of the metadata files. Default is c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")
 #' @export
 #' @return A character vector of URLs to parquet files to download
 #' @examples
-#' get_metadata(remote_url = get_database_url("metadata.0.2.3.parquet"))
+#' get_database_url("metadata.0.2.3.parquet")
 get_database_url <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")) {
-    glue::glue(
-      "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/{databases}")
+  glue::glue(
+    "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/{databases}")
 }
 
 #' URL pointing to the sample metadata file, which is smaller and for test,
@@ -26,7 +27,7 @@ get_database_url <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0
 #' @examples
 #' get_metadata(remote_url = SAMPLE_DATABASE_URL, cache_directory = tempdir())
 SAMPLE_DATABASE_URL <- single_line_str(
-    "https://object-store.rc.nectar.org.au/v1/
+  "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/
     sample_metadata.0.2.3.parquet"
 )
@@ -158,23 +159,23 @@ get_metadata <- function(
                        progress(type = "down", con = stderr()))
     }
   })
-    all_parquet <- file.path(cache_directory, dir(cache_directory, pattern = ".parquet$"))
-    # We try to avoid re-reading a set of parquet files 
-    # that is identical to a previous set by hashing the file list
-    hash <- all_parquet |> paste0(collapse="") |>
-        hash_sha256()
-    cached_connection <- cache$metadata_table[[hash]]
-    
-    if (!is.null(cached_connection) && isTRUE(use_cache)) {
-      # If the file list is identical, just re-use the database table
-        cached_connection
-    }
-    else {
-        table <- duckdb() |>
-            dbConnect(drv = _, read_only = TRUE) |>
-            read_parquet(path = all_parquet)
-        cache$metadata_table[[hash]] <- table
-        table
-    }
+  all_parquet <- file.path(cache_directory, dir(cache_directory, pattern = ".parquet$"))
+  # We try to avoid re-reading a set of parquet files 
+  # that is identical to a previous set by hashing the file list
+  hash <- all_parquet |> paste0(collapse="") |>
+    hash_sha256()
+  cached_connection <- cache$metadata_table[[hash]]
+  
+  if (!is.null(cached_connection) && isTRUE(use_cache)) {
+    # If the file list is identical, just re-use the database table
+    cached_connection
+  }
+  else {
+    table <- duckdb() |>
+      dbConnect(drv = _, read_only = TRUE) |>
+      read_parquet(path = all_parquet)
+    cache$metadata_table[[hash]] <- table
+    table
+  }
 }
 
