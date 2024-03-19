@@ -326,3 +326,24 @@ sync_assay_files <- function(
         output_file
     }, .progress = list(name = "Downloading files"))
 }
+
+#' Checks whether genes in a list of SCE objects overlap
+#' @param sce_list A list of SCE objects
+#' @return A character vector of genes intersection across SCE objects
+#' @importFrom purrr map reduce map_int
+#' @importFrom cli cli_alert_warning
+#' @noRd
+check_gene_overlap <- function(sce_list) {
+  gene_lists <- map(sce_list, rownames)
+  common_genes <- reduce(gene_lists, intersect)
+  unique_genes_count <-
+    map_int(gene_lists, ~ length(setdiff(.x, common_genes)))
+  
+  if (any(unique_genes_count > 0)) {
+    single_line_str(
+      "CuratedAtlasQuery reports: Not all genes completely overlap across the provided SCE objects"
+    ) |> cli_alert_warning()
+  }
+  
+  common_genes
+}
