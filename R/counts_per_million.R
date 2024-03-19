@@ -14,7 +14,7 @@
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom dplyr tbl
 #' @importFrom glue glue
-#' @importFrom HDF5Array loadHDF5SummarizedExperiment saveHDF5SummarizedExperiment
+#' @importFrom HDF5Array saveHDF5SummarizedExperiment
 #' @importFrom scuttle calculateCPM
 #' @importFrom DelayedArray realize
 #' @importFrom purrr map
