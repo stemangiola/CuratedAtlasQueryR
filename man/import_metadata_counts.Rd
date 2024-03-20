@@ -23,9 +23,7 @@ Checks importing criteria for new atlas
 Generats counts per million from provided raw counts
 }
 \examples{
-\dontrun{
-sample_sce_obj <- readRDS("~/path/sample_sce.rds")
-import_metadata_counts(sce_obj = sample_sce_obj,
-                       cache_directory = "~/cache_directory")
-}
+data(sample_sce_obj)
+import_metadata_counts(sample_sce_obj,
+                       cache_dir = get_default_cache_dir())
 }
