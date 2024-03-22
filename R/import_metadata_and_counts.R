@@ -1,5 +1,5 @@
 #' Checks importing criteria for new atlas 
-#' Generats counts per million from provided raw counts
+#' Generates counts per million from provided raw counts
 #'
 #' @param sce_obj A SingleCellExperiment object from RDS
 #' @param cache_dir Optional character vector of length 1. A file path on
@@ -19,8 +19,9 @@
 #' import_metadata_counts(sample_sce_obj,
 #'                        cache_dir = get_default_cache_dir())
 import_metadata_counts <- function(
-  sce_obj,  
-  cache_dir = get_default_cache_dir()) {
+    sce_obj,  
+    cache_dir = get_default_cache_dir()
+  ) {
   original_dir <- file.path(cache_dir, "original")
   
   # Identify metadata and counts matrix
@@ -67,9 +68,9 @@ import_metadata_counts <- function(
               msg = "Counts for SingleCellExperiment cannot be negative.")
   
   # check the metadata contains cell_, file_id_db, sample_ with correct types
-  check_true("cell_" %in% names(metadata_tbl))
+  check_true("cell_" %in% colnames(metadata_tbl))
   check_true("file_id_db" %in% names(metadata_tbl)) 
-  select(metadata_tbl, .data$cell_) |> class() |> check_character()
+  pull(metadata_tbl, .data$cell_) |> class() |> check_character()
   select(metadata_tbl, .data$file_id_db) |> class() |> check_character()
   #metadata_tbl |> select(cell_, file_id_db) |> sapply(class) |> check_character()
   
@@ -111,8 +112,6 @@ import_metadata_counts <- function(
     assert_that(msg = "The metadata sample file ID and the count file ID does not match")
   
   # convert metadata_tbl to parquet if above checkpoints pass
-  arrow::write_parquet(metadata_tbl, file.path(cache_dir, glue("metadata.parquet")))
+  arrow::write_parquet(metadata_tbl, file.path(cache_dir, "metadata.parquet"))
 }
-
-
 
