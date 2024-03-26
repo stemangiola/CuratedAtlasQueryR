@@ -219,9 +219,7 @@ group_to_sce <- function(i, df, dir_prefix, features) {
 
     if (length(cells) < nrow(df)){
         single_line_str(
-            "Some cells were filtered out while loading {head(df$file_id_db, 1)}
-            because of extremely low counts. The
-            number of cells in the SingleCellExperiment will be less than the
+            "The number of cells in the SingleCellExperiment will be less than the
             number of cells you have selected from the metadata.
             Are cell IDs duplicated? Or, do cell IDs correspond to the counts file?
             "

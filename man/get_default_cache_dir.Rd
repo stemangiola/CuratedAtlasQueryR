@@ -15,4 +15,3 @@ Returns the default cache directory with a version number
 \examples{
 get_metadata(cache_directory = get_default_cache_dir())
 }
-\keyword{internal}
