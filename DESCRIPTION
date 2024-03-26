@@ -93,7 +93,8 @@ Imports:
     utils,
     dbplyr (>= 2.3.0),
     duckdb,
-    stringr
+    stringr,
+    checkmate
 Suggests:
     zellkonverter,
     rmarkdown,
@@ -106,7 +107,10 @@ Suggests:
     forcats,
     ggplot2,
     tidySingleCellExperiment,
-    rprojroot
+    rprojroot,
+    openssl,
+    scuttle,
+    DelayedArray
 Biarch: true
 biocViews: 
     AssayDomain,
@@ -130,9 +134,13 @@ Roxygen: list(markdown = TRUE)
 Collate: 
     'utils.R'
     'counts.R'
+    'counts_per_million.R'
+    'data.R'
     'dev.R'
+    'import_metadata_and_counts.R'
     'metadata.R'
     'seurat.R'
     'unharmonised.R'
     'zzz.R'
 Language: en-US
+LazyData: true
