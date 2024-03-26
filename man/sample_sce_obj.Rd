@@ -14,6 +14,6 @@ HeOrganAtlasData Liver
 sample_sce_obj
 }
 \description{
-A sample SCE object from HeOrganAtlasData with transformation in metadata and assay
+A sample SingleCellExperiment object from HeOrganAtlasData with transformation in metadata and assay
 }
 \keyword{datasets}
