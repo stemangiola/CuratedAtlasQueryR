@@ -328,7 +328,7 @@ sync_assay_files <- function(
 #' Checks whether genes in a list of SCE objects overlap
 #' @param sce_list A list of SingleCellExperiment objects
 #' @return A character vector of genes intersection across SCE objects
-#' @importFrom purrr map reduce map_int
+#' @importFrom purrr map reduce
 #' @importFrom cli cli_alert_warning
 #' @noRd
 check_gene_overlap <- function(sce_list) {

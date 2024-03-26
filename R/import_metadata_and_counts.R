@@ -7,8 +7,7 @@
 #' @export
 #' @return A metadata.parquet strip from the SingleCellExperiment object. 
 #' Directories store counts and counts per million in the provided cache directory.
-#' @importFrom assertthat assert_that
-#' @importFrom checkmate check_true check_character check_subset
+#' @importFrom checkmate check_true check_character check_subset assert
 #' @importFrom dplyr select distinct pull
 #' @importFrom cli cli_alert_info
 #' @importFrom rlang .data
@@ -32,12 +31,12 @@ import_metadata_counts <- function(
   
   # Identify whether genes in SingleCellxExperiment object are in ensembl nomenclature
   genes <- rowData(sce_obj) |> rownames()
-  assert_that(sce_obj |> inherits( "SingleCellExperiment"),
-              msg = "sce_obj is not identified as SingleCellExperiment object.")
-  assert_that(!str_detect(genes, "^ENSG%") |> all(), 
-              msg = "Gene names in SingleCellExperiment object cannot contain Ensembl IDs.")
-  assert_that(all(counts_matrix >= 0),
-              msg = "Counts for SingleCellExperiment cannot be negative.")
+  assert(sce_obj |> inherits( "SingleCellExperiment"),
+              "sce_obj is not identified as SingleCellExperiment object.")
+  assert(!str_detect(genes, "^ENSG%") |> all(), 
+              "Gene names in SingleCellExperiment object cannot contain Ensembl IDs.")
+  assert(all(counts_matrix >= 0),
+              "Counts for SingleCellExperiment cannot be negative.")
   
   # Convert to tibble if not provided
   metadata_tbl <- metadata_tbl |> as_tibble()
@@ -64,7 +63,7 @@ import_metadata_counts <- function(
   # Check whether count H5 directory has been generated
   all(!metadata_tbl$file_id_db %in% dir(original_dir)) |>
     check_true() |>
-    assert_that(msg = "The filename for count assay (file_id_db) already exists in the cache directory.")
+    assert("The filename for count assay (file_id_db) already exists in the cache directory.")
   
   # Check the metadata contains cell_, file_id_db, sample_ with correct types
   check_true("cell_" %in% colnames(metadata_tbl))
@@ -73,17 +72,17 @@ import_metadata_counts <- function(
   select(metadata_tbl, .data$file_id_db) |> class() |> check_character()
   
   # Check cell_ values in metadata_tbl is unique
-  (anyDuplicated(metadata_tbl$cell_) == 0 ) |> assert_that(msg = "Cell names (cell_) in the metadata must be unique.")
+  (anyDuplicated(metadata_tbl$cell_) == 0 ) |> assert("Cell names (cell_) in the metadata must be unique.")
   
   # Check cell_ values are not duplicated when join with parquet
   cells <- select(get_metadata(cache_directory = cache_dir), .data$cell_) |> as_tibble()
   (!any(metadata_tbl$cell_ %in% cells$cell_)) |> 
-    assert_that(msg = "Cell names (cell_) should not clash with cells that already exist in the atlas.")
+    assert("Cell names (cell_) should not clash with cells that already exist in the atlas.")
   
   # Check age_days is either -99 or greater than 365
   if (any(colnames(metadata_tbl) == "age_days")) {
-    assert_that(all(metadata_tbl$age_days==-99 | metadata_tbl$age_days> 365),
-                msg = "age_days should be either -99 for unknown or greater than 365.")
+    assert(all(metadata_tbl$age_days==-99 | metadata_tbl$age_days> 365),
+                "age_days should be either -99 for unknown or greater than 365.")
   }
   
   # Check sex capitalisation then convert to lower case 
@@ -105,7 +104,7 @@ import_metadata_counts <- function(
   
   # check metadata sample file ID match the count file ID in cache directory
   all(metadata_tbl |> pull(.data$file_id_db) %in% dir(original_dir)) |> 
-    assert_that(msg = "The filename for count assay, which matches the file_id_db column in the metadata, already exists in the cache directory.")
+    assert("The filename for count assay, which matches the file_id_db column in the metadata, already exists in the cache directory.")
   
   # convert metadata_tbl to parquet if above checkpoints pass
   arrow::write_parquet(metadata_tbl, file.path(cache_dir, "metadata.parquet"))

@@ -60,8 +60,6 @@ get_default_cache_dir <- function() {
 
 #' Clear the default cache directory
 #' @return A length one character vector.
-#' @importFrom tools R_user_dir
-#' @importFrom utils packageName
 #' @keywords internal
 #' @noRd
 clear_cache <- function() {
