@@ -42,8 +42,8 @@ get_SingleCellExperiment <- function(...){
 #' returns a [`SingleCellExperiment::SingleCellExperiment-class`] object
 #' corresponding to the samples in that data frame
 #'
-#' @param data A data frame containing, at minimum, a `sample_` column, which
-#'   corresponds to a single cell sample ID. This can be obtained from the
+#' @param data A data frame containing, at minimum, `cell_` and `file_id_db` column, which
+#'   corresponds to a single cell ID, file subdivision for internal use. They can be obtained from the
 #'   [get_metadata()] function.
 #' @param assays A character vector whose elements must be either "counts"
 #'   and/or "cpm", representing the corresponding assay(s) you want to request.
@@ -75,7 +75,6 @@ get_SingleCellExperiment <- function(...){
 #' @importFrom assertthat assert_that has_name
 #' @importFrom cli cli_alert_success cli_alert_info
 #' @importFrom rlang .data
-#' @importFrom stats setNames
 #' @importFrom S4Vectors DataFrame
 #' @export
 get_single_cell_experiment <- function(
@@ -180,6 +179,148 @@ get_single_cell_experiment <- function(
   sce
 }
 
+#' Gets a SummarizedExperiment from curated metadata
+#'
+#' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
+#' returns a [`SummarizedExperiment::SummarizedExperiment-class`] object
+#' corresponding to the samples in that data frame
+#'
+#' @param data A data frame containing, at minimum, a `sample_` column, which
+#'   corresponds to a single cell sample ID. This can be obtained from the
+#'   [get_metadata()] function.
+#' @param assays A character vector whose elements must be either "counts"
+#'   and/or "cpm", representing the corresponding assay(s) you want to request.
+#'   By default only the count assay is downloaded. If you are interested in
+#'   comparing a limited amount of genes, the "cpm" assay is more appropriate.
+#' @param repository A character vector of length one. If provided, it should be
+#'   an HTTP URL pointing to the location where the summarized experiment data is stored.
+#' @param cache_directory An optional character vector of length one. If
+#'   provided, it should indicate a local file path where any remotely accessed
+#'   files should be copied.
+#' @param features An optional character vector of features (ie genes) to return
+#'   the counts for. By default counts for all features will be returned.
+#' @returns A SingleCellExperiment object, with one assay for each value in the
+#'   assays argument
+#' @examples
+#' # This is a temporaray example
+#' meta <- get_metadata() |> filter(sample_ == '068502277538ef5559154b543167fefa' | sample_ == '07605571f51519f71da03704f056fa43')
+#' sme <- get_pseudobulk(meta, repository=NULL,cache_directory = "~/projects/caq/pseudobulk/0.2.1")
+#'
+#' @importFrom dplyr pull filter as_tibble inner_join collect
+#' @importFrom tibble column_to_rownames
+#' @importFrom purrr reduce map map_int imap keep
+#' @importFrom BiocGenerics cbind
+#' @importFrom glue glue
+#' @importFrom SummarizedExperiment colData assayNames<-
+#' @importFrom httr parse_url
+#' @importFrom assertthat assert_that has_name
+#' @importFrom cli cli_alert_success cli_alert_info
+#' @importFrom rlang .data
+#' @importFrom S4Vectors DataFrame
+#' @export
+get_pseudobulk <- function(
+    data,
+    assays = "counts",
+    cache_directory = get_default_cache_dir(),
+    repository = NULL, # cloud container not ready yet
+    features = NULL
+) {
+  # Parameter validation
+  assays %in% names(assay_map) |>
+    all() |>
+    assert_that(
+      msg = 'assays must be a character vector containing "counts" and/or
+            "cpm"'
+    )
+  assert_that(
+    !anyDuplicated(assays),
+    inherits(cache_directory, "character"),
+    is.null(repository) || is.character(repository),
+    is.null(features) || is.character(features)
+  )
+  
+  # Data parameter validation (last, because it's slower)
+  ## Evaluate the promise now so that we get a sensible error message
+  force(data)
+  ## We have to convert to an in-memory table here, or some of the dplyr
+  ## operations will fail when passed a database connection
+  cli_alert_info("Realising metadata.")
+  raw_data <- collect(data)
+  assert_that(
+    inherits(raw_data, "tbl"),
+    has_name(raw_data, c("sample_"))
+  )
+  
+  versioned_cache_directory <- cache_directory
+  versioned_cache_directory |> dir.create(
+    showWarnings = FALSE,
+    recursive = TRUE
+  )
+  
+  subdirs <- assay_map[assays]
+  
+  # The repository is optional. If not provided we load only from the cache
+  if (!is.null(repository)) {
+    cli_alert_info("Synchronising files")
+    parsed_repo <- parse_url(repository)
+    parsed_repo$scheme |>
+      `%in%`(c("http", "https")) |>
+      assert_that()
+    
+    files_to_read <-
+      raw_data |>
+      pull(.data$sample_) |>
+      unique() |>
+      as.character() |>
+      sync_assay_files(
+        url = parsed_repo,
+        cache_dir = versioned_cache_directory,
+        files = _,
+        subdirs = subdirs
+      )
+  }
+  
+  cli_alert_info("Reading files.")
+  smes <- subdirs |>
+    imap(function(current_subdir, current_assay) {
+      # Build up a Summarized Experiment for each assay
+      dir_prefix <- file.path(
+        versioned_cache_directory,
+        current_subdir
+      )
+      
+      sme_list <- raw_data |>
+        dplyr::group_by(.data$sample_) |>
+        # Load each file and attach metadata
+        dplyr::summarise(smes = list(
+          group_to_sme(
+            dplyr::cur_group_id(),
+            dplyr::cur_data_all(),
+            dir_prefix,
+            features
+          )
+        )) |>
+        dplyr::pull(smes)
+      
+      # Check whether genes/rows in a list of SummarizedExperiment overlap, use gene intersection if does
+      commonGenes <- sme_list |> check_gene_overlap()
+      sme_list <- map(sme_list, function(sme) {
+        sme[commonGenes,]
+      }) |>
+        do.call(cbind, args = _)
+    })
+  
+  cli_alert_info("Compiling Summarized Experiment.")
+  # Combine all the assays
+  
+  sme <- smes[[1]]
+  SummarizedExperiment::assays(sme) <- map(smes, function(sme) {
+    SummarizedExperiment::assays(sme)[[1]]
+  })
+  
+  sme
+}
+
 #' Converts a data frame into a single SCE
 #' @param i Suffix to be added to the column names, to make them unique
 #' @param df The data frame to be converted
@@ -254,6 +395,37 @@ group_to_sce <- function(i, df, dir_prefix, features) {
         `colData<-`(value = new_coldata)
 }
 
+#' Converts a data frame into a single Summarized Experiment
+#' @param i Suffix to be added to the column names, to make them unique
+#' @param df The data frame to be converted
+#' @param dir_prefix The path to the Summarized Experiment object
+#' @param features The list of genes/rows of interest
+#' @return A Summarized Experiment object
+#' @importFrom utils head
+#' @noRd
+group_to_sme <- function(i, df, dir_prefix, features) {
+  sme_path <- df$sample_ |>
+    head(1) |>
+    paste0(".rds") |>
+    file.path(
+      dir_prefix,
+      suffix=_
+    )
+  
+  file.exists(sme_path) |>
+    assert_that(
+      msg = "Your cache does not contain a file {sme_path} you
+                            attempted to query. Please provide the repository
+                            parameter so that files can be synchronised from the
+                            internet" |> glue()
+    )
+  
+  sme <- readRDS(sme_path)
+  force(i)
+  
+  sme
+}
+
 #' Synchronises one or more remote assays with a local copy
 #' @param url A character vector of length one. The base HTTP URL from which to
 #'   obtain the files.
@@ -325,21 +497,22 @@ sync_assay_files <- function(
     }, .progress = list(name = "Downloading files"))
 }
 
-#' Checks whether genes in a list of SCE objects overlap
-#' @param sce_list A list of SingleCellExperiment objects
-#' @return A character vector of genes intersection across SCE objects
+#' Checks whether genes in a list of SingleCellExperiment or SummarizedExperiment objects overlap
+#' @param obj_list A list of SingleCellExperiment or SummarizedExperiment objects
+#' @return A character vector of genes intersection across objects
 #' @importFrom purrr map reduce
 #' @importFrom cli cli_alert_warning
 #' @noRd
-check_gene_overlap <- function(sce_list) {
-  gene_lists <- map(sce_list, rownames)
+check_gene_overlap <- function(obj_list) {
+  gene_lists <- map(obj_list, rownames)
   common_genes <- reduce(gene_lists, intersect)
   if (any(lengths(gene_lists) != length(common_genes))) {
     single_line_str(
-      "CuratedAtlasQuery reports: Not all genes completely overlap across the provided SCE objects.
+      "CuratedAtlasQuery says: Not all genes completely overlap across the provided objects.
       Counts are generated by genes intersection"
     ) |> cli_alert_warning()
   }
   
   common_genes
 }
+
