@@ -199,12 +199,15 @@ get_single_cell_experiment <- function(
 #'   files should be copied.
 #' @param features An optional character vector of features (ie genes) to return
 #'   the counts for. By default counts for all features will be returned.
-#' @returns A SingleCellExperiment object, with one assay for each value in the
+#' @returns A SummarizedExperiment object, with one assay for each value in the
 #'   assays argument
 #' @examples
-#' # This is a temporaray example
-#' meta <- get_metadata() |> filter(sample_ == '068502277538ef5559154b543167fefa' | sample_ == '07605571f51519f71da03704f056fa43')
+#' \dontrun{
+#' meta <- get_metadata() |> 
+#'         filter(sample_ == '068502277538ef5559154b543167fefa' | 
+#'                sample_ == '07605571f51519f71da03704f056fa43')
 #' sme <- get_pseudobulk(meta, repository=NULL,cache_directory = "~/projects/caq/pseudobulk/0.2.1")
+#' }
 #'
 #' @importFrom dplyr pull filter as_tibble inner_join collect
 #' @importFrom tibble column_to_rownames

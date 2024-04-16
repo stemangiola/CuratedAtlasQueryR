@@ -33,7 +33,7 @@ an HTTP URL pointing to the location where the summarized experiment data is sto
 the counts for. By default counts for all features will be returned.}
 }
 \value{
-A SingleCellExperiment object, with one assay for each value in the
+A SummarizedExperiment object, with one assay for each value in the
 assays argument
 }
 \description{
@@ -42,8 +42,9 @@ returns a \code{\link[SummarizedExperiment:SummarizedExperiment-class]{Summarize
 corresponding to the samples in that data frame
 }
 \examples{
-# This is a temporaray example
+\dontrun{
 meta <- get_metadata() |> filter(sample_ == '068502277538ef5559154b543167fefa' | sample_ == '07605571f51519f71da03704f056fa43')
 sme <- get_pseudobulk(meta, repository=NULL,cache_directory = "~/projects/caq/pseudobulk/0.2.1")
+}
 
 }
