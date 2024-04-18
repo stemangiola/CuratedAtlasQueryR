@@ -2,7 +2,7 @@
 % Please edit documentation in R/counts.R
 \name{get_pseudobulk}
 \alias{get_pseudobulk}
-\title{Gets a SummarizedExperiment from curated metadata}
+\title{Gets a Summarized Experiment from curated metadata}
 \usage{
 get_pseudobulk(
   data,
@@ -13,9 +13,9 @@ get_pseudobulk(
 )
 }
 \arguments{
-\item{data}{A data frame containing, at minimum, a \code{sample_} column, which
-corresponds to a single cell sample ID. This can be obtained from the
-\code{\link[=get_metadata]{get_metadata()}} function.}
+\item{data}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{sample_} column, which
+correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID.
+They can be obtained from the \code{\link[=get_metadata]{get_metadata()}} function.}
 
 \item{assays}{A character vector whose elements must be either "counts"
 and/or "cpm", representing the corresponding assay(s) you want to request.
@@ -27,14 +27,10 @@ provided, it should indicate a local file path where any remotely accessed
 files should be copied.}
 
 \item{repository}{A character vector of length one. If provided, it should be
-an HTTP URL pointing to the location where the summarized experiment data is stored.}
+an HTTP URL pointing to the location where the single cell data is stored.}
 
 \item{features}{An optional character vector of features (ie genes) to return
 the counts for. By default counts for all features will be returned.}
-}
-\value{
-A SummarizedExperiment object, with one assay for each value in the
-assays argument
 }
 \description{
 Given a data frame of Curated Atlas metadata obtained from \code{\link[=get_metadata]{get_metadata()}},
@@ -43,7 +39,9 @@ corresponding to the samples in that data frame
 }
 \examples{
 \dontrun{
-meta <- get_metadata() |> filter(sample_ == '068502277538ef5559154b543167fefa' | sample_ == '07605571f51519f71da03704f056fa43')
+meta <- get_metadata() |> 
+        filter(sample_ \%in\% c('068502277538ef5559154b543167fefa',
+        '07605571f51519f71da03704f056fa43'))
 sme <- get_pseudobulk(meta, repository=NULL,cache_directory = "~/projects/caq/pseudobulk/0.2.1")
 }
 

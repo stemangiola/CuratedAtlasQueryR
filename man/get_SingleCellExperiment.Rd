@@ -10,9 +10,9 @@ get_SingleCellExperiment(...)
 \item{...}{
   Arguments passed on to \code{\link[=get_single_cell_experiment]{get_single_cell_experiment}}
   \describe{
-    \item{\code{data}}{A data frame containing, at minimum, \code{cell_} and \code{file_id_db} column, which
-corresponds to a single cell ID, file subdivision for internal use. They can be obtained from the
-\code{\link[=get_metadata]{get_metadata()}} function.}
+    \item{\code{data}}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{sample_} column, which
+correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID.
+They can be obtained from the \code{\link[=get_metadata]{get_metadata()}} function.}
     \item{\code{assays}}{A character vector whose elements must be either "counts"
 and/or "cpm", representing the corresponding assay(s) you want to request.
 By default only the count assay is downloaded. If you are interested in

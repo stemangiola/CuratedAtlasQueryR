@@ -41,21 +41,7 @@ get_SingleCellExperiment <- function(...){
 #' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
 #' returns a [`SingleCellExperiment::SingleCellExperiment-class`] object
 #' corresponding to the samples in that data frame
-#'
-#' @param data A data frame containing, at minimum, `cell_` and `file_id_db` column, which
-#'   corresponds to a single cell ID, file subdivision for internal use. They can be obtained from the
-#'   [get_metadata()] function.
-#' @param assays A character vector whose elements must be either "counts"
-#'   and/or "cpm", representing the corresponding assay(s) you want to request.
-#'   By default only the count assay is downloaded. If you are interested in
-#'   comparing a limited amount of genes, the "cpm" assay is more appropriate.
-#' @param repository A character vector of length one. If provided, it should be
-#'   an HTTP URL pointing to the location where the single cell data is stored.
-#' @param cache_directory An optional character vector of length one. If
-#'   provided, it should indicate a local file path where any remotely accessed
-#'   files should be copied.
-#' @param features An optional character vector of features (ie genes) to return
-#'   the counts for. By default counts for all features will be returned.
+#' @inheritParams param_validation
 #' @returns A SingleCellExperiment object, with one assay for each value in the
 #'   assays argument
 #' @examples
@@ -84,39 +70,13 @@ get_single_cell_experiment <- function(
     repository = COUNTS_URL,
     features = NULL
 ) {
-  # Parameter validation
-  assays %in% names(assay_map) |>
-    all() |>
-    assert_that(
-      msg = 'assays must be a character vector containing "counts" and/or
-            "cpm"'
-    )
-  assert_that(
-    !anyDuplicated(assays),
-    inherits(cache_directory, "character"),
-    is.null(repository) || is.character(repository),
-    is.null(features) || is.character(features)
-  )
   
-  # Data parameter validation (last, because it's slower)
-  ## Evaluate the promise now so that we get a sensible error message
-  force(data)
-  ## We have to convert to an in-memory table here, or some of the dplyr
-  ## operations will fail when passed a database connection
-  cli_alert_info("Realising metadata.")
-  raw_data <- collect(data)
-  assert_that(
-    inherits(raw_data, "tbl"),
-    has_name(raw_data, c("cell_", "file_id_db"))
-  )
+  validated <- param_validation(data, assays, cache_directory, repository, features)
   
-  versioned_cache_directory <- cache_directory
-  versioned_cache_directory |> dir.create(
-    showWarnings = FALSE,
-    recursive = TRUE
-  )
-  
-  subdirs <- assay_map[assays]
+  # Extract variables from validation
+  raw_data <- validated$raw_data
+  versioned_cache_directory <- validated$versioned_cache_directory
+  subdirs <- validated$subdirs
   
   # The repository is optional. If not provided we load only from the cache
   if (!is.null(repository)) {
@@ -178,34 +138,17 @@ get_single_cell_experiment <- function(
   
   sce
 }
-
-#' Gets a SummarizedExperiment from curated metadata
+#' Gets a Summarized Experiment from curated metadata
 #'
 #' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
 #' returns a [`SummarizedExperiment::SummarizedExperiment-class`] object
 #' corresponding to the samples in that data frame
-#'
-#' @param data A data frame containing, at minimum, a `sample_` column, which
-#'   corresponds to a single cell sample ID. This can be obtained from the
-#'   [get_metadata()] function.
-#' @param assays A character vector whose elements must be either "counts"
-#'   and/or "cpm", representing the corresponding assay(s) you want to request.
-#'   By default only the count assay is downloaded. If you are interested in
-#'   comparing a limited amount of genes, the "cpm" assay is more appropriate.
-#' @param repository A character vector of length one. If provided, it should be
-#'   an HTTP URL pointing to the location where the summarized experiment data is stored.
-#' @param cache_directory An optional character vector of length one. If
-#'   provided, it should indicate a local file path where any remotely accessed
-#'   files should be copied.
-#' @param features An optional character vector of features (ie genes) to return
-#'   the counts for. By default counts for all features will be returned.
-#' @returns A SummarizedExperiment object, with one assay for each value in the
-#'   assays argument
+#' @inheritParams param_validation
 #' @examples
 #' \dontrun{
 #' meta <- get_metadata() |> 
-#'         filter(sample_ == '068502277538ef5559154b543167fefa' | 
-#'                sample_ == '07605571f51519f71da03704f056fa43')
+#'         filter(sample_ %in% c('068502277538ef5559154b543167fefa',
+#'         '07605571f51519f71da03704f056fa43'))
 #' sme <- get_pseudobulk(meta, repository=NULL,cache_directory = "~/projects/caq/pseudobulk/0.2.1")
 #' }
 #'
@@ -228,39 +171,13 @@ get_pseudobulk <- function(
     repository = NULL, # cloud container not ready yet
     features = NULL
 ) {
-  # Parameter validation
-  assays %in% names(assay_map) |>
-    all() |>
-    assert_that(
-      msg = 'assays must be a character vector containing "counts" and/or
-            "cpm"'
-    )
-  assert_that(
-    !anyDuplicated(assays),
-    inherits(cache_directory, "character"),
-    is.null(repository) || is.character(repository),
-    is.null(features) || is.character(features)
-  )
   
-  # Data parameter validation (last, because it's slower)
-  ## Evaluate the promise now so that we get a sensible error message
-  force(data)
-  ## We have to convert to an in-memory table here, or some of the dplyr
-  ## operations will fail when passed a database connection
-  cli_alert_info("Realising metadata.")
-  raw_data <- collect(data)
-  assert_that(
-    inherits(raw_data, "tbl"),
-    has_name(raw_data, c("sample_"))
-  )
+  validated <- param_validation(data, assays, cache_directory, repository, features)
   
-  versioned_cache_directory <- cache_directory
-  versioned_cache_directory |> dir.create(
-    showWarnings = FALSE,
-    recursive = TRUE
-  )
-  
-  subdirs <- assay_map[assays]
+  # Extract variables from validated parameters
+  raw_data <- validated$raw_data
+  versioned_cache_directory <- validated$versioned_cache_directory
+  subdirs <- validated$subdirs
   
   # The repository is optional. If not provided we load only from the cache
   if (!is.null(repository)) {
@@ -398,11 +315,8 @@ group_to_sce <- function(i, df, dir_prefix, features) {
         `colData<-`(value = new_coldata)
 }
 
-#' Converts a data frame into a single Summarized Experiment
-#' @param i Suffix to be added to the column names, to make them unique
-#' @param df The data frame to be converted
-#' @param dir_prefix The path to the Summarized Experiment object
-#' @param features The list of genes/rows of interest
+#' Converts a data frame into a Summarized Experiment
+#' @inheritParams group_to_sce
 #' @return A Summarized Experiment object
 #' @importFrom utils head
 #' @noRd
@@ -517,5 +431,68 @@ check_gene_overlap <- function(obj_list) {
   }
   
   common_genes
+}
+
+#' Validate parameters for Summarized Experiment analysis
+#' @param data A data frame containing, at minimum, `cell_`, `file_id_db`, `sample_` column, which
+#'   correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID. 
+#'   They can be obtained from the [get_metadata()] function.
+#' @param assays A character vector whose elements must be either "counts"
+#'   and/or "cpm", representing the corresponding assay(s) you want to request.
+#'   By default only the count assay is downloaded. If you are interested in
+#'   comparing a limited amount of genes, the "cpm" assay is more appropriate.
+#' @param repository A character vector of length one. If provided, it should be
+#'   an HTTP URL pointing to the location where the single cell data is stored.
+#' @param cache_directory An optional character vector of length one. If
+#'   provided, it should indicate a local file path where any remotely accessed
+#'   files should be copied.
+#' @param features An optional character vector of features (ie genes) to return
+#'   the counts for. By default counts for all features will be returned.
+#' @return A list of elements:
+#' \itemize{
+#'  \item{raw_data}{Data after being converted to an in-memory data frame }
+#'  \item{versioned_cache_directory}{The path to the cache directory}
+#'  \item{subdirs}{Vector of subdirectory names from the `assays` input} 
+#' }
+#' @importFrom dplyr collect
+#' @importFrom assertthat assert_that has_name
+#' @importFrom cli cli_alert_info
+#' @importFrom rlang .data
+#' @keywords internal
+param_validation <- function(data,
+                             assays,
+                             cache_directory,
+                             repository,
+                             features
+                             ) {
+  # Parameter validation 
+  assays %in% names(assay_map) |>
+    all() |>
+    assert_that(msg = 'assays must be a character vector containing "counts" and/or
+            "cpm"')
+  assert_that(
+    !anyDuplicated(assays),
+    inherits(cache_directory, "character"),
+    is.null(repository) || is.character(repository),
+    is.null(features) || is.character(features)
+  )
+  
+  # Data parameter validation (last, because it's slower)
+  ## Evaluate the promise now so that we get a sensible error message
+  force(data)
+  ## We have to convert to an in-memory table here, or some of the dplyr
+  ## operations will fail when passed a database connection
+  cli_alert_info("Realising metadata.")
+  raw_data <- collect(data)
+  assert_that(inherits(raw_data, "tbl"),
+              has_name(raw_data, c("sample_", "cell_", "file_id_db")))
+  
+  versioned_cache_directory <- cache_directory
+  versioned_cache_directory |> dir.create(showWarnings = FALSE,
+                                          recursive = TRUE)
+  
+  subdirs <- assay_map[assays]
+  
+  list(raw_data = raw_data, versioned_cache_directory = versioned_cache_directory, subdirs = subdirs)
 }
 
