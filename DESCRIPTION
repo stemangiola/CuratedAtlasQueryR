@@ -1,7 +1,7 @@
 Type: Package
 Package: CuratedAtlasQueryR
 Title: Queries the Human Cell Atlas
-Version: 0.99.3
+Version: 1.1.3
 Authors@R: c(
     person(
         "Stefano",
@@ -93,7 +93,8 @@ Imports:
     utils,
     dbplyr (>= 2.3.0),
     duckdb,
-    stringr
+    stringr,
+    checkmate
 Suggests:
     zellkonverter,
     rmarkdown,
@@ -106,7 +107,10 @@ Suggests:
     forcats,
     ggplot2,
     tidySingleCellExperiment,
-    rprojroot
+    rprojroot,
+    openssl,
+    scuttle,
+    DelayedArray
 Biarch: true
 biocViews: 
     AssayDomain,
@@ -121,7 +125,7 @@ biocViews:
     Transcription,
     Transcriptomics
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 LazyDataCompression: xz
 URL: https://github.com/stemangiola/CuratedAtlasQueryR
 BugReports: https://github.com/stemangiola/CuratedAtlasQueryR/issues
@@ -130,9 +134,13 @@ Roxygen: list(markdown = TRUE)
 Collate: 
     'utils.R'
     'counts.R'
+    'counts_per_million.R'
+    'data.R'
     'dev.R'
+    'import_metadata_and_counts.R'
     'metadata.R'
     'seurat.R'
     'unharmonised.R'
     'zzz.R'
 Language: en-US
+LazyData: true

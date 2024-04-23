@@ -11,11 +11,14 @@ An object of class \code{character} of length 1.
 \usage{
 SAMPLE_DATABASE_URL
 }
+\value{
+A character scalar consisting of the URL
+}
 \description{
 URL pointing to the sample metadata file, which is smaller and for test,
 demonstration, and vignette purposes only
 }
 \examples{
-get_metadata(remote_url = SAMPLE_DATABASE_URL)
+get_metadata(remote_url = SAMPLE_DATABASE_URL, cache_directory = tempdir())
 }
 \keyword{datasets}

@@ -5,14 +5,14 @@
 \title{Gets the Curated Atlas metadata as a data frame.}
 \usage{
 get_metadata(
-  remote_url = DATABASE_URL,
+  remote_url = get_database_url(),
   cache_directory = get_default_cache_dir(),
   use_cache = TRUE
 )
 }
 \arguments{
-\item{remote_url}{Optional character vector of length 1. An HTTP URL pointing
-to the location of the parquet database.}
+\item{remote_url}{Optional character vector of any length. HTTP URL/URLs pointing
+to the name and location of parquet database/databases.}
 
 \item{cache_directory}{Optional character vector of length 1. A file path on
 your local system to a directory (not a file) that will be used to store
