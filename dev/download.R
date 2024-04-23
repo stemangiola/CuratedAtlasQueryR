@@ -16,8 +16,7 @@ library(HDF5Array)
 db <- db()
 
 # Arguments
-args = commandArgs(trailingOnly=TRUE)
-root_directory = args[[1]]
+root_directory = "/vast/projects/cellxgene_curated/raw_data_Apr_2024"
 
 files_metadata = 
 	datasets(db) |>
@@ -27,6 +26,30 @@ files_metadata =
 	) 
 
 files_metadata |> saveRDS(glue("{root_directory}/files_metadata.rds"))
+
+
+test = 
+  files_metadata |> 
+  slice(1:50) |> 
+  nest(data = c(dataset_id, dataset_version_id, filetype, url)) |> 
+  mutate(has_donor_id = map_lgl(
+    data,
+    ~ {
+      h5_path = .x |> files_download(dry.run = FALSE)
+      has_donor_id = 
+        h5_path |> 
+        readH5AD(use_hdf5 = TRUE	) |> 
+        colData() |> 
+        as_tibble() |> 
+        select(any_of("donor_id")) |> 
+        ncol() >
+        0
+      file.remove(h5_path)
+      has_donor_id
+    }
+  )) |> 
+  unnest(data) |> 
+  select(dataset_version_id, has_donor_id)
 
 files_metadata |>
 
