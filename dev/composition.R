@@ -1,13 +1,13 @@
 library(tidyverse)
 library(forcats)
-library(HCAquery)
+library(CuratedAtlasQueryR)
 library(dittoSeq)
 library(sccomp)
 library(magrittr)
 library(patchwork)
 
 source("https://gist.githubusercontent.com/stemangiola/fc67b08101df7d550683a5100106561c/raw/a0853a1a4e8a46baf33bad6268b09001d49faf51/ggplot_theme_multipanel")
-metadata = readRDS("~/PostDoc/HCAquery/dev/metadata_annotated.rds")
+metadata = readRDS("~/PostDoc/CuratedAtlasQueryR/dev/metadata_annotated.rds")
 
 ## from http://tr.im/hH5A
 
@@ -21,7 +21,7 @@ softmax <- function (x) {
 	exp(x - logsumexp(x))
 }
 
-cell_metadata_with_harmonised_annotation = readRDS("~/PostDoc/HCAquery/dev/cell_metadata_with_harmonised_annotation.rds")
+cell_metadata_with_harmonised_annotation = readRDS("~/PostDoc/CuratedAtlasQueryR/dev/cell_metadata_with_harmonised_annotation.rds")
 
 data_for_plot_1 =
   cell_metadata_with_harmonised_annotation |>
@@ -146,11 +146,11 @@ data_for_immune_proportion =
 # 			mcmc_seed = 42, verbose = T
 # 		)
 #
-# 	res_absolute |> saveRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition.rds")
+# 	res_absolute |> saveRDS("~/PostDoc/CuratedAtlasQueryR/dev/immune_non_immune_differential_composition.rds")
 #
 # })
 
-res_absolute = readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition.rds")
+res_absolute = readRDS("~/PostDoc/CuratedAtlasQueryR/dev/immune_non_immune_differential_composition.rds")
 
 res_generated_proportions =
 	res_absolute |>
@@ -333,7 +333,7 @@ cell_metadata_with_harmonised_annotation |>
 #
 # data_for_immune_proportion_relative |> saveRDS("dev/data_for_immune_proportion_relative.rds")
 
-data_for_immune_proportion_relative = readRDS("~/PostDoc/HCAquery/dev/data_for_immune_proportion_relative.rds")
+data_for_immune_proportion_relative = readRDS("~/PostDoc/CuratedAtlasQueryR/dev/data_for_immune_proportion_relative.rds")
 
 # Analysis of counts relative
 data_for_immune_proportion_relative |>
@@ -364,17 +364,17 @@ data_for_immune_proportion_relative |>
 # })
 
 
-res_relative = readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_relative_5.rds")
+res_relative = readRDS("~/PostDoc/CuratedAtlasQueryR/dev/immune_non_immune_differential_composition_relative_5.rds")
 
 # job::job({
-# 	readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_relative_5.rds") |>
+# 	readRDS("~/PostDoc/CuratedAtlasQueryR/dev/immune_non_immune_differential_composition_relative_5.rds") |>
 # 		remove_unwanted_variation(~ 0 + tissue_harmonised) |>
-# 		saveRDS("~/PostDoc/HCAquery/dev/proportions_tissue_adjusted_5.rds")
+# 		saveRDS("~/PostDoc/CuratedAtlasQueryR/dev/proportions_tissue_adjusted_5.rds")
 # })
-# job::job({ readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_relative_4.rds") |> remove_unwanted_variation(~ age_days) })
+# job::job({ readRDS("~/PostDoc/CuratedAtlasQueryR/dev/immune_non_immune_differential_composition_relative_4.rds") |> remove_unwanted_variation(~ age_days) })
 
 
-proportions_tissue_replicate = readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_relative_5.rds") |> replicate_data (~ 0 + tissue_harmonised)
+proportions_tissue_replicate = readRDS("~/PostDoc/CuratedAtlasQueryR/dev/immune_non_immune_differential_composition_relative_5.rds") |> replicate_data (~ 0 + tissue_harmonised)
 
  # PCA
 library(tidybulk)
@@ -527,7 +527,7 @@ res_relative_plot |> saveRDS("dev/immune_non_immune_differential_composition_rel
 # 			mcmc_seed = 42, verbose = T
 # 		) |>
 #
-# 		saveRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_age2.rds")
+# 		saveRDS("~/PostDoc/CuratedAtlasQueryR/dev/immune_non_immune_differential_composition_age2.rds")
 #
 # })
 
@@ -548,21 +548,21 @@ job::job({
 			approximate_posterior_inference = FALSE,
 			cores = 20,
 			mcmc_seed = 42, verbose = T
-		) |> saveRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_age_relative.rds")
+		) |> saveRDS("~/PostDoc/CuratedAtlasQueryR/dev/immune_non_immune_differential_composition_age_relative.rds")
 })
 
 # job::job({
-# 	readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_age_relative.rds") |>
+# 	readRDS("~/PostDoc/CuratedAtlasQueryR/dev/immune_non_immune_differential_composition_age_relative.rds") |>
 # 		remove_unwanted_variation(~ age_days) |>
-# 		saveRDS("~/PostDoc/HCAquery/dev/proportions_age_adjusted_relative.rds")
+# 		saveRDS("~/PostDoc/CuratedAtlasQueryR/dev/proportions_age_adjusted_relative.rds")
 # 	})
 # job::job({
-# 	readRDS("~/PostDoc/HCAquery/dev/immune_non_immune_differential_composition_age2.rds") |>
+# 	readRDS("~/PostDoc/CuratedAtlasQueryR/dev/immune_non_immune_differential_composition_age2.rds") |>
 # 		remove_unwanted_variation(~ age_days) |>
-# 		saveRDS("~/PostDoc/HCAquery/dev/proportions_age_adjusted_absolute.rds")
+# 		saveRDS("~/PostDoc/CuratedAtlasQueryR/dev/proportions_age_adjusted_absolute.rds")
 # 	})
-proportions_age5 = readRDS("~/PostDoc/HCAquery/dev/proportions_age_adjusted_relative.rds")
-proportions_age_absolute = readRDS("~/PostDoc/HCAquery/dev/proportions_age_adjusted_absolute.rds")
+proportions_age5 = readRDS("~/PostDoc/CuratedAtlasQueryR/dev/proportions_age_adjusted_relative.rds")
+proportions_age_absolute = readRDS("~/PostDoc/CuratedAtlasQueryR/dev/proportions_age_adjusted_absolute.rds")
 
 proportions_age_absolute |>
 	left_join(

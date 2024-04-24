@@ -1,97 +1,94 @@
-#' Checks importing criteria for new atlas 
-#' Generats counts per million from provided raw counts
+#' Import and process metadata and counts for a SingleCellExperiment object
 #'
 #' @param sce_obj A SingleCellExperiment object from RDS
 #' @param cache_dir Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
 #' @export
-#' @return A metadata.parquet strip from SCE object. 
+#' @return A metadata.parquet strip from the SingleCellExperiment object. 
 #' Directories store counts and counts per million in the provided cache directory.
-#' @importFrom assertthat assert_that
-#' @importFrom checkmate check_tibble check_directory_exists check_set_equal check_true check_character check_subset check_file_exists
-#' @importFrom dplyr tbl select
+#' @importFrom checkmate check_true check_character check_subset assert
+#' @importFrom dplyr select distinct pull
 #' @importFrom cli cli_alert_info
-#' @importFrom glue glue
 #' @importFrom rlang .data
+#' @importFrom SingleCellExperiment reducedDims rowData reducedDims<-
+#' @importFrom S4Vectors metadata metadata<-
+#' @importFrom SummarizedExperiment assay
+#' @importFrom stringr str_detect
 #' @examples
-#' \dontrun{
-#' sample_sce_obj <- readRDS("~/path/sample_sce.rds")
-#' import_metadata_counts(sce_obj = sample_sce_obj,
-#'                        cache_directory = "~/cache_directory")
-#' }
+#' data(sample_sce_obj)
+#' import_metadata_counts(sample_sce_obj,
+#'                        cache_dir = get_default_cache_dir())
 import_metadata_counts <- function(
-  sce_obj,  
-  cache_dir = get_default_cache_dir()) {
+    sce_obj,  
+    cache_dir = get_default_cache_dir()
+  ) {
   original_dir <- file.path(cache_dir, "original")
   
   # Identify metadata and counts matrix
-  metadata_tbl <- sce_obj@metadata$data
-  counts_matrix <- sce_obj@assays@data$X
+  metadata_tbl <- metadata(sce_obj)$data
+  counts_matrix <- assay(sce_obj)
   
-  # Convert to tibble if metadata_tbl is not a tibble
+  # Identify whether genes in SingleCellxExperiment object are in ensembl nomenclature
+  genes <- rowData(sce_obj) |> rownames()
+  assert(sce_obj |> inherits( "SingleCellExperiment"),
+              "sce_obj is not identified as SingleCellExperiment object.")
+  assert(!str_detect(genes, "^ENSG%") |> all(), 
+              "Gene names in SingleCellExperiment object cannot contain Ensembl IDs.")
+  assert(all(counts_matrix >= 0),
+              "Counts for SingleCellExperiment cannot be negative.")
+  
+  # Convert to tibble if not provided
   metadata_tbl <- metadata_tbl |> as_tibble()
   
   # Create file_id_db from dataset_id
   metadata_tbl <-
     metadata_tbl |> mutate(file_id_db = .data$dataset_id |> openssl::md5() |> as.character())
-  sce_obj@metadata$data <- metadata_tbl
+  metadata(sce_obj)$data <- metadata_tbl
   
   # Remove existing reducedDim slot to enable get_SCE API functionality 
-  if (length(names(SingleCellExperiment::reducedDims(sce_obj))) >0 ) {
-    SingleCellExperiment::reducedDims(sce_obj) <- NULL
+  if (length(names(reducedDims(sce_obj))) >0 ) {
+    reducedDims(sce_obj) <- NULL
   }
   
-  # create original and cpm folders in cache directory if not exist (in order to append new counts to existing ones)
+  # Create original and cpm folders in the cache directory if not exist
   if (!dir.exists(original_dir)) {
-    dir.create(cache_dir, "original", recursive = TRUE)
+    cache_dir |> file.path("original") |> dir.create(recursive = TRUE)
   }
   
   if (!dir.exists(file.path(cache_dir, "cpm"))) {
-    dir.create(cache_dir, "cpm", recursive = TRUE)
+    cache_dir |> file.path("cpm") |> dir.create(recursive = TRUE)
   }
   
-  # existing metadata genes
-  genes <- get_metadata() |> head(1) |> 
-    get_single_cell_experiment(cache_directory = cache_dir) |> rownames()
-  
-  # check count H5 directory name not included in the cache directory original
+  # Check whether count H5 directory has been generated
   all(!metadata_tbl$file_id_db %in% dir(original_dir)) |>
     check_true() |>
-    assert_that(msg = "Count H5 directory name should not duplicate with that in cache directory")
-
-  counts_data <- sce_obj@assays@data$X
-  assert_that(inherits(sce_obj, "SingleCellExperiment"),
-              msg = "SingleCellExperiment Object is not created from metadata.")
-  assert_that(!"^ENS" %in% genes,
-              msg = "Gene names cannot contain Ensembl IDs.")
-  assert_that(all(counts_data >= 0),
-              msg = "Counts for SingleCellExperiment cannot be negative.")
+    assert("The filename for count assay (file_id_db) already exists in the cache directory.")
   
-  # check the metadata contains cell_, file_id_db, sample_ with correct types
-  check_true("cell_" %in% names(metadata_tbl))
+  # Check the metadata contains cell_, file_id_db, sample_ with correct types
+  check_true("cell_" %in% colnames(metadata_tbl))
   check_true("file_id_db" %in% names(metadata_tbl)) 
-  select(metadata_tbl, .data$cell_) |> class() |> check_character()
+  pull(metadata_tbl, .data$cell_) |> class() |> check_character()
   select(metadata_tbl, .data$file_id_db) |> class() |> check_character()
-  #metadata_tbl |> select(cell_, file_id_db) |> sapply(class) |> check_character()
   
-  # check cell_ values in metadata_tbl is unique
-  (anyDuplicated(metadata_tbl$cell_) == 0 ) |> assert_that(msg = "cell_ in the metadata must be unique")
+  # Check cell_ values in metadata_tbl is unique
+  (anyDuplicated(metadata_tbl$cell_) == 0 ) |> assert("Cell names (cell_) in the metadata must be unique.")
   
-  # check cell_ values are not duplicated when join with parquet
-  cells <- select(get_metadata(), .data$cell_) |> as_tibble()
-  (!any(metadata_tbl$cell_ %in% cells$cell_)) |> assert_that(msg = "cell_ in the metadata should not duplicate with that exists in API")
+  # Check cell_ values are not duplicated when join with parquet
+  cells <- select(get_metadata(cache_directory = cache_dir), .data$cell_) |> as_tibble()
+  (!any(metadata_tbl$cell_ %in% cells$cell_)) |> 
+    assert("Cell names (cell_) should not clash with cells that already exist in the atlas.")
   
-  # check age_days is either -99 or greater than 365
+  # Check age_days is either -99 or greater than 365
   if (any(colnames(metadata_tbl) == "age_days")) {
-    assert_that(all(metadata_tbl$age_days==-99 | metadata_tbl$age_days> 365),
-                msg = "age_days should be either -99 for unknown or greater than 365")
+    assert(all(metadata_tbl$age_days==-99 | metadata_tbl$age_days> 365),
+                "age_days should be either -99 for unknown or greater than 365.")
   }
   
-  # check sex capitalisation then convert to lower case 
+  # Check sex capitalisation then convert to lower case 
   if (any(colnames(metadata_tbl) == "sex")) {
     metadata_tbl <- metadata_tbl |> mutate(sex = tolower(.data$sex))
-    dplyr::distinct(metadata_tbl, .data$sex) |> dplyr::pull() |> check_subset(c("female","male","unknown"))
+    distinct(metadata_tbl, .data$sex) |> pull(.data$sex) |> check_subset(c("female","male","unknown"))
   }
   counts_path <-
     select(metadata_tbl, .data$file_id_db) |> mutate(
@@ -99,22 +96,17 @@ import_metadata_counts <- function(
       cpm_path = file.path(cache_dir, "cpm", basename(.data$file_id_db))
     )
   
-  # if checkpoints above pass, generate cpm
-  cli_alert_info("Generating cpm from {.path {metadata_tbl$file_id_db}}. ")
-  
   # Generate cpm from counts
+  cli_alert_info("Generating cpm from {.path {metadata_tbl$file_id_db}}. ")
   get_counts_per_million(input_sce_obj = sce_obj, output_dir = counts_path$cpm_path, hd5_file_dir = counts_path$original_path)
   saveHDF5SummarizedExperiment(sce_obj, counts_path$original_path, replace=TRUE)
-  
   cli_alert_info("cpm are generated in {.path {counts_path$cpm_path}}. ")
   
   # check metadata sample file ID match the count file ID in cache directory
   all(metadata_tbl |> pull(.data$file_id_db) %in% dir(original_dir)) |> 
-    assert_that(msg = "The metadata sample file ID and the count file ID does not match")
+    assert("The filename for count assay, which matches the file_id_db column in the metadata, already exists in the cache directory.")
   
   # convert metadata_tbl to parquet if above checkpoints pass
-  arrow::write_parquet(metadata_tbl, file.path(cache_dir, glue("metadata.parquet")))
+  arrow::write_parquet(metadata_tbl, file.path(cache_dir, "metadata.parquet"))
 }
-
-
 

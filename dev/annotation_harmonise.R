@@ -30,15 +30,15 @@ clean_cell_types = function(.x){
 		str_trim()
 }
 
-metadata_file = "/vast/projects/RCP/human_cell_atlas/metadata_0.2.rds"
-file_curated_annotation_merged = "~/PostDoc/CuratedAtlasQueryR/dev/cell_type_curated_annotation_0.2.1.rds"
-file_metadata_annotated = "/vast/projects/RCP/human_cell_atlas/metadata_annotated_0.2.2.rds"
-annotation_directory = "/vast/projects/RCP/human_cell_atlas/annotated_data_0.2/"
+metadata_file = "/vast/projects/cellxgene_curated//metadata_0.2.rds"
+file_curated_annotation_merged = "~/PostDoc/CuratedAtlasQueryR/dev/cell_type_curated_annotation_0.2.3.rds"
+file_metadata_annotated = "/vast/projects/cellxgene_curated/metadata_annotated_0.2.3.rds"
+annotation_directory = "/vast/projects/cellxgene_curated//annotated_data_0.2/"
 
-# metadata_file = "/vast/projects/RCP/human_cell_atlas/metadata.rds"
+# metadata_file = "/vast/projects/cellxgene_curated//metadata.rds"
 # file_curated_annotation_merged = "~/PostDoc/CuratedAtlasQueryR/dev/cell_type_curated_annotation.rds"
-# file_metadata_annotated = "/vast/projects/RCP/human_cell_atlas/metadata_annotated.rds"
-# annotation_directory = "/vast/projects/RCP/human_cell_atlas/annotated_data_0.1/"
+# file_metadata_annotated = "/vast/projects/cellxgene_curated//metadata_annotated.rds"
+# annotation_directory = "/vast/projects/cellxgene_curated//annotated_data_0.1/"
 
 
 annotation_harmonised =
@@ -81,6 +81,57 @@ annotation_harmonised =
 job::job({
 	annotation_harmonised |>  saveRDS("~/PostDoc/CuratedAtlasQueryR/dev/annotated_data_0.2_temp_table.rds")
 })
+
+clean_cell_types_deeper = function(x){
+  x |> 
+    # Annotate
+    mutate(cell_type_clean = cell_type_clean |> tolower()) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove_all(",")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("alphabeta")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove_all("positive")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace("cd4  t", "cd4")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace("regulatory t", "treg")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("thymusderived")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("human")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("igg ")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("igm ")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("iga ")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("group [0-9]")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("common")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("cd45ro")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("type i")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("germinal center")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("iggnegative")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_remove("terminally differentiated")) |>
+    
+    mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("macrophage"), "macrophage", cell_type_clean) ) |>
+    mutate(cell_type_clean = if_else(cell_type_clean == "mononuclear phagocyte", "macrophage", cell_type_clean) ) |>
+    
+    mutate(cell_type_clean = if_else(cell_type_clean |> str_detect(" treg"), "treg", cell_type_clean) ) |>
+    mutate(cell_type_clean = if_else(cell_type_clean |> str_detect(" dendritic"), "dendritic", cell_type_clean) ) |>
+    mutate(cell_type_clean = if_else(cell_type_clean |> str_detect(" thelper"), "thelper", cell_type_clean) ) |>
+    mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("thelper "), "thelper", cell_type_clean) ) |>
+    mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("gammadelta"), "tgd", cell_type_clean) ) |>
+    mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("natural killer"), "nk", cell_type_clean) ) |>
+    
+    
+    mutate(cell_type_clean = cell_type_clean |> str_replace_all("  ", " ")) |>
+    
+    
+    mutate(cell_type_clean = cell_type_clean |> str_replace("myeloid leukocyte", "myeloid")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace("effector memory", "tem")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace("effector", "tem")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace_all("cd8 t", "cd8")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace("central memory", "tcm")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace("gammadelta t", "gdt")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace("nonclassical monocyte", "cd16 monocyte")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace("classical monocyte", "cd14 monocyte")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace("follicular b", "b")) |>
+    mutate(cell_type_clean = cell_type_clean |> str_replace("unswitched memory", "memory")) |>
+    
+    mutate(cell_type_clean = cell_type_clean |> str_trim()) 
+}
+
 
 # annotation_harmonised = readRDS("~/PostDoc/CuratedAtlasQueryR/dev/annotated_data_0.2_temp_table.rds")
 
@@ -128,6 +179,8 @@ annotation_crated_confirmed =
 # To avoid immune cell annotation if very contrasting evidence
 blueprint_definitely_non_immune = c(   "astrocytes" , "chondrocytes"  , "endothelial"  ,  "epithelial" ,  "fibros"  ,  "keratinocytes" ,    "melanocytes"  , "mesangial"  ,  "mv endothelial",   "myocytes" ,  "neurons"  ,  "pericytes" ,  "preadipocytes" , "skeletal muscle"  ,  "smooth muscle"      )
 
+
+
 annotation_crated_UNconfirmed =
 
 	# Read
@@ -138,52 +191,7 @@ annotation_crated_UNconfirmed =
 
 	filter(is.na(azhimut_confirmed) | (azhimut_confirmed + blueprint_confirmed) == 0) |>
 
-	# Annotate
-	mutate(cell_type_clean = cell_type_clean |> tolower()) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove_all(",")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("alphabeta")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove_all("positive")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace("cd4  t", "cd4")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace("regulatory t", "treg")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("thymusderived")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("human")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("igg ")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("igm ")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("iga ")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("group [0-9]")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("common")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("cd45ro")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("type i")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("germinal center")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("iggnegative")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_remove("terminally differentiated")) |>
-
-	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("macrophage"), "macrophage", cell_type_clean) ) |>
-	mutate(cell_type_clean = if_else(cell_type_clean == "mononuclear phagocyte", "macrophage", cell_type_clean) ) |>
-
-	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect(" treg"), "treg", cell_type_clean) ) |>
-	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect(" dendritic"), "dendritic", cell_type_clean) ) |>
-	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect(" thelper"), "thelper", cell_type_clean) ) |>
-	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("thelper "), "thelper", cell_type_clean) ) |>
-	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("gammadelta"), "tgd", cell_type_clean) ) |>
-	mutate(cell_type_clean = if_else(cell_type_clean |> str_detect("natural killer"), "nk", cell_type_clean) ) |>
-
-
-	mutate(cell_type_clean = cell_type_clean |> str_replace_all("  ", " ")) |>
-
-
-	mutate(cell_type_clean = cell_type_clean |> str_replace("myeloid leukocyte", "myeloid")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace("effector memory", "tem")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace("effector", "tem")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace_all("cd8 t", "cd8")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace("central memory", "tcm")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace("gammadelta t", "gdt")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace("nonclassical monocyte", "cd16 monocyte")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace("classical monocyte", "cd14 monocyte")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace("follicular b", "b")) |>
-	mutate(cell_type_clean = cell_type_clean |> str_replace("unswitched memory", "memory")) |>
-
-	mutate(cell_type_clean = cell_type_clean |> str_trim()) |>
+  clean_cell_types_deeper() |> 
 
 	mutate(cell_type_harmonised = "") |>
 
@@ -452,6 +460,7 @@ annotation_crated_UNconfirmed =
 
 annotation_all =
 	annotation_crated_confirmed |>
+  clean_cell_types_deeper() |> 
 	bind_rows(
 		annotation_crated_UNconfirmed
 	) |>
@@ -483,7 +492,7 @@ annotation_all =
 
 curated_annotation =
 	annotation |>
-
+  clean_cell_types_deeper() |> 
 	filter(lineage_1=="immune") |>
 	dplyr::select(
 		.cell, .sample, cell_type, cell_type_clean, predicted.celltype.l2, blueprint_singler, monaco_singler) |>
@@ -494,7 +503,8 @@ curated_annotation =
 	dplyr::select(
 		.cell, .sample, cell_type, cell_type_harmonised, confidence_class,
 		cell_annotation_azimuth_l2 = predicted.celltype.l2, cell_annotation_blueprint_singler = blueprint_singler,
-		cell_annotation_monaco_singler = monaco_singler) |>
+		cell_annotation_monaco_singler = monaco_singler
+	) |>
 
 # Reannotation of generic cell types
 	mutate(cell_type_harmonised = case_when(
@@ -563,7 +573,7 @@ curated_annotation =
 curated_annotation =
 	curated_annotation |>
 	left_join(
-		read_csv("curated_annotation_still_unannotated_0.2_manually_labelled.csv") |>
+		read_csv("~/PostDoc/CuratedAtlasQueryR/dev/curated_annotation_still_unannotated_0.2_manually_labelled.csv") |>
 			select(cell_type, cell_type_harmonised_manually_curated = cell_type_harmonised, confidence_class_manually_curated = confidence_class, everything()),
 		by = join_by(cell_type, cell_annotation_azimuth_l2, cell_annotation_blueprint_singler, cell_annotation_monaco_singler)
 	) |>
@@ -589,7 +599,7 @@ curated_annotation =
 curated_annotation =
 	curated_annotation |>
 	left_join(
-		read_csv("curated_annotation_still_unannotated_0.2_confidence_class_4_manually_labelled.csv") |>
+		read_csv("~/PostDoc/CuratedAtlasQueryR/dev/curated_annotation_still_unannotated_0.2_confidence_class_4_manually_labelled.csv") |>
 			select(confidence_class_manually_curated = confidence_class, everything()),
 		by = join_by(cell_type, cell_type_harmonised, cell_annotation_azimuth_l2, cell_annotation_blueprint_singler, cell_annotation_monaco_singler)
 	) |>
@@ -598,7 +608,17 @@ curated_annotation =
 	) |>
 	select(-contains("manually_curated"), -n)
 
-
+# Correct fishy stem cell labelling
+# If stem for the study's annotation and blueprint is non-immune it is probably wrong, 
+# even because the heart has too many progenitor/stem
+curated_annotation =
+  curated_annotation |>
+  mutate(confidence_class = case_when(
+    cell_type_harmonised == "stem" & cell_annotation_blueprint_singler %in% c(
+      "skeletal muscle", "adipocytes", "epithelial", "smooth muscle", "chondrocytes", "endothelial"
+    ) ~ 5,
+    TRUE ~ confidence_class
+  ))
 
 
 curated_annotation_merged =

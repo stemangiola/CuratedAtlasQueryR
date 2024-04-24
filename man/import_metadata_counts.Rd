@@ -2,8 +2,7 @@
 % Please edit documentation in R/import_metadata_and_counts.R
 \name{import_metadata_counts}
 \alias{import_metadata_counts}
-\title{Checks importing criteria for new atlas
-Generats counts per million from provided raw counts}
+\title{Import and process metadata and counts for a SingleCellExperiment object}
 \usage{
 import_metadata_counts(sce_obj, cache_dir = get_default_cache_dir())
 }
@@ -15,17 +14,14 @@ your local system to a directory (not a file) that will be used to store
 \code{metadata.parquet}}
 }
 \value{
-A metadata.parquet strip from SCE object.
+A metadata.parquet strip from the SingleCellExperiment object.
 Directories store counts and counts per million in the provided cache directory.
 }
 \description{
-Checks importing criteria for new atlas
-Generats counts per million from provided raw counts
+Import and process metadata and counts for a SingleCellExperiment object
 }
 \examples{
-\dontrun{
-sample_sce_obj <- readRDS("~/path/sample_sce.rds")
-import_metadata_counts(sce_obj = sample_sce_obj,
-                       cache_directory = "~/cache_directory")
-}
+data(sample_sce_obj)
+import_metadata_counts(sample_sce_obj,
+                       cache_dir = get_default_cache_dir())
 }

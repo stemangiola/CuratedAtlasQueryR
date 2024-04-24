@@ -46,7 +46,8 @@ single_line_str <- function(text){
 #' @return A length one character vector.
 #' @importFrom tools R_user_dir
 #' @importFrom utils packageName
-#' @keywords internal
+#' @examples
+#' get_metadata(cache_directory = get_default_cache_dir())
 get_default_cache_dir <- function() {
     packageName() |>
         R_user_dir(
@@ -58,11 +59,9 @@ get_default_cache_dir <- function() {
 }
 
 #' Clear the default cache directory
-#' @export
 #' @return A length one character vector.
-#' @importFrom tools R_user_dir
-#' @importFrom utils packageName
 #' @keywords internal
+#' @noRd
 clear_cache <- function() {
   get_default_cache_dir() |> unlink(TRUE, TRUE)
 }
