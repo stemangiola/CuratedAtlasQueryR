@@ -123,6 +123,7 @@ test_that("get_seurat() returns the appropriate data in Seurat format", {
 
 test_that("get_SingleCellExperiment() assigns the right cell ID to each cell", {
     id = "3214d8f8986c1e33a85be5322f2db4a9"
+    file_id = "7eb6d9a1-a723-4d59-bdbc-03e0a263e836"
     
     # Force the file to be cached
     get_metadata() |>
@@ -142,6 +143,7 @@ test_that("get_SingleCellExperiment() assigns the right cell ID to each cell", {
         colnames() |>
         tibble::tibble(
             file_id_db = id,
+            file_id = file_id,
             cell_ = _
         ) |>
         arrange(-row_number()) |>
