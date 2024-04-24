@@ -8,12 +8,12 @@ get_pseudobulk(
   data,
   assays = "counts",
   cache_directory = get_default_cache_dir(),
-  repository = NULL,
+  repository = pseudobulk_url,
   features = NULL
 )
 }
 \arguments{
-\item{data}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{sample_} column, which
+\item{data}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{file_id} column, which
 correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID.
 They can be obtained from the \code{\link[=get_metadata]{get_metadata()}} function.}
 
@@ -39,10 +39,10 @@ corresponding to the samples in that data frame
 }
 \examples{
 \dontrun{
-meta <- get_metadata() |> 
-        filter(sample_ \%in\% c('068502277538ef5559154b543167fefa',
-        '07605571f51519f71da03704f056fa43'))
-sme <- get_pseudobulk(meta, repository=NULL,cache_directory = "~/projects/caq/pseudobulk/0.2.1")
+file_ids <- test_file_ids <- get_metadata() |> distinct(file_id) |> 
+            head(3) |> pull(file_id)
+get_metadata() |> filter(file_id \%in\% file_ids) |>
+get_pseudobulk(cache_directory = "~/projects/caq/pseudobulk/0.2.1")
 }
 
 }

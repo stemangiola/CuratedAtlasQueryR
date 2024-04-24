@@ -13,7 +13,7 @@ get_single_cell_experiment(
 )
 }
 \arguments{
-\item{data}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{sample_} column, which
+\item{data}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{file_id} column, which
 correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID.
 They can be obtained from the \code{\link[=get_metadata]{get_metadata()}} function.}
 

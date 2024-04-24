@@ -24,6 +24,13 @@ COUNTS_URL <- single_line_str(
 #' @noRd
 COUNTS_VERSION <- "0.2.1"
 
+#' Base URL pointing to the pseudobulk counts at the current version
+#' @noRd
+pseudobulk_url <- single_line_str(
+  "https://object-store.rc.nectar.org.au/v1/
+  AUTH_06d6e008e3e642da99d806ba3ea629c5/pseudobulk-0.1.0"
+)
+
 #' @inherit get_single_cell_experiment
 #' @inheritDotParams get_single_cell_experiment
 #' @importFrom cli cli_alert_warning
@@ -146,10 +153,10 @@ get_single_cell_experiment <- function(
 #' @inheritParams param_validation
 #' @examples
 #' \dontrun{
-#' meta <- get_metadata() |> 
-#'         filter(sample_ %in% c('068502277538ef5559154b543167fefa',
-#'         '07605571f51519f71da03704f056fa43'))
-#' sme <- get_pseudobulk(meta, repository=NULL,cache_directory = "~/projects/caq/pseudobulk/0.2.1")
+#' file_ids <- test_file_ids <- get_metadata() |> distinct(file_id) |> 
+#'             head(3) |> pull(file_id)
+#' get_metadata() |> filter(file_id %in% file_ids) |>
+#' get_pseudobulk(cache_directory = "~/projects/caq/pseudobulk/0.2.1")
 #' }
 #'
 #' @importFrom dplyr pull filter as_tibble inner_join collect
@@ -168,7 +175,7 @@ get_pseudobulk <- function(
     data,
     assays = "counts",
     cache_directory = get_default_cache_dir(),
-    repository = NULL, # cloud container not ready yet
+    repository = pseudobulk_url,
     features = NULL
 ) {
   
@@ -189,7 +196,7 @@ get_pseudobulk <- function(
     
     files_to_read <-
       raw_data |>
-      pull(.data$sample_) |>
+      pull(.data$file_id) |>
       unique() |>
       as.character() |>
       sync_assay_files(
@@ -210,7 +217,7 @@ get_pseudobulk <- function(
       )
       
       sme_list <- raw_data |>
-        dplyr::group_by(.data$sample_) |>
+        dplyr::group_by(.data$file_id) |>
         # Load each file and attach metadata
         dplyr::summarise(smes = list(
           group_to_sme(
@@ -319,11 +326,11 @@ group_to_sce <- function(i, df, dir_prefix, features) {
 #' @inheritParams group_to_sce
 #' @return A Summarized Experiment object
 #' @importFrom utils head
+#' @importFrom HDF5Array loadHDF5SummarizedExperiment
 #' @noRd
 group_to_sme <- function(i, df, dir_prefix, features) {
-  sme_path <- df$sample_ |>
+  sme_path <- df$file_id |>
     head(1) |>
-    paste0(".rds") |>
     file.path(
       dir_prefix,
       suffix=_
@@ -337,7 +344,7 @@ group_to_sme <- function(i, df, dir_prefix, features) {
                             internet" |> glue()
     )
   
-  sme <- readRDS(sme_path)
+  sme <- loadHDF5SummarizedExperiment(sme_path)
   force(i)
   
   sme
@@ -434,7 +441,7 @@ check_gene_overlap <- function(obj_list) {
 }
 
 #' Validate parameters for Summarized Experiment analysis
-#' @param data A data frame containing, at minimum, `cell_`, `file_id_db`, `sample_` column, which
+#' @param data A data frame containing, at minimum, `cell_`, `file_id_db`, `file_id` column, which
 #'   correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID. 
 #'   They can be obtained from the [get_metadata()] function.
 #' @param assays A character vector whose elements must be either "counts"
@@ -485,7 +492,7 @@ param_validation <- function(data,
   cli_alert_info("Realising metadata.")
   raw_data <- collect(data)
   assert_that(inherits(raw_data, "tbl"),
-              has_name(raw_data, c("sample_", "cell_", "file_id_db")))
+              has_name(raw_data, c("file_id", "cell_", "file_id_db")))
   
   versioned_cache_directory <- cache_directory
   versioned_cache_directory |> dir.create(showWarnings = FALSE,
