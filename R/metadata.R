@@ -159,7 +159,7 @@ get_metadata <- function(
                        progress(type = "down", con = stderr()))
     }
   })
-  all_parquet <- file.path(cache_directory, dir(cache_directory, pattern = ".parquet$"))
+  all_parquet <- file.path(cache_directory, dir(cache_directory, pattern = "\\.parquet$"))
   # We try to avoid re-reading a set of parquet files 
   # that is identical to a previous set by hashing the file list
   hash <- all_parquet |> paste0(collapse="") |>
