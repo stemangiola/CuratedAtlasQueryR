@@ -230,4 +230,4 @@ test_that("get_pseudobulk() syncs appropriate curated_cellxgene files", {
     length() |>
     expect_gt(1)
 })
-  
+
