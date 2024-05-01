@@ -218,9 +218,9 @@ test_that("import_metadata_counts() loads metadata from a SingleCellExperiment o
 
 test_that("get_pseudobulk() syncs appropriate curated_cellxgene files", {
   temp <- tempfile()
-  
   meta <-
-    get_metadata() |> filter(!stringr::str_like(file_id, "GSE%")) |> head(2)
+    get_metadata(get_database_url("metadata.0.2.3.parquet"), cache_directory = temp) |> 
+    head(2)
     
   # The remote dataset should have many genes
   sme <- get_pseudobulk(meta, cache_directory = temp)
