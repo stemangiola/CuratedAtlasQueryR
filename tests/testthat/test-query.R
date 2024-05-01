@@ -218,8 +218,7 @@ test_that("import_metadata_counts() loads metadata from a SingleCellExperiment o
 
 test_that("get_pseudobulk() syncs appropriate curated_cellxgene files", {
   temp <- tempfile()
-  test_file <- "00d626ec-c97e-4b2d-bf17-04bc09e52460"
-    
+  
   meta <-
     get_metadata() |> filter(!stringr::str_like(file_id, "GSE%")) |> head(2)
     
@@ -230,4 +229,4 @@ test_that("get_pseudobulk() syncs appropriate curated_cellxgene files", {
     length() |>
     expect_gt(1)
 })
-  
+
