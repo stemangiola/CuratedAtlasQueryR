@@ -2,47 +2,40 @@
 % Please edit documentation in R/counts.R
 \name{get_pseudobulk}
 \alias{get_pseudobulk}
-\title{Gets a Summarized Experiment from curated metadata}
+\title{Gets a Pseudobulk from curated metadata}
 \usage{
-get_pseudobulk(
-  data,
-  assays = "counts",
-  cache_directory = get_default_cache_dir(),
-  repository = pseudobulk_url,
-  features = NULL
-)
+get_pseudobulk(...)
 }
 \arguments{
-\item{data}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{file_id} column, which
+\item{...}{
+  Arguments passed on to \code{\link[=get_experiment]{get_experiment}}
+  \describe{
+    \item{\code{type}}{A character vector of length one. Either sce for Single Cell Experiment,
+or pseudobulk.}
+    \item{\code{data}}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{file_id} column, which
 correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID.
 They can be obtained from the \code{\link[=get_metadata]{get_metadata()}} function.}
-
-\item{assays}{A character vector whose elements must be either "counts"
+    \item{\code{assays}}{A character vector whose elements must be either "counts"
 and/or "cpm", representing the corresponding assay(s) you want to request.
 By default only the count assay is downloaded. If you are interested in
 comparing a limited amount of genes, the "cpm" assay is more appropriate.}
-
-\item{cache_directory}{An optional character vector of length one. If
+    \item{\code{repository}}{A character vector of length one. If provided, it should be
+an HTTP URL pointing to the location where the single cell data is stored.}
+    \item{\code{cache_directory}}{An optional character vector of length one. If
 provided, it should indicate a local file path where any remotely accessed
 files should be copied.}
-
-\item{repository}{A character vector of length one. If provided, it should be
-an HTTP URL pointing to the location where the single cell data is stored.}
-
-\item{features}{An optional character vector of features (ie genes) to return
+    \item{\code{features}}{An optional character vector of features (ie genes) to return
 the counts for. By default counts for all features will be returned.}
+  }}
 }
 \description{
-Given a data frame of Curated Atlas metadata obtained from \code{\link[=get_metadata]{get_metadata()}},
-returns a \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}} object
-corresponding to the samples in that data frame
+Gets a Pseudobulk from curated metadata
 }
 \examples{
 \dontrun{
-file_ids <- test_file_ids <- get_metadata() |> distinct(file_id) |> 
+file_ids <- get_metadata() |> distinct(file_id) |> 
             head(3) |> pull(file_id)
-get_metadata() |> filter(file_id \%in\% file_ids) |>
+pseudobulk <- get_metadata() |> filter(file_id \%in\% file_ids) |>
 get_pseudobulk(cache_directory = "~/projects/caq/pseudobulk/0.2.1")
 }
-
 }

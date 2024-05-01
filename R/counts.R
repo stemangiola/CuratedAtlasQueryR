@@ -45,39 +45,58 @@ get_SingleCellExperiment <- function(...){
 
 #' Gets a SingleCellExperiment from curated metadata
 #'
-#' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
-#' returns a [`SingleCellExperiment::SingleCellExperiment-class`] object
-#' corresponding to the samples in that data frame
-#' @inheritParams param_validation
-#' @returns A SingleCellExperiment object, with one assay for each value in the
-#'   assays argument
+#' @inheritDotParams get_experiment
 #' @examples
 #' meta <- get_metadata() |> head(2)
 #' sce <- get_single_cell_experiment(meta)
-#'
+#' @export
+get_single_cell_experiment <- function(...){
+  get_experiment(..., type = "sce")
+}
+
+#' Gets a Pseudobulk from curated metadata
+#' 
+#' @inheritDotParams get_experiment
+#' @examples
+#' \dontrun{
+#' file_ids <- get_metadata() |> distinct(file_id) |> 
+#'             head(3) |> pull(file_id)
+#' pseudobulk <- get_metadata() |> filter(file_id %in% file_ids) |>
+#' get_pseudobulk(cache_directory = "~/projects/caq/pseudobulk/0.2.1")
+#' }
+#' @export
+get_pseudobulk <- function(...) {
+  get_experiment(..., type = "pseudobulk")
+}
+
+#' Gets a Summarized Experiment from curated metadata
+#' 
+#' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
+#' returns a [`SummarizedExperiment::SummarizedExperiment-class`] object
+#' corresponding to the samples in that data frame
+#' @inheritParams param_validation
+#' @param type A character vector of length one. Either sce for Single Cell Experiment,
+#' or pseudobulk.
 #' @importFrom dplyr pull filter as_tibble inner_join collect
 #' @importFrom tibble column_to_rownames
 #' @importFrom purrr reduce map map_int imap keep
 #' @importFrom BiocGenerics cbind
 #' @importFrom glue glue
-#' @importFrom HDF5Array loadHDF5SummarizedExperiment HDF5RealizationSink
-#'   loadHDF5SummarizedExperiment
-#' @importFrom SingleCellExperiment SingleCellExperiment combineCols
 #' @importFrom SummarizedExperiment colData assayNames<-
 #' @importFrom httr parse_url
 #' @importFrom assertthat assert_that has_name
 #' @importFrom cli cli_alert_success cli_alert_info
 #' @importFrom rlang .data
 #' @importFrom S4Vectors DataFrame
-#' @export
-get_single_cell_experiment <- function(
+get_experiment <- function(
     data,
     assays = "counts",
     cache_directory = get_default_cache_dir(),
     repository = COUNTS_URL,
-    features = NULL
+    features = NULL,
+    type = "sce"
 ) {
-  
+  repository <- if (type == "sce") COUNTS_URL else pseudobulk_url 
   validated <- param_validation(data, assays, cache_directory, repository, features)
   
   # Extract variables from validation
@@ -85,106 +104,7 @@ get_single_cell_experiment <- function(
   versioned_cache_directory <- validated$versioned_cache_directory
   subdirs <- validated$subdirs
   
-  # The repository is optional. If not provided we load only from the cache
-  if (!is.null(repository)) {
-    cli_alert_info("Synchronising files")
-    parsed_repo <- parse_url(repository)
-    parsed_repo$scheme |>
-      `%in%`(c("http", "https")) |>
-      assert_that()
-    
-    files_to_read <-
-      raw_data |>
-      pull(.data$file_id_db) |>
-      unique() |>
-      as.character() |>
-      sync_assay_files(
-        url = parsed_repo,
-        cache_dir = versioned_cache_directory,
-        files = _,
-        subdirs = subdirs
-      )
-  }
-  
-  cli_alert_info("Reading files.")
-  sces <- subdirs |>
-    imap(function(current_subdir, current_assay) {
-      # Build up an SCE for each assay
-      dir_prefix <- file.path(
-        versioned_cache_directory,
-        current_subdir
-      )
-      
-      sce_list <- raw_data |>
-        dplyr::group_by(.data$file_id_db) |>
-        # Load each file and attach metadata
-        dplyr::summarise(sces = list(
-          group_to_sce(
-            dplyr::cur_group_id(),
-            dplyr::cur_data_all(),
-            dir_prefix,
-            features
-          )
-        )) |>
-        dplyr::pull(sces)
-      
-      # Check whether genes in a list of SCEs overlap, use gene intersection if overlap
-      commonGenes <- sce_list |> check_gene_overlap()
-      sce_list <- map(sce_list, function(sce) {
-        sce[commonGenes,]
-      }) |>
-        do.call(cbind, args = _)
-    })
-  
-  cli_alert_info("Compiling Single Cell Experiment.")
-  # Combine all the assays
-  sce <- sces[[1]]
-  SummarizedExperiment::assays(sce) <- map(sces, function(sce) {
-    SummarizedExperiment::assays(sce)[[1]]
-  })
-  
-  sce
-}
-#' Gets a Summarized Experiment from curated metadata
-#'
-#' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
-#' returns a [`SummarizedExperiment::SummarizedExperiment-class`] object
-#' corresponding to the samples in that data frame
-#' @inheritParams param_validation
-#' @examples
-#' \dontrun{
-#' file_ids <- test_file_ids <- get_metadata() |> distinct(file_id) |> 
-#'             head(3) |> pull(file_id)
-#' get_metadata() |> filter(file_id %in% file_ids) |>
-#' get_pseudobulk(cache_directory = "~/projects/caq/pseudobulk/0.2.1")
-#' }
-#'
-#' @importFrom dplyr pull filter as_tibble inner_join collect
-#' @importFrom tibble column_to_rownames
-#' @importFrom purrr reduce map map_int imap keep
-#' @importFrom BiocGenerics cbind
-#' @importFrom glue glue
-#' @importFrom SummarizedExperiment colData assayNames<-
-#' @importFrom httr parse_url
-#' @importFrom assertthat assert_that has_name
-#' @importFrom cli cli_alert_success cli_alert_info
-#' @importFrom rlang .data
-#' @importFrom S4Vectors DataFrame
-#' @export
-get_pseudobulk <- function(
-    data,
-    assays = "counts",
-    cache_directory = get_default_cache_dir(),
-    repository = pseudobulk_url,
-    features = NULL
-) {
-  
-  validated <- param_validation(data, assays, cache_directory, repository, features)
-  
-  # Extract variables from validated parameters
-  raw_data <- validated$raw_data
-  versioned_cache_directory <- validated$versioned_cache_directory
-  subdirs <- validated$subdirs
+  file_id_col <- if (type == "sce") "file_id_db" else "file_id"
   
   # The repository is optional. If not provided we load only from the cache
   if (!is.null(repository)) {
@@ -196,7 +116,7 @@ get_pseudobulk <- function(
     
     files_to_read <-
       raw_data |>
-      pull(.data$file_id) |>
+      pull(file_id_col) |>
       unique() |>
       as.character() |>
       sync_assay_files(
@@ -208,47 +128,45 @@ get_pseudobulk <- function(
   }
   
   cli_alert_info("Reading files.")
-  smes <- subdirs |>
+  experiments <- subdirs |>
     imap(function(current_subdir, current_assay) {
-      # Build up a Summarized Experiment for each assay
+      # Build up an experiment for each assay
       dir_prefix <- file.path(
         versioned_cache_directory,
         current_subdir
       )
       
-      sme_list <- raw_data |>
-        dplyr::group_by(.data$file_id) |>
-        # Load each file and attach metadata
-        dplyr::summarise(smes = list(
-          group_to_sme(
+      experiment_list <- raw_data |>
+        dplyr::group_by(.data[[file_id_col]]) |>
+        dplyr::summarise(experiments = list(
+          group_to_experiment(
             dplyr::cur_group_id(),
             dplyr::cur_data_all(),
             dir_prefix,
-            features
+            features,
+            type
           )
         )) |>
-        dplyr::pull(smes)
+        dplyr::pull(experiments)
       
-      # Check whether genes/rows in a list of SummarizedExperiment overlap, use gene intersection if does
-      commonGenes <- sme_list |> check_gene_overlap()
-      sme_list <- map(sme_list, function(sme) {
-        sme[commonGenes,]
+      commonGenes <- experiment_list |> check_gene_overlap()
+      experiment_list <- map(experiment_list, function(exp) {
+        exp[commonGenes,]
       }) |>
         do.call(cbind, args = _)
     })
   
-  cli_alert_info("Compiling Summarized Experiment.")
+  cli_alert_info("Compiling Experiment.")
   # Combine all the assays
-  
-  sme <- smes[[1]]
-  SummarizedExperiment::assays(sme) <- map(smes, function(sme) {
-    SummarizedExperiment::assays(sme)[[1]]
+  experiment <- experiments[[1]]
+  SummarizedExperiment::assays(experiment) <- map(experiments, function(exp) {
+    SummarizedExperiment::assays(exp)[[1]]
   })
   
-  sme
+  experiment
 }
 
-#' Converts a data frame into a single SCE
+#' Converts a data frame into a Summarized Experiment
 #' @param i Suffix to be added to the column names, to make them unique
 #' @param df The data frame to be converted
 #' @param dir_prefix The path to the single cell experiment, minus the final
@@ -264,90 +182,67 @@ get_pseudobulk <- function(
 #' @importFrom glue glue
 #' @importFrom stringr str_replace_all
 #' @noRd
-group_to_sce <- function(i, df, dir_prefix, features) {
-    sce_path <- df$file_id_db |>
-        head(1) |>
-        file.path(
-            dir_prefix,
-            suffix = _
-        )
-
-    file.exists(sce_path) |>
-        assert_that(
-            msg = "Your cache does not contain a file {sce_path} you
-                            attempted to query. Please provide the repository
-                            parameter so that files can be synchronised from the
-                            internet" |> glue()
-        )
-
-    sce <- loadHDF5SummarizedExperiment(sce_path)
-    # The cells we select here are those that are both available in the SCE
-    # object, and requested for this particular file
-    cells <- colnames(sce) |> intersect(df$cell_)
-
-    if (length(cells) < nrow(df)){
-        single_line_str(
-            "The number of cells in the SingleCellExperiment will be less than the
-            number of cells you have selected from the metadata.
-            Are cell IDs duplicated? Or, do cell IDs correspond to the counts file?
-            "
-        ) |> cli_alert_warning()
-        df <- filter(df, .data$cell_ %in% cells)
-    }
-    else if (length(cells) > nrow(df)){
-        cli_abort("This should never happen")
-    }
-    
-    # Fix for https://github.com/tidyverse/dplyr/issues/6746
-    force(i)
-    
-    new_coldata <- df |>
-        # We need to make the cell names globally unique, which we can guarantee
-        # by adding a suffix that is derived from file_id_db, which is the
-        # grouping variable
-        mutate(original_cell_id = .data$cell_, cell_ = glue("{cell_}_{i}")) |>
-        column_to_rownames("cell_") |>
-        as("DataFrame")
-    
-    `if`(
-            is.null(features),
-            sce[, new_coldata$original_cell_id],
-            {
-                # Optionally subset the genes
-                genes <- rownames(sce) |> intersect(features)
-                sce[genes, new_coldata$original_cell_id]
-            }
-    ) |>
-        `colnames<-`(new_coldata$cell_) |>
-        `colData<-`(value = new_coldata)
-}
-
-#' Converts a data frame into a Summarized Experiment
-#' @inheritParams group_to_sce
-#' @return A Summarized Experiment object
-#' @importFrom utils head
-#' @importFrom HDF5Array loadHDF5SummarizedExperiment
-#' @noRd
-group_to_sme <- function(i, df, dir_prefix, features) {
-  sme_path <- df$file_id |>
+group_to_experiment <- function(i, df, dir_prefix, features, type = "sce") {
+  # Set file name based on type
+  file_id_col <- if (type == "sce") "file_id_db" else "file_id"
+  experiment_path <- df[[file_id_col]] |>
     head(1) |>
     file.path(
       dir_prefix,
       suffix=_
     )
   
-  file.exists(sme_path) |>
+  # Check if file exists
+  file.exists(experiment_path) |>
     assert_that(
-      msg = "Your cache does not contain a file {sme_path} you
+      msg = "Your cache does not contain the file {experiment_path} you
                             attempted to query. Please provide the repository
                             parameter so that files can be synchronised from the
                             internet" |> glue()
     )
   
-  sme <- loadHDF5SummarizedExperiment(sme_path)
+  # Load experiment
+  experiment <- loadHDF5SummarizedExperiment(experiment_path)
+  
+  # Fix for https://github.com/tidyverse/dplyr/issues/6746
   force(i)
   
-  sme
+  if (type == "sce") {
+    # Process specific to SCE
+    cells <- colnames(experiment) |> intersect(df$cell_)
+    
+    if (length(cells) < nrow(df)){
+      single_line_str(
+        "The number of cells in the SingleCellExperiment will be less than the
+                number of cells you have selected from the metadata.
+                Are cell IDs duplicated? Or, do cell IDs correspond to the counts file?
+                "
+      ) |> cli_alert_warning()
+      df <- filter(df, .data$cell_ %in% cells)
+    }
+    else if (length(cells) > nrow(df)){
+      cli_abort("This should never happen")
+    }
+    
+    new_coldata <- df |>
+      mutate(original_cell_id = .data$cell_, cell_ = glue("{cell_}_{i}")) |>
+      column_to_rownames("cell_") |>
+      as("DataFrame")
+    
+    experiment <- `if`(
+      is.null(features),
+      experiment[, new_coldata$original_cell_id],
+      {
+        # Optionally subset the genes
+        genes <- rownames(experiment) |> intersect(features)
+        experiment[genes, new_coldata$original_cell_id]
+      }
+    ) |>
+      `colnames<-`(new_coldata$cell_) |>
+      `colData<-`(value = new_coldata)
+  }
+  
+  experiment
 }
 
 #' Synchronises one or more remote assays with a local copy
@@ -365,7 +260,6 @@ group_to_sme <- function(i, df, dir_prefix, features) {
 #' @importFrom httr modify_url
 #' @importFrom dplyr transmute filter
 #' @noRd
-#'
 sync_assay_files <- function(
     url = parse_url(COUNTS_URL),
     cache_dir,
@@ -421,8 +315,8 @@ sync_assay_files <- function(
     }, .progress = list(name = "Downloading files"))
 }
 
-#' Checks whether genes in a list of SingleCellExperiment or SummarizedExperiment objects overlap
-#' @param obj_list A list of SingleCellExperiment or SummarizedExperiment objects
+#' Checks whether genes in a list of SummarizedExperiment objects overlap
+#' @param obj_list A list of SummarizedExperiment objects
 #' @return A character vector of genes intersection across objects
 #' @importFrom purrr map reduce
 #' @importFrom cli cli_alert_warning
@@ -499,7 +393,7 @@ param_validation <- function(data,
                                           recursive = TRUE)
   
   subdirs <- assay_map[assays]
-  
-  list(raw_data = raw_data, versioned_cache_directory = versioned_cache_directory, subdirs = subdirs)
+  list(raw_data = raw_data, versioned_cache_directory = versioned_cache_directory, 
+       subdirs = subdirs)
 }
 
