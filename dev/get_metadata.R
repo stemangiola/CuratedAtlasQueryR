@@ -63,6 +63,7 @@ splitted_light_data_directory = glue("{root_directory}/splitted_light_data")
 # Read arguments
 args = commandArgs(trailingOnly=TRUE)
 input_file = args[[1]]
+input_file = "/home/users/allstaff/mangiola.s/.cache/R/cellxgenedp/curation/v1/c480e527-5725-4699-bd8a-e09535b23ba8.h5ad"
 output_file = args[[2]]
 
 # Create directory
@@ -226,7 +227,8 @@ col_data |>
  		"tissue",
  		"development_stage",
  		"assay",
- 		"experiment___"
+ 		"experiment___",
+ 		"disease"
  	), na.rm = TRUE, sep = "___", remove = F) |>
 
 

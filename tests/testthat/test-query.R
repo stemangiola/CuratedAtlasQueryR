@@ -198,12 +198,20 @@ test_that("database_url() expect character ", {
     expect_s3_class("character")
 })
 
-
 test_that("get_metadata() expect a unique cell_type `b` is present, which comes from fibrosis database", {
   n_cell <- get_metadata() |> filter(cell_type_harmonised == 'b') |> as_tibble() |> nrow()
   expect_true(n_cell > 0)
 })
   
+test_that("import_metadata_counts() loads metadata from a SingleCellExperiment object into a parquet file", {
+  data(sample_sce_obj)
+  temp <- tempfile()
+  dataset_id <- "GSE122999"
+  import_metadata_counts(sce_obj = sample_sce_obj,
+                         cache_dir = temp)
   
-
-
+  dataset_id %in% (get_metadata(cache_directory = temp) |> 
+                    dplyr::distinct(dataset_id) |> 
+                    dplyr::pull()) |>
+    expect(failure_message = "The correct metadata was not created")
+})
