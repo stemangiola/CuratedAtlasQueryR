@@ -216,11 +216,10 @@ test_that("import_metadata_counts() loads metadata from a SingleCellExperiment o
     expect(failure_message = "The correct metadata was not created")
 })
 
-test_that("get_pseudobulk() syncs appropriate curated_cellxgene files", {
+test_that("get_pseudobulk() syncs appropriate files", {
   temp <- tempfile()
-  meta <-
-    get_metadata(get_database_url("metadata.0.2.3.parquet"), cache_directory = temp) |> 
-    head(2)
+  id <- "0273924c-0387-4f44-98c5-2292dbaab11e"
+  meta <- get_metadata(cache_directory = temp) |> filter(file_id == id)
     
   # The remote dataset should have many genes
   sme <- get_pseudobulk(meta, cache_directory = temp)
