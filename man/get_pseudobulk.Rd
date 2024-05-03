@@ -8,7 +8,7 @@ get_pseudobulk(...)
 }
 \arguments{
 \item{...}{
-  Arguments passed on to \code{\link[=get_experiment]{get_experiment}}
+  Arguments passed on to \code{\link[=get_summarized_experiment]{get_summarized_experiment}}
   \describe{
     \item{\code{type}}{A character vector of length one. Either sce for Single Cell Experiment,
 or pseudobulk.}
@@ -33,9 +33,7 @@ Gets a Pseudobulk from curated metadata
 }
 \examples{
 \dontrun{
-file_ids <- get_metadata() |> distinct(file_id) |> 
-            head(3) |> pull(file_id)
-pseudobulk <- get_metadata() |> filter(file_id \%in\% file_ids) |>
-get_pseudobulk(cache_directory = "~/projects/caq/pseudobulk/0.2.1")
+meta <- get_metadata() |> filter(tissue_harmonised == "lung")
+pseudobulk <- meta |> get_pseudobulk()
 }
 }
