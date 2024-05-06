@@ -8,7 +8,7 @@ get_single_cell_experiment(...)
 }
 \arguments{
 \item{...}{
-  Arguments passed on to \code{\link[=get_experiment]{get_experiment}}
+  Arguments passed on to \code{\link[=get_summarized_experiment]{get_summarized_experiment}}
   \describe{
     \item{\code{type}}{A character vector of length one. Either sce for Single Cell Experiment,
 or pseudobulk.}

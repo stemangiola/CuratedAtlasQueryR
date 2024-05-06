@@ -9,14 +9,14 @@ NULL
 
 # Maps user provided assay names to their corresponding paths in the repository
 assay_map <- c(
-    counts = "original",
-    cpm = "cpm"
+  counts = "original",
+  cpm = "cpm"
 )
 
 #' Base URL pointing to the count data at the current version
 #' @noRd
 COUNTS_URL <- single_line_str(
-    "https://object-store.rc.nectar.org.au/v1/
+  "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/cellxgene-0.2.1-hdf5"
 )
 #' Current version of the counts. This will be incremented when a newer
@@ -31,42 +31,41 @@ pseudobulk_url <- single_line_str(
   AUTH_06d6e008e3e642da99d806ba3ea629c5/pseudobulk-0.1.0"
 )
 
+
 #' @inherit get_single_cell_experiment
 #' @inheritDotParams get_single_cell_experiment
 #' @importFrom cli cli_alert_warning
 #' @export
 get_SingleCellExperiment <- function(...){
-    single_line_str("This function name is deprecated. 
+  single_line_str("This function name is deprecated. 
                     Please use `get_single_cell_experiment()` instead") |>
-        cli_alert_warning()
-    
-    get_single_cell_experiment(...)
+    cli_alert_warning()
+  
+  get_single_cell_experiment(...)
 }
 
 #' Gets a SingleCellExperiment from curated metadata
 #'
-#' @inheritDotParams get_experiment
+#' @inheritDotParams get_summarized_experiment
 #' @examples
 #' meta <- get_metadata() |> head(2)
 #' sce <- get_single_cell_experiment(meta)
 #' @export
 get_single_cell_experiment <- function(...){
-  get_experiment(..., type = "sce")
+  get_summarized_experiment(..., type = "sce")
 }
 
 #' Gets a Pseudobulk from curated metadata
 #' 
-#' @inheritDotParams get_experiment
+#' @inheritDotParams get_summarized_experiment
 #' @examples
 #' \dontrun{
-#' file_ids <- get_metadata() |> distinct(file_id) |> 
-#'             head(3) |> pull(file_id)
-#' pseudobulk <- get_metadata() |> filter(file_id %in% file_ids) |>
-#' get_pseudobulk(cache_directory = "~/projects/caq/pseudobulk/0.2.1")
+#' meta <- get_metadata() |> filter(tissue_harmonised == "lung")
+#' pseudobulk <- meta |> get_pseudobulk()
 #' }
 #' @export
 get_pseudobulk <- function(...) {
-  get_experiment(..., type = "pseudobulk")
+  get_summarized_experiment(..., type = "pseudobulk")
 }
 
 #' Gets a Summarized Experiment from curated metadata
@@ -88,7 +87,7 @@ get_pseudobulk <- function(...) {
 #' @importFrom cli cli_alert_success cli_alert_info
 #' @importFrom rlang .data
 #' @importFrom S4Vectors DataFrame
-get_experiment <- function(
+get_summarized_experiment <- function(
     data,
     assays = "counts",
     cache_directory = get_default_cache_dir(),
@@ -139,7 +138,7 @@ get_experiment <- function(
       experiment_list <- raw_data |>
         dplyr::group_by(.data[[file_id_col]]) |>
         dplyr::summarise(experiments = list(
-          group_to_experiment(
+          group_to_sme(
             dplyr::cur_group_id(),
             dplyr::cur_data_all(),
             dir_prefix,
@@ -167,12 +166,18 @@ get_experiment <- function(
 }
 
 #' Converts a data frame into a Summarized Experiment
+#' 
+#' This function converts a given data frame into a Summarized Experiment object,
+#' allowing for handling of single-cell or pseudobulk data based on specified experiment
+#' type. It requires specific columns for the data frame based on the type of
+#' experiment data being processed.
+#' 
 #' @param i Suffix to be added to the column names, to make them unique
 #' @param df The data frame to be converted
 #' @param dir_prefix The path to the single cell experiment, minus the final
 #'   segment
 #' @param features The list of genes/rows of interest
-#' @return A SingleCellExperiment object
+#' @return A Summarized Experiment object
 #' @importFrom dplyr mutate filter
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment
 #' @importFrom SummarizedExperiment colData<-
@@ -182,7 +187,7 @@ get_experiment <- function(
 #' @importFrom glue glue
 #' @importFrom stringr str_replace_all
 #' @noRd
-group_to_experiment <- function(i, df, dir_prefix, features, type = "sce") {
+group_to_sme <- function(i, df, dir_prefix, features, type = "sce") {
   # Set file name based on type
   file_id_col <- if (type == "sce") "file_id_db" else "file_id"
   experiment_path <- df[[file_id_col]] |>
@@ -241,8 +246,32 @@ group_to_experiment <- function(i, df, dir_prefix, features, type = "sce") {
       `colnames<-`(new_coldata$cell_) |>
       `colData<-`(value = new_coldata)
   }
-  
-  experiment
+  else if (type == "pseudobulk") {
+    # remove cell-level annotations
+    cell_level_anno <- c("cell_", "cell_type", "confidence_class", "file_id_db",
+                         "cell_annotation_blueprint_singler",
+                         "cell_annotation_monaco_singler", 
+                         "cell_annotation_azimuth_l2",
+                         "cell_type_ontology_term_id",
+                         "sample_id_db")
+    
+    new_coldata <- df |> select(-dplyr::all_of(cell_level_anno)) |> distinct() |>
+      mutate(sample_identifier = glue("{sample_}___{cell_type_harmonised}"),
+             original_sample_id = .data$sample_identifier) |>
+      column_to_rownames("original_sample_id")
+
+    experiment <- `if`(
+      is.null(features),
+      experiment[, new_coldata$sample_identifier],
+      {
+        genes <- rownames(experiment) |> intersect(features)
+        experiment[genes, new_coldata$sample_identifier]
+      }
+    ) |>
+        `colnames<-`(new_coldata$sample_identifier) |>
+        `colData<-`(value = DataFrame(new_coldata))
+    experiment
+  }
 }
 
 #' Synchronises one or more remote assays with a local copy
@@ -266,53 +295,53 @@ sync_assay_files <- function(
     subdirs,
     files
 ) {
-    # Find every combination of file name, sample id, and assay, since each
-    # will be a separate file we need to download
-    files <- expand.grid(
-        filename = c("assays.h5", "se.rds"),
-        sample_id = files,
-        subdir = subdirs,
-        stringsAsFactors = FALSE
+  # Find every combination of file name, sample id, and assay, since each
+  # will be a separate file we need to download
+  files <- expand.grid(
+    filename = c("assays.h5", "se.rds"),
+    sample_id = files,
+    subdir = subdirs,
+    stringsAsFactors = FALSE
+  ) |>
+    transmute(
+      # Path to the file of interest from the root path. We use "/"
+      # since URLs must use these regardless of OS
+      full_url = paste0(
+        url$path,
+        "/",
+        .data$subdir,
+        "/",
+        .data$sample_id,
+        "/",
+        .data$filename
+      ) |> map_chr(~ modify_url(url, path = .)),
+      
+      # Path to save the file on local disk (and its parent directory)
+      # We use file.path since the file separator will differ on other OSs
+      output_dir = file.path(
+        cache_dir,
+        .data$subdir,
+        .data$sample_id
+      ),
+      output_file = file.path(
+        .data$output_dir,
+        .data$filename
+      )
     ) |>
-        transmute(
-            # Path to the file of interest from the root path. We use "/"
-            # since URLs must use these regardless of OS
-            full_url = paste0(
-                url$path,
-                "/",
-                .data$subdir,
-                "/",
-                .data$sample_id,
-                "/",
-                .data$filename
-            ) |> map_chr(~ modify_url(url, path = .)),
-
-            # Path to save the file on local disk (and its parent directory)
-            # We use file.path since the file separator will differ on other OSs
-            output_dir = file.path(
-                cache_dir,
-                .data$subdir,
-                .data$sample_id
-            ),
-            output_file = file.path(
-                .data$output_dir,
-                .data$filename
-            )
-        ) |>
-        filter(
-            # Don't bother downloading files that don't exist TODO: use some
-            # kind of hashing to check if the remote file has changed, and
-            # proceed with the download if it has. However this is low
-            # importance as the repository is not likely to change often
-            !file.exists(.data$output_file)
-        )
-    
-    report_file_sizes(files$full_url)
-    
-    pmap_chr(files, function(full_url, output_dir, output_file) {
-        sync_remote_file(full_url, output_file)
-        output_file
-    }, .progress = list(name = "Downloading files"))
+    filter(
+      # Don't bother downloading files that don't exist TODO: use some
+      # kind of hashing to check if the remote file has changed, and
+      # proceed with the download if it has. However this is low
+      # importance as the repository is not likely to change often
+      !file.exists(.data$output_file)
+    )
+  
+  report_file_sizes(files$full_url)
+  
+  pmap_chr(files, function(full_url, output_dir, output_file) {
+    sync_remote_file(full_url, output_file)
+    output_file
+  }, .progress = list(name = "Downloading files"))
 }
 
 #' Checks whether genes in a list of SummarizedExperiment objects overlap
@@ -365,7 +394,7 @@ param_validation <- function(data,
                              cache_directory,
                              repository,
                              features
-                             ) {
+) {
   # Parameter validation 
   assays %in% names(assay_map) |>
     all() |>
