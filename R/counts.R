@@ -31,6 +31,7 @@ pseudobulk_url <- single_line_str(
   AUTH_06d6e008e3e642da99d806ba3ea629c5/pseudobulk-0.1.0"
 )
 
+
 #' @inherit get_single_cell_experiment
 #' @inheritDotParams get_single_cell_experiment
 #' @importFrom cli cli_alert_warning
@@ -66,7 +67,6 @@ get_single_cell_experiment <- function(...){
 get_pseudobulk <- function(...) {
   get_summarized_experiment(..., type = "pseudobulk")
 }
-
 
 #' Gets a Summarized Experiment from curated metadata
 #' 
@@ -166,6 +166,12 @@ get_summarized_experiment <- function(
 }
 
 #' Converts a data frame into a Summarized Experiment
+#' 
+#' This function converts a given data frame into a Summarized Experiment object,
+#' allowing for handling of single-cell or pseudobulk data based on specified experiment
+#' type. It requires specific columns for the data frame based on the type of
+#' experiment data being processed.
+#' 
 #' @param i Suffix to be added to the column names, to make them unique
 #' @param df The data frame to be converted
 #' @param dir_prefix The path to the single cell experiment, minus the final
@@ -245,7 +251,9 @@ group_to_sme <- function(i, df, dir_prefix, features, type = "sce") {
     cell_level_anno <- c("cell_", "cell_type", "confidence_class", "file_id_db",
                          "cell_annotation_blueprint_singler",
                          "cell_annotation_monaco_singler", 
-                         "cell_annotation_azimuth_l2")
+                         "cell_annotation_azimuth_l2",
+                         "cell_type_ontology_term_id",
+                         "sample_id_db")
     
     new_coldata <- df |> select(-dplyr::all_of(cell_level_anno)) |> distinct() |>
       mutate(sample_identifier = glue("{sample_}___{cell_type_harmonised}"),
@@ -254,10 +262,14 @@ group_to_sme <- function(i, df, dir_prefix, features, type = "sce") {
 
     experiment <- `if`(
       is.null(features),
-      experiment[, new_coldata$sample_identifier] |>
+      experiment[, new_coldata$sample_identifier],
+      {
+        genes <- rownames(experiment) |> intersect(features)
+        experiment[genes, new_coldata$sample_identifier]
+      }
+    ) |>
         `colnames<-`(new_coldata$sample_identifier) |>
         `colData<-`(value = DataFrame(new_coldata))
-    )
     experiment
   }
 }
