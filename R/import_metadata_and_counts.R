@@ -94,10 +94,12 @@ import_metadata_counts <- function(
     select(metadata_tbl, .data$file_id_db) |> mutate(
       original_path = file.path(original_dir, basename(.data$file_id_db)),
       cpm_path = file.path(cache_dir, "cpm", basename(.data$file_id_db))
-    )
+    ) |>
+    distinct()
   
   # Generate cpm from counts
-  cli_alert_info("Generating cpm from {.path {metadata_tbl$file_id_db}}. ")
+  unique_file_ids <- unique(metadata_tbl$file_id_db)
+  cli_alert_info("Generating cpm from {.path {unique_file_ids}}. ")
   get_counts_per_million(input_sce_obj = sce_obj, output_dir = counts_path$cpm_path, hd5_file_dir = counts_path$original_path)
   saveHDF5SummarizedExperiment(sce_obj, counts_path$original_path, replace=TRUE)
   cli_alert_info("cpm are generated in {.path {counts_path$cpm_path}}. ")
