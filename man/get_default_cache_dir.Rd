@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{get_default_cache_dir}
 \alias{get_default_cache_dir}
-\title{Returns the default cache directory}
+\title{Returns the default cache directory with a version number}
 \usage{
 get_default_cache_dir()
 }
@@ -10,6 +10,8 @@ get_default_cache_dir()
 A length one character vector.
 }
 \description{
-Returns the default cache directory
+Returns the default cache directory with a version number
 }
-\keyword{internal}
+\examples{
+get_metadata(cache_directory = get_default_cache_dir())
+}

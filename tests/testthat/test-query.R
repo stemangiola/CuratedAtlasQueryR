@@ -19,7 +19,7 @@ test_that("get_default_cache_dir() returns the correct directory on Linux", {
     grepl("linux", version$platform, fixed = TRUE) |>
         skip_if_not()
 
-    "~/.cache/R/CuratedAtlasQueryR" |>
+    "~/.cache/R/CuratedAtlasQueryR/0.2.1" |>
         normalizePath() |>
         expect_equal(
             get_default_cache_dir(),
@@ -131,7 +131,7 @@ test_that("get_SingleCellExperiment() assigns the right cell ID to each cell", {
     
     # Load the SCE from cache directly
     assay_1 = CuratedAtlasQueryR:::get_default_cache_dir() |>
-        file.path(CuratedAtlasQueryR:::COUNTS_VERSION, "original", id) |>
+        file.path("original", id) |>
         HDF5Array::loadHDF5SummarizedExperiment() |>
         assay("X") |>
         as.matrix()
@@ -189,4 +189,27 @@ test_that("get_metadata() is cached", {
     table_2 = get_metadata()
     
     identical(table, table_2) |> expect_true()
+})
+
+test_that("database_url() expect character ", {
+  get_database_url() |>
+    expect_s3_class("character")
+})
+
+test_that("get_metadata() expect a unique cell_type `b` is present, which comes from fibrosis database", {
+  n_cell <- get_metadata() |> filter(cell_type_harmonised == 'b') |> as_tibble() |> nrow()
+  expect_true(n_cell > 0)
+})
+  
+test_that("import_metadata_counts() loads metadata from a SingleCellExperiment object into a parquet file", {
+  data(sample_sce_obj)
+  temp <- tempfile()
+  dataset_id <- "GSE122999"
+  import_metadata_counts(sce_obj = sample_sce_obj,
+                         cache_dir = temp)
+  
+  dataset_id %in% (get_metadata(cache_directory = temp) |> 
+                    dplyr::distinct(dataset_id) |> 
+                    dplyr::pull()) |>
+    expect(failure_message = "The correct metadata was not created")
 })
