@@ -110,8 +110,7 @@ Suggests:
     rprojroot,
     openssl,
     scuttle,
-    DelayedArray,
-    cellxgenedp
+    DelayedArray
 Biarch: true
 biocViews: 
     AssayDomain,
