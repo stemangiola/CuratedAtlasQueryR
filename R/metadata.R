@@ -74,7 +74,7 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' @details
 #'
 #' The metadata was collected from the Bioconductor package `cellxgenedp`.
-#' [`vignette("using_cellxgenedp", package="cellxgenedp")`] provides an overview of the columns in the
+#' `vignette("using_cellxgenedp", package="cellxgenedp")` provides an overview of the columns in the
 #' metadata. The data for which the column `organism_name` included "Homo
 #' sapiens" was collected collected from `cellxgenedp`.
 #'

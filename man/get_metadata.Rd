@@ -37,7 +37,7 @@ into \code{\link[=get_single_cell_experiment]{get_single_cell_experiment()}} to 
 }
 \details{
 The metadata was collected from the Bioconductor package \code{cellxgenedp}.
-\code{\link{vignette("using_cellxgenedp", package="cellxgenedp")}} provides an overview of the columns in the
+\code{vignette("using_cellxgenedp", package="cellxgenedp")} provides an overview of the columns in the
 metadata. The data for which the column \code{organism_name} included "Homo
 sapiens" was collected collected from \code{cellxgenedp}.
 
