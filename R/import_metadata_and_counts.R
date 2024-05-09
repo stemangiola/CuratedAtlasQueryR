@@ -1,6 +1,7 @@
 #' Import and process metadata and counts for a SingleCellExperiment object
 #'
-#' @param sce_obj A SingleCellExperiment object from RDS
+#' @param sce_obj A SingleCellExperiment object from RDS, the metadata slot of which
+#' must contain `cell_` and `dataset_id`
 #' @param cache_dir Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
@@ -17,9 +18,9 @@
 #' @importFrom stringr str_detect
 #' @examples
 #' data(sample_sce_obj)
-#' import_metadata_counts(sample_sce_obj,
-#'                        cache_dir = get_default_cache_dir())
-import_metadata_counts <- function(
+#' import_one_sce(sample_sce_obj,
+#'                cache_dir = get_default_cache_dir())
+import_one_sce <- function(
     sce_obj,  
     cache_dir = get_default_cache_dir()
   ) {
@@ -28,6 +29,11 @@ import_metadata_counts <- function(
   # Identify metadata and counts matrix
   metadata_tbl <- metadata(sce_obj)$data
   counts_matrix <- assay(sce_obj)
+  
+  # Check if the input contains only one dataset_id
+  (metadata_tbl |> distinct(dataset_id) |> nrow() == 1) |>
+    check_true() |> 
+    assert("sce_obj metadata should contain one dataset_id at each time.")
   
   # Identify whether genes in SingleCellxExperiment object are in ensembl nomenclature
   genes <- rowData(sce_obj) |> rownames()
@@ -42,8 +48,9 @@ import_metadata_counts <- function(
   metadata_tbl <- metadata_tbl |> as_tibble()
   
   # Create file_id_db from dataset_id
+  file_id_db <- metadata_tbl$dataset_id |> unique() |> openssl::md5() |> as.character()
   metadata_tbl <-
-    metadata_tbl |> mutate(file_id_db = .data$dataset_id |> openssl::md5() |> as.character())
+    metadata_tbl |> mutate(file_id_db = file_id_db)
   metadata(sce_obj)$data <- metadata_tbl
   
   # Remove existing reducedDim slot to enable get_SCE API functionality 
@@ -61,7 +68,7 @@ import_metadata_counts <- function(
   }
   
   # Check whether count H5 directory has been generated
-  all(!metadata_tbl$file_id_db %in% dir(original_dir)) |>
+  all(!file_id_db %in% dir(original_dir)) |>
     check_true() |>
     assert("The filename for count assay (file_id_db) already exists in the cache directory.")
   
@@ -90,18 +97,15 @@ import_metadata_counts <- function(
     metadata_tbl <- metadata_tbl |> mutate(sex = tolower(.data$sex))
     distinct(metadata_tbl, .data$sex) |> pull(.data$sex) |> check_subset(c("female","male","unknown"))
   }
-  counts_path <-
-    select(metadata_tbl, .data$file_id_db) |> mutate(
-      original_path = file.path(original_dir, basename(.data$file_id_db)),
-      cpm_path = file.path(cache_dir, "cpm", basename(.data$file_id_db))
-    ) |>
-    distinct()
+  
+  original_path <- file.path(original_dir, basename(file_id_db))
+  cpm_path <- file.path(cache_dir, "cpm", basename(file_id_db))
   
   # Generate cpm from counts
-  cli_alert_info("Generating cpm from {.path {counts_path$file_id_db}}. ")
-  get_counts_per_million(input_sce_obj = sce_obj, output_dir = counts_path$cpm_path, hd5_file_dir = counts_path$original_path)
-  saveHDF5SummarizedExperiment(sce_obj, counts_path$original_path, replace=TRUE)
-  cli_alert_info("cpm are generated in {.path {counts_path$cpm_path}}. ")
+  cli_alert_info("Generating cpm from {file_id_db}. ")
+  get_counts_per_million(input_sce_obj = sce_obj, output_dir = cpm_path, hd5_file_dir = original_path)
+  saveHDF5SummarizedExperiment(sce_obj, original_path, replace=TRUE)
+  cli_alert_info("cpm are generated in {.path {cpm_path}}. ")
   
   # check metadata sample file ID match the count file ID in cache directory
   all(metadata_tbl |> pull(.data$file_id_db) %in% dir(original_dir)) |> 
