@@ -11,7 +11,7 @@ An SQL data frame
 }
 \description{
 Since dbplyr 2.4.0, raw file paths aren't handled very well
-See: https://github.com/duckdb/duckdb-r/issues/38
+See: \url{https://github.com/duckdb/duckdb-r/issues/38}
 Hence the need for this method
 }
 \keyword{internal}
