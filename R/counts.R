@@ -75,8 +75,8 @@ get_pseudobulk <- function(...) {
 #' returns a [`SummarizedExperiment::SummarizedExperiment-class`] object
 #' corresponding to the samples in that data frame
 #' @inheritParams param_validation
-#' @param type A character vector of length one. Either sce for Single Cell Experiment,
-#' or pseudobulk.
+#' @param type A character vector of length one. Either "sce" for Single Cell Experiment,
+#' or "pseudobulk".
 #' @importFrom dplyr pull filter as_tibble inner_join collect
 #' @importFrom tibble column_to_rownames
 #' @importFrom purrr reduce map map_int imap keep
@@ -116,7 +116,7 @@ get_summarized_experiment <- function(
     
     files_to_read <-
       raw_data |>
-      pull(file_id_col) |>
+      pull(.data[[file_id_col]]) |>
       unique() |>
       as.character() |>
       sync_assay_files(
@@ -178,7 +178,7 @@ get_summarized_experiment <- function(
 #' @param dir_prefix The path to the single cell experiment, minus the final
 #'   segment
 #' @param features The list of genes/rows of interest
-#' @return A Summarized Experiment object
+#' @return A `SummarizedExperiment` object
 #' @importFrom dplyr mutate filter
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment
 #' @importFrom SummarizedExperiment colData<-
@@ -256,9 +256,13 @@ group_to_sme <- function(i, df, dir_prefix, features, type = "sce") {
                          "cell_type_ontology_term_id",
                          "sample_id_db")
     
-    new_coldata <- df |> select(-dplyr::all_of(cell_level_anno)) |> distinct() |>
-      mutate(sample_identifier = glue("{sample_}___{cell_type_harmonised}"),
-             original_sample_id = .data$sample_identifier) |>
+    new_coldata <- df |>
+      select(-dplyr::all_of(cell_level_anno)) |>
+      distinct() |>
+      mutate(
+        sample_identifier = glue("{sample_}___{cell_type_harmonised}"),
+        original_sample_id = .data$sample_identifier
+      ) |>
       column_to_rownames("original_sample_id")
 
     experiment <- `if`(
