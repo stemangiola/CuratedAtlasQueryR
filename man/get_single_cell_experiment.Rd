@@ -10,8 +10,8 @@ get_single_cell_experiment(...)
 \item{...}{
   Arguments passed on to \code{\link[=get_summarized_experiment]{get_summarized_experiment}}
   \describe{
-    \item{\code{type}}{A character vector of length one. Either sce for Single Cell Experiment,
-or pseudobulk.}
+    \item{\code{type}}{A character vector of length one. Either "sce" for Single Cell Experiment,
+or "pseudobulk".}
     \item{\code{data}}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{file_id} column, which
 correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID.
 They can be obtained from the \code{\link[=get_metadata]{get_metadata()}} function.}

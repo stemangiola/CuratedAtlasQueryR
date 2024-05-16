@@ -33,8 +33,8 @@ an HTTP URL pointing to the location where the single cell data is stored.}
 \item{features}{An optional character vector of features (ie genes) to return
 the counts for. By default counts for all features will be returned.}
 
-\item{type}{A character vector of length one. Either sce for Single Cell Experiment,
-or pseudobulk.}
+\item{type}{A character vector of length one. Either "sce" for Single Cell Experiment,
+or "pseudobulk".}
 }
 \description{
 Given a data frame of Curated Atlas metadata obtained from \code{\link[=get_metadata]{get_metadata()}},
