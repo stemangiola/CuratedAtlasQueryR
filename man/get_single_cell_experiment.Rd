@@ -16,7 +16,7 @@ or "pseudobulk".}
 correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID.
 They can be obtained from the \code{\link[=get_metadata]{get_metadata()}} function.}
     \item{\code{assays}}{A character vector whose elements must be either "counts"
-and/or "cpm" and/or "quantile_normalise", representing the corresponding assay(s) you want to request.
+and/or "cpm" and/or "quantile_normalised", representing the corresponding assay(s) you want to request.
 By default only the count assay is downloaded. If you are interested in
 comparing a limited amount of genes, the "cpm" assay is more appropriate.}
     \item{\code{repository}}{A character vector of length one. If provided, it should be

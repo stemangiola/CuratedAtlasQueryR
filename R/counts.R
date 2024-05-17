@@ -11,7 +11,7 @@ NULL
 assay_map <- c(
   counts = "original",
   cpm = "cpm",
-  quantile_normalise = "quantile_normalise"
+  quantile_normalised = "quantile_normalised"
 )
 
 #' Base URL pointing to the count data at the current version
@@ -373,7 +373,7 @@ check_gene_overlap <- function(obj_list) {
 #'   correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID. 
 #'   They can be obtained from the [get_metadata()] function.
 #' @param assays A character vector whose elements must be either "counts"
-#'   and/or "cpm" and/or "quantile_normalise", representing the corresponding assay(s) you want to request.
+#'   and/or "cpm" and/or "quantile_normalised", representing the corresponding assay(s) you want to request.
 #'   By default only the count assay is downloaded. If you are interested in
 #'   comparing a limited amount of genes, the "cpm" assay is more appropriate.
 #' @param repository A character vector of length one. If provided, it should be
@@ -404,7 +404,7 @@ param_validation <- function(data,
   assays %in% names(assay_map) |>
     all() |>
     assert_that(msg = 'assays must be a character vector containing "counts" and/or
-            "cpm" and/or "quantile_normalise"')
+            "cpm" and/or "quantile_normalised"')
   assert_that(
     !anyDuplicated(assays),
     inherits(cache_directory, "character"),
