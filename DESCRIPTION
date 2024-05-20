@@ -94,7 +94,8 @@ Imports:
     dbplyr (>= 2.3.0),
     duckdb,
     stringr,
-    checkmate
+    checkmate,
+    stringfish
 Suggests:
     zellkonverter,
     rmarkdown,
