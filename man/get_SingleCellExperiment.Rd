@@ -10,33 +10,13 @@ get_SingleCellExperiment(...)
 \item{...}{
   Arguments passed on to \code{\link[=get_single_cell_experiment]{get_single_cell_experiment}}
   \describe{
-    \item{\code{data}}{A data frame containing, at minimum, a \code{sample_} column, which
-corresponds to a single cell sample ID. This can be obtained from the
-\code{\link[=get_metadata]{get_metadata()}} function.}
-    \item{\code{assays}}{A character vector whose elements must be either "counts"
-and/or "cpm", representing the corresponding assay(s) you want to request.
-By default only the count assay is downloaded. If you are interested in
-comparing a limited amount of genes, the "cpm" assay is more appropriate.}
-    \item{\code{repository}}{A character vector of length one. If provided, it should be
-an HTTP URL pointing to the location where the single cell data is stored.}
-    \item{\code{cache_directory}}{An optional character vector of length one. If
-provided, it should indicate a local file path where any remotely accessed
-files should be copied.}
-    \item{\code{features}}{An optional character vector of features (ie genes) to return
-the counts for. By default counts for all features will be returned.}
+    \item{\code{}}{}
   }}
 }
-\value{
-A SingleCellExperiment object, with one assay for each value in the
-assays argument
-}
 \description{
-Given a data frame of Curated Atlas metadata obtained from \code{\link[=get_metadata]{get_metadata()}},
-returns a \code{\link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment}} object
-corresponding to the samples in that data frame
+Gets a SingleCellExperiment from curated metadata
 }
 \examples{
 meta <- get_metadata() |> head(2)
 sce <- get_single_cell_experiment(meta)
-
 }
