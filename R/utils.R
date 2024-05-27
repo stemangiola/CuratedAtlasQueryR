@@ -96,7 +96,7 @@ sync_remote_file <- function(full_url, output_file, ...) {
 #' Returns a tibble from a parquet file path
 #' 
 #' Since dbplyr 2.4.0, raw file paths aren't handled very well
-#' See: https://github.com/duckdb/duckdb-r/issues/38
+#' See: <https://github.com/duckdb/duckdb-r/issues/38>
 #' Hence the need for this method
 #' @importFrom glue glue
 #' @importFrom dplyr tbl

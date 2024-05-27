@@ -36,8 +36,8 @@ into \code{\link[=get_single_cell_experiment]{get_single_cell_experiment()}} to 
 \code{\link[SingleCellExperiment:SingleCellExperiment]{SingleCellExperiment::SingleCellExperiment}}
 }
 \details{
-The metadata was collected from the Bioconductor package \code{cellxgenedp}. it's
-vignette \code{using_cellxgenedp} provides an overview of the columns in the
+The metadata was collected from the Bioconductor package \code{cellxgenedp}.
+\code{vignette("using_cellxgenedp", package="cellxgenedp")} provides an overview of the columns in the
 metadata. The data for which the column \code{organism_name} included "Homo
 sapiens" was collected collected from \code{cellxgenedp}.
 
@@ -47,7 +47,7 @@ The columns \code{dataset_id} and \code{file_id} link the datasets explorable th
 Our representation, harmonises the metadata at dataset, sample and cell
 levels, in a unique coherent database table.
 
-Dataset-specific columns (definitions available at cellxgene.cziscience.com)
+Dataset-specific columns (definitions available at cellxgene.cziscience.com):
 \code{cell_count}, \code{collection_id}, \code{created_at.x}, \code{created_at.y},
 \code{dataset_deployments}, \code{dataset_id}, \code{file_id}, \code{filename}, \code{filetype},
 \code{is_primary_data.y}, \code{is_valid}, \code{linked_genesets}, \code{mean_genes_per_cell},
@@ -55,8 +55,7 @@ Dataset-specific columns (definitions available at cellxgene.cziscience.com)
 \code{schema_version}, \code{tombstone}, \code{updated_at.x}, \code{updated_at.y},
 \code{user_submitted}, \code{x_normalization}
 
-Sample-specific columns (definitions available at cellxgene.cziscience.com)
-
+Sample-specific columns (definitions available at cellxgene.cziscience.com):
 \code{sample_}, \code{.sample_name}, \code{age_days}, \code{assay}, \code{assay_ontology_term_id},
 \code{development_stage}, \code{development_stage_ontology_term_id}, \code{ethnicity},
 \code{ethnicity_ontology_term_id}, \code{experiment___}, \code{organism},
@@ -65,14 +64,13 @@ Sample-specific columns (definitions available at cellxgene.cziscience.com)
 \code{tissue_ontology_term_id}, \code{disease}, \code{disease_ontology_term_id},
 \code{is_primary_data.x}
 
-Cell-specific columns (definitions available at cellxgene.cziscience.com)
-
+Cell-specific columns (definitions available at cellxgene.cziscience.com):
 \code{cell_}, \code{cell_type}, \code{cell_type_ontology_term_idm}, \code{cell_type_harmonised},
 \code{confidence_class}, \code{cell_annotation_azimuth_l2},
 \code{cell_annotation_blueprint_singler}
 
-Through harmonisation and curation we introduced custom column, not present
-in the original CELLxGENE metadata
+Through harmonisation and curation we introduced custom columns not present
+in the original CELLxGENE metadata:
 \itemize{
 \item \code{tissue_harmonised}: a coarser tissue name for better filtering
 \item \code{age_days}: the number of days corresponding to the age
@@ -96,15 +94,17 @@ reference
 \strong{Possible cache path issues}
 
 If your default R cache path includes non-standard characters (e.g. dash
-because of your user or organisation name), the following error can manifest
+because of your user or organisation name), the following error can occur.
 
-Error in \code{db_query_fields.DBIConnection()}: ! Can't query fields. Caused by
+\if{html}{\out{<div class="sourceCode">}}\preformatted{Error in `db_query_fields.DBIConnection()`: ! Can't query fields. Caused by
 error: ! Parser Error: syntax error at or near "/" LINE 2: FROM
 /Users/bob/Library/Caches...
+}\if{html}{\out{</div>}}
 
 The solution is to choose a different cache, for example
 
-get_metadata(cache_directory = path.expand('~'))
+\if{html}{\out{<div class="sourceCode R">}}\preformatted{get_metadata(cache_directory = path.expand('~'))
+}\if{html}{\out{</div>}}
 }
 \examples{
 library(dplyr)

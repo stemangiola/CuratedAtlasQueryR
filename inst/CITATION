@@ -1,0 +1,32 @@
+citEntry(entry="article",
+         title = "A multi-organ map of the human immune system across age, sex and ethnicity",
+         author = personList(as.person("Stefano Mangiola"),
+                              as.person("Michael Milton"),
+                              as.person("Nishika Ranathunga"), 
+                              as.person("Connie SN Li-Wai-Suen"), 
+                              as.person("Alexandru Odainic"), 
+                              as.person("Edward Young"), 
+                              as.person("William Hutchison"), 
+                              as.person("Alexandra Garnham"), 
+                              as.person("Julie Iskander"), 
+                              as.person("Bhupinder Pal"), 
+                              as.person("Vijay Kumar Yadav"), 
+                              as.person("Fernando Rossello"), 
+                              as.person("Vincent Carey"), 
+                              as.person("Martin Morgan"), 
+                              as.person("Sammy Bedoui"), 
+                              as.person("Axel Kallies"), 
+                              as.person("Anthony T. Papenfuss")
+                              ),
+         year = 2024,
+         journal = "bioRxiv",
+         doi = "10.1101/2023.06.08.542671",
+         volume = "",
+         issue = "",
+         textVersion = 
+         paste("Mangiola, S., Milton, M., Ranathunga, N., Li-Wai-Suen, C., Odainic, A., Yang, E., Hutchison, W., Garnham, A., Iskander, J., Pal, B., Yadav, V.,
+         Rossello, J., Carey, V. J., Morgan, M., Bedoui, S., Kallies, A., & Papenfuss, A. T.",
+         "A multi-organ map of the human immune system across age, sex and ethnicity", "bioRxiv [Preprint]. 2023.06.08.542671" ) 
+         )
+                
+                

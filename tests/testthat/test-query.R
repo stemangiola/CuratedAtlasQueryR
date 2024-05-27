@@ -48,7 +48,7 @@ test_that("sync_assay_files() syncs appropriate files", {
 })
 
 test_that("get_SingleCellExperiment() syncs appropriate files", {
-    temp <- get_default_cache_dir()
+    temp <- tempfile()
     test_file <- "00095cb0de0dc9528316b636fc9b3446"
 
     meta <- get_metadata() |> head(2)
@@ -123,6 +123,7 @@ test_that("get_seurat() returns the appropriate data in Seurat format", {
 
 test_that("get_SingleCellExperiment() assigns the right cell ID to each cell", {
     id = "3214d8f8986c1e33a85be5322f2db4a9"
+    file_id = "7eb6d9a1-a723-4d59-bdbc-03e0a263e836"
     
     # Force the file to be cached
     get_metadata() |>
@@ -142,6 +143,7 @@ test_that("get_SingleCellExperiment() assigns the right cell ID to each cell", {
         colnames() |>
         tibble::tibble(
             file_id_db = id,
+            file_id = file_id,
             cell_ = _
         ) |>
         arrange(-row_number()) |>
@@ -196,12 +198,35 @@ test_that("database_url() expect character ", {
     expect_s3_class("character")
 })
 
-
 test_that("get_metadata() expect a unique cell_type `b` is present, which comes from fibrosis database", {
   n_cell <- get_metadata() |> filter(cell_type_harmonised == 'b') |> as_tibble() |> nrow()
   expect_true(n_cell > 0)
 })
   
+test_that("import_one_sce() loads metadata from a SingleCellExperiment object into a parquet file", {
+  data(sample_sce_obj)
+  temp <- tempfile()
+  dataset_id <- "GSE122999"
+  import_one_sce(sce_obj = sample_sce_obj,
+                         cache_dir = temp)
   
+  dataset_id %in% (get_metadata(cache_directory = temp) |> 
+                    dplyr::distinct(dataset_id) |> 
+                    dplyr::pull()) |>
+    expect(failure_message = "The correct metadata was not created")
+})
+
+test_that("get_pseudobulk() syncs appropriate files", {
+  temp <- tempfile()
+  id <- "0273924c-0387-4f44-98c5-2292dbaab11e"
+  meta <- get_metadata(cache_directory = temp) |> filter(file_id == id)
+  
+  # The remote dataset should have many genes
+  sme <- get_pseudobulk(meta, cache_directory = temp)
+  sme |>
+    row.names() |>
+    length() |>
+    expect_gt(1)
+})
 
 
