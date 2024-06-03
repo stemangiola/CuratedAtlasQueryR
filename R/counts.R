@@ -75,8 +75,6 @@ get_pseudobulk <- function(...) {
 #' returns a [`SummarizedExperiment::SummarizedExperiment-class`] object
 #' corresponding to the samples in that data frame
 #' @inheritParams param_validation
-#' @param type A character vector of length one. Either "sce" for Single Cell Experiment,
-#' or "pseudobulk".
 #' @importFrom dplyr pull filter as_tibble inner_join collect
 #' @importFrom tibble column_to_rownames
 #' @importFrom purrr reduce map map_int imap keep
@@ -97,7 +95,7 @@ get_summarized_experiment <- function(
     type = "sce"
 ) {
   repository <- if (type == "sce") COUNTS_URL else pseudobulk_url 
-  validated <- param_validation(data, assays, cache_directory, repository, features)
+  validated <- param_validation(data, assays, cache_directory, repository, features, type)
   
   # Extract variables from validation
   raw_data <- validated$raw_data
@@ -383,6 +381,8 @@ check_gene_overlap <- function(obj_list) {
 #'   files should be copied.
 #' @param features An optional character vector of features (ie genes) to return
 #'   the counts for. By default counts for all features will be returned.
+#' @param type A character vector of length one. Either "sce" for Single Cell Experiment,
+#' or "pseudobulk".
 #' @return A list of elements:
 #' \itemize{
 #'  \item{raw_data}{Data after being converted to an in-memory data frame }
@@ -398,7 +398,8 @@ param_validation <- function(data,
                              assays,
                              cache_directory,
                              repository,
-                             features
+                             features,
+                             type
 ) {
   # Parameter validation 
   assays %in% names(assay_map) |>
@@ -419,9 +420,15 @@ param_validation <- function(data,
   ## operations will fail when passed a database connection
   cli_alert_info("Realising metadata.")
   raw_data <- collect(data)
-  assert_that(inherits(raw_data, "tbl"),
-              has_name(raw_data, c("file_id", "cell_", "file_id_db")))
   
+  if (type == "sce") {
+    assert_that(inherits(raw_data, "tbl"),
+                has_name(raw_data, c("cell_", "file_id_db")))
+  } else if (type == "pseudobulk") {
+    assert_that(inherits(raw_data, "tbl"),
+                has_name(raw_data, c("cell_", "file_id")))
+  }
+
   versioned_cache_directory <- cache_directory
   versioned_cache_directory |> dir.create(showWarnings = FALSE,
                                           recursive = TRUE)

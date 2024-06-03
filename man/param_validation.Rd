@@ -4,7 +4,7 @@
 \alias{param_validation}
 \title{Validate parameters for Summarized Experiment analysis}
 \usage{
-param_validation(data, assays, cache_directory, repository, features)
+param_validation(data, assays, cache_directory, repository, features, type)
 }
 \arguments{
 \item{data}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{file_id} column, which
@@ -25,6 +25,9 @@ an HTTP URL pointing to the location where the single cell data is stored.}
 
 \item{features}{An optional character vector of features (ie genes) to return
 the counts for. By default counts for all features will be returned.}
+
+\item{type}{A character vector of length one. Either "sce" for Single Cell Experiment,
+or "pseudobulk".}
 }
 \value{
 A list of elements:
