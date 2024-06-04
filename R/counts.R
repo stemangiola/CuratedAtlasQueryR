@@ -46,37 +46,67 @@ get_SingleCellExperiment <- function(...){
 }
 
 #' Gets a SingleCellExperiment from curated metadata
-#'
-#' @inheritDotParams get_summarized_experiment
+#' 
+#' @param data A data frame containing, at minimum, `cell_`, `file_id_db` columns, 
+#'   which correspond to a single cell ID, file subdivision for internal use.
+#'   They can be obtained from the [get_metadata()] function.
+#' @inheritDotParams get_data_container
 #' @examples
 #' meta <- get_metadata() |> head(2)
 #' sce <- get_single_cell_experiment(meta)
 #' @export
-get_single_cell_experiment <- function(...){
-  get_summarized_experiment(..., type = "sce")
+get_single_cell_experiment <- function(data, ...){
+  raw_data <- collect(data)
+  assert_that(
+    inherits(raw_data, "tbl"),
+    has_name(raw_data, c("cell_", "file_id_db"))
+  )
+  get_data_container(data, ..., repository = COUNTS_URL, grouping_column = "file_id_db")
 }
 
 #' Gets a Pseudobulk from curated metadata
 #' 
-#' @inheritDotParams get_summarized_experiment
+#' @param data A data frame containing, at minimum, `cell_`, `file_id`, 
+#'   `sample_`, `cell_type_harmonised` columns, which correspond to a single cell ID,
+#'   file subdivision for internal use, a singlel cell sample ID and harmonised cell type. 
+#'   They can be obtained from the [get_metadata()] function.
+#' @inheritDotParams get_data_container
 #' @examples
 #' \dontrun{
 #' meta <- get_metadata() |> filter(tissue_harmonised == "lung")
 #' pseudobulk <- meta |> get_pseudobulk()
 #' }
 #' @export
-get_pseudobulk <- function(...) {
-  get_summarized_experiment(..., type = "pseudobulk")
+get_pseudobulk <- function(data, ...) {
+  raw_data <- collect(data)
+  assert_that(
+    inherits(raw_data, "tbl"),
+    has_name(raw_data, c("cell_", "file_id", "sample_", "cell_type_harmonised"))
+  )
+  get_data_container(data, ..., repository = pseudobulk_url, grouping_column = "file_id")
 }
 
-#' Gets a Summarized Experiment from curated metadata
+#' Gets data from curated metadata container
 #' 
 #' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
 #' returns a [`SummarizedExperiment::SummarizedExperiment-class`] object
 #' corresponding to the samples in that data frame
-#' @inheritParams param_validation
-#' @param type A character vector of length one. Either "sce" for Single Cell Experiment,
-#' or "pseudobulk".
+#' @param data A data frame containing, at minimum, `cell_`, `file_id_db`, `file_id` column, which
+#'   correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID. 
+#'   They can be obtained from the [get_metadata()] function.
+#' @param assays A character vector whose elements must be either "counts"
+#'   and/or "cpm" and/or "quantile_normalised", representing the corresponding assay(s) you want to request.
+#'   By default only the count assay is downloaded. If you are interested in
+#'   comparing a limited amount of genes, the "cpm" assay is more appropriate.
+#' @param cache_directory An optional character vector of length one. If
+#'   provided, it should indicate a local file path where any remotely accessed
+#'   files should be copied.
+#' @param repository A character vector of length one. If provided, it should be
+#'   an HTTP URL pointing to the location where the single cell data is stored.
+#' @param grouping_column A character vector of metadata column for grouping. "file_id_db" for
+#'   for Single Cell Experiment, "file_id" for pseudobulk.
+#' @param features An optional character vector of features (ie genes) to return
+#'   the counts for. By default counts for all features will be returned.
 #' @importFrom dplyr pull filter as_tibble inner_join collect
 #' @importFrom tibble column_to_rownames
 #' @importFrom purrr reduce map map_int imap keep
@@ -88,23 +118,43 @@ get_pseudobulk <- function(...) {
 #' @importFrom cli cli_alert_success cli_alert_info
 #' @importFrom rlang .data
 #' @importFrom S4Vectors DataFrame
-get_summarized_experiment <- function(
+get_data_container <- function(
     data,
     assays = "counts",
     cache_directory = get_default_cache_dir(),
-    repository = COUNTS_URL,
-    features = NULL,
-    type = "sce"
+    repository,
+    grouping_column,
+    features = NULL
+    
 ) {
-  repository <- if (type == "sce") COUNTS_URL else pseudobulk_url 
-  validated <- param_validation(data, assays, cache_directory, repository, features)
+  # Parameter validation
+  assays %in% names(assay_map) |>
+    all() |>
+    assert_that(
+      msg = 'assays must be a character vector containing "counts" and/or
+            "cpm"'
+    )
+  assert_that(
+    !anyDuplicated(assays),
+    inherits(cache_directory, "character"),
+    is.null(repository) || is.character(repository),
+    is.null(features) || is.character(features)
+  )
   
-  # Extract variables from validation
-  raw_data <- validated$raw_data
-  versioned_cache_directory <- validated$versioned_cache_directory
-  subdirs <- validated$subdirs
+  # Data parameter validation (last, because it's slower)
+  ## Evaluate the promise now so that we get a sensible error message
+  force(data)
+  ## We have to convert to an in-memory table here, or some of the dplyr
+  ## operations will fail when passed a database connection
+  cli_alert_info("Realising metadata.")
+  raw_data <- collect(data)
+  versioned_cache_directory <- cache_directory
+  versioned_cache_directory |> dir.create(
+    showWarnings = FALSE,
+    recursive = TRUE
+  )
   
-  file_id_col <- if (type == "sce") "file_id_db" else "file_id"
+  subdirs <- assay_map[assays]
   
   # The repository is optional. If not provided we load only from the cache
   if (!is.null(repository)) {
@@ -116,7 +166,7 @@ get_summarized_experiment <- function(
     
     files_to_read <-
       raw_data |>
-      pull(.data[[file_id_col]]) |>
+      pull(.data[[grouping_column]]) |>
       unique() |>
       as.character() |>
       sync_assay_files(
@@ -135,16 +185,16 @@ get_summarized_experiment <- function(
         versioned_cache_directory,
         current_subdir
       )
-      
+
       experiment_list <- raw_data |>
-        dplyr::group_by(.data[[file_id_col]]) |>
+        dplyr::group_by(.data[[grouping_column]]) |>
         dplyr::summarise(experiments = list(
-          group_to_sme(
+          group_to_data_container(
             dplyr::cur_group_id(),
             dplyr::cur_data_all(),
             dir_prefix,
             features,
-            type
+            grouping_column
           )
         )) |>
         dplyr::pull(experiments)
@@ -159,6 +209,7 @@ get_summarized_experiment <- function(
   cli_alert_info("Compiling Experiment.")
   # Combine all the assays
   experiment <- experiments[[1]]
+  
   SummarizedExperiment::assays(experiment) <- map(experiments, function(exp) {
     SummarizedExperiment::assays(exp)[[1]]
   })
@@ -178,6 +229,7 @@ get_summarized_experiment <- function(
 #' @param dir_prefix The path to the single cell experiment, minus the final
 #'   segment
 #' @param features The list of genes/rows of interest
+#' @param grouping_column A character vector of metadata column for grouping
 #' @return A `SummarizedExperiment` object
 #' @importFrom dplyr mutate filter
 #' @importFrom HDF5Array loadHDF5SummarizedExperiment
@@ -188,10 +240,9 @@ get_summarized_experiment <- function(
 #' @importFrom glue glue
 #' @importFrom stringr str_replace_all
 #' @noRd
-group_to_sme <- function(i, df, dir_prefix, features, type = "sce") {
+group_to_data_container <- function(i, df, dir_prefix, features, grouping_column) {
   # Set file name based on type
-  file_id_col <- if (type == "sce") "file_id_db" else "file_id"
-  experiment_path <- df[[file_id_col]] |>
+  experiment_path <- df[[grouping_column]] |>
     head(1) |>
     file.path(
       dir_prefix,
@@ -213,7 +264,7 @@ group_to_sme <- function(i, df, dir_prefix, features, type = "sce") {
   # Fix for https://github.com/tidyverse/dplyr/issues/6746
   force(i)
   
-  if (type == "sce") {
+  if (grouping_column == "file_id_db") {
     # Process specific to SCE
     cells <- colnames(experiment) |> intersect(df$cell_)
     
@@ -247,7 +298,8 @@ group_to_sme <- function(i, df, dir_prefix, features, type = "sce") {
       `colnames<-`(new_coldata$cell_) |>
       `colData<-`(value = new_coldata)
   }
-  else if (type == "pseudobulk") {
+  else if (grouping_column == "file_id") {
+    # Process specific to Pseudobulk
     # remove cell-level annotations
     cell_level_anno <- c("cell_", "cell_type", "confidence_class", "file_id_db",
                          "cell_annotation_blueprint_singler",
@@ -257,7 +309,7 @@ group_to_sme <- function(i, df, dir_prefix, features, type = "sce") {
                          "sample_id_db")
     
     new_coldata <- df |>
-      select(-dplyr::all_of(cell_level_anno)) |>
+      select(-dplyr::all_of(intersect(names(df), cell_level_anno))) |>
       distinct() |>
       mutate(
         sample_identifier = glue("{sample_}___{cell_type_harmonised}"),
@@ -366,68 +418,5 @@ check_gene_overlap <- function(obj_list) {
   }
   
   common_genes
-}
-
-#' Validate parameters for Summarized Experiment analysis
-#' @param data A data frame containing, at minimum, `cell_`, `file_id_db`, `file_id` column, which
-#'   correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID. 
-#'   They can be obtained from the [get_metadata()] function.
-#' @param assays A character vector whose elements must be either "counts"
-#'   and/or "cpm" and/or "quantile_normalised", representing the corresponding assay(s) you want to request.
-#'   By default only the count assay is downloaded. If you are interested in
-#'   comparing a limited amount of genes, the "cpm" assay is more appropriate.
-#' @param repository A character vector of length one. If provided, it should be
-#'   an HTTP URL pointing to the location where the single cell data is stored.
-#' @param cache_directory An optional character vector of length one. If
-#'   provided, it should indicate a local file path where any remotely accessed
-#'   files should be copied.
-#' @param features An optional character vector of features (ie genes) to return
-#'   the counts for. By default counts for all features will be returned.
-#' @return A list of elements:
-#' \itemize{
-#'  \item{raw_data}{Data after being converted to an in-memory data frame }
-#'  \item{versioned_cache_directory}{The path to the cache directory}
-#'  \item{subdirs}{Vector of subdirectory names from the `assays` input} 
-#' }
-#' @importFrom dplyr collect
-#' @importFrom assertthat assert_that has_name
-#' @importFrom cli cli_alert_info
-#' @importFrom rlang .data
-#' @keywords internal
-param_validation <- function(data,
-                             assays,
-                             cache_directory,
-                             repository,
-                             features
-) {
-  # Parameter validation 
-  assays %in% names(assay_map) |>
-    all() |>
-    assert_that(msg = 'assays must be a character vector containing "counts" and/or
-            "cpm" and/or "quantile_normalised"')
-  assert_that(
-    !anyDuplicated(assays),
-    inherits(cache_directory, "character"),
-    is.null(repository) || is.character(repository),
-    is.null(features) || is.character(features)
-  )
-  
-  # Data parameter validation (last, because it's slower)
-  ## Evaluate the promise now so that we get a sensible error message
-  force(data)
-  ## We have to convert to an in-memory table here, or some of the dplyr
-  ## operations will fail when passed a database connection
-  cli_alert_info("Realising metadata.")
-  raw_data <- collect(data)
-  assert_that(inherits(raw_data, "tbl"),
-              has_name(raw_data, c("file_id", "cell_", "file_id_db")))
-  
-  versioned_cache_directory <- cache_directory
-  versioned_cache_directory |> dir.create(showWarnings = FALSE,
-                                          recursive = TRUE)
-  
-  subdirs <- assay_map[assays]
-  list(raw_data = raw_data, versioned_cache_directory = versioned_cache_directory, 
-       subdirs = subdirs)
 }
 
