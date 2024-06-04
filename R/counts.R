@@ -46,7 +46,7 @@ get_SingleCellExperiment <- function(...){
 }
 
 #' Gets a SingleCellExperiment from curated metadata
-#'
+#' 
 #' @inheritDotParams get_summarized_experiment
 #' @examples
 #' meta <- get_metadata() |> head(2)
@@ -74,7 +74,22 @@ get_pseudobulk <- function(...) {
 #' Given a data frame of Curated Atlas metadata obtained from [get_metadata()],
 #' returns a [`SummarizedExperiment::SummarizedExperiment-class`] object
 #' corresponding to the samples in that data frame
-#' @inheritParams param_validation
+#' @param data A data frame containing, at minimum, `cell_`, `file_id_db`, `file_id` column, which
+#'   correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID. 
+#'   They can be obtained from the [get_metadata()] function.
+#' @param assays A character vector whose elements must be either "counts"
+#'   and/or "cpm" and/or "quantile_normalised", representing the corresponding assay(s) you want to request.
+#'   By default only the count assay is downloaded. If you are interested in
+#'   comparing a limited amount of genes, the "cpm" assay is more appropriate.
+#' @param cache_directory An optional character vector of length one. If
+#'   provided, it should indicate a local file path where any remotely accessed
+#'   files should be copied.
+#' @param repository A character vector of length one. If provided, it should be
+#'   an HTTP URL pointing to the location where the single cell data is stored.
+#' @param features An optional character vector of features (ie genes) to return
+#'   the counts for. By default counts for all features will be returned.
+#' @param type A character vector of length one. Either "sce" for Single Cell Experiment,
+#' or "pseudobulk".
 #' @importFrom dplyr pull filter as_tibble inner_join collect
 #' @importFrom tibble column_to_rownames
 #' @importFrom purrr reduce map map_int imap keep
@@ -94,15 +109,42 @@ get_summarized_experiment <- function(
     features = NULL,
     type = "sce"
 ) {
-  repository <- if (type == "sce") COUNTS_URL else pseudobulk_url 
-  validated <- param_validation(data, assays, cache_directory, repository, features, type)
+  repository <- if (type == "sce") COUNTS_URL else if (type == "pseudobulk") pseudobulk_url 
+  file_id_col <- if (type == "sce") "file_id_db" else if (type == "pseudobulk") "file_id"
   
-  # Extract variables from validation
-  raw_data <- validated$raw_data
-  versioned_cache_directory <- validated$versioned_cache_directory
-  subdirs <- validated$subdirs
+  # Parameter validation
+  assays %in% names(assay_map) |>
+    all() |>
+    assert_that(
+      msg = 'assays must be a character vector containing "counts" and/or
+            "cpm"'
+    )
+  assert_that(
+    !anyDuplicated(assays),
+    inherits(cache_directory, "character"),
+    is.null(repository) || is.character(repository),
+    is.null(features) || is.character(features)
+  )
   
-  file_id_col <- if (type == "sce") "file_id_db" else "file_id"
+  # Data parameter validation (last, because it's slower)
+  ## Evaluate the promise now so that we get a sensible error message
+  force(data)
+  ## We have to convert to an in-memory table here, or some of the dplyr
+  ## operations will fail when passed a database connection
+  cli_alert_info("Realising metadata.")
+  raw_data <- collect(data)
+  assert_that(
+    inherits(raw_data, "tbl"),
+    has_name(raw_data, c("cell_", file_id_col))
+  )
+  
+  versioned_cache_directory <- cache_directory
+  versioned_cache_directory |> dir.create(
+    showWarnings = FALSE,
+    recursive = TRUE
+  )
+  
+  subdirs <- assay_map[assays]
   
   # The repository is optional. If not provided we load only from the cache
   if (!is.null(repository)) {
@@ -364,77 +406,5 @@ check_gene_overlap <- function(obj_list) {
   }
   
   common_genes
-}
-
-#' Validate parameters for Summarized Experiment analysis
-#' @param data A data frame containing, at minimum, `cell_`, `file_id_db`, `file_id` column, which
-#'   correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID. 
-#'   They can be obtained from the [get_metadata()] function.
-#' @param assays A character vector whose elements must be either "counts"
-#'   and/or "cpm" and/or "quantile_normalised", representing the corresponding assay(s) you want to request.
-#'   By default only the count assay is downloaded. If you are interested in
-#'   comparing a limited amount of genes, the "cpm" assay is more appropriate.
-#' @param repository A character vector of length one. If provided, it should be
-#'   an HTTP URL pointing to the location where the single cell data is stored.
-#' @param cache_directory An optional character vector of length one. If
-#'   provided, it should indicate a local file path where any remotely accessed
-#'   files should be copied.
-#' @param features An optional character vector of features (ie genes) to return
-#'   the counts for. By default counts for all features will be returned.
-#' @param type A character vector of length one. Either "sce" for Single Cell Experiment,
-#' or "pseudobulk".
-#' @return A list of elements:
-#' \itemize{
-#'  \item{raw_data}{Data after being converted to an in-memory data frame }
-#'  \item{versioned_cache_directory}{The path to the cache directory}
-#'  \item{subdirs}{Vector of subdirectory names from the `assays` input} 
-#' }
-#' @importFrom dplyr collect
-#' @importFrom assertthat assert_that has_name
-#' @importFrom cli cli_alert_info
-#' @importFrom rlang .data
-#' @keywords internal
-param_validation <- function(data,
-                             assays,
-                             cache_directory,
-                             repository,
-                             features,
-                             type
-) {
-  # Parameter validation 
-  assays %in% names(assay_map) |>
-    all() |>
-    assert_that(msg = 'assays must be a character vector containing "counts" and/or
-            "cpm" and/or "quantile_normalised"')
-  assert_that(
-    !anyDuplicated(assays),
-    inherits(cache_directory, "character"),
-    is.null(repository) || is.character(repository),
-    is.null(features) || is.character(features)
-  )
-  
-  # Data parameter validation (last, because it's slower)
-  ## Evaluate the promise now so that we get a sensible error message
-  force(data)
-  ## We have to convert to an in-memory table here, or some of the dplyr
-  ## operations will fail when passed a database connection
-  cli_alert_info("Realising metadata.")
-  raw_data <- collect(data)
-  
-  if (type == "sce") {
-    assert_that(inherits(raw_data, "tbl"),
-                has_name(raw_data, c("cell_", "file_id_db")))
-  } else if (type == "pseudobulk") {
-    assert_that(inherits(raw_data, "tbl"),
-                has_name(raw_data, c("cell_", "file_id")))
-  }
-
-  versioned_cache_directory <- cache_directory
-  versioned_cache_directory |> dir.create(showWarnings = FALSE,
-                                          recursive = TRUE)
-  
-  subdirs <- assay_map[assays]
-  list(raw_data = raw_data, versioned_cache_directory = versioned_cache_directory, 
-       subdirs = subdirs)
 }
 

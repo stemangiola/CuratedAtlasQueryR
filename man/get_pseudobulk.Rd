@@ -17,11 +17,11 @@ They can be obtained from the \code{\link[=get_metadata]{get_metadata()}} functi
 and/or "cpm" and/or "quantile_normalised", representing the corresponding assay(s) you want to request.
 By default only the count assay is downloaded. If you are interested in
 comparing a limited amount of genes, the "cpm" assay is more appropriate.}
-    \item{\code{repository}}{A character vector of length one. If provided, it should be
-an HTTP URL pointing to the location where the single cell data is stored.}
     \item{\code{cache_directory}}{An optional character vector of length one. If
 provided, it should indicate a local file path where any remotely accessed
 files should be copied.}
+    \item{\code{repository}}{A character vector of length one. If provided, it should be
+an HTTP URL pointing to the location where the single cell data is stored.}
     \item{\code{features}}{An optional character vector of features (ie genes) to return
 the counts for. By default counts for all features will be returned.}
     \item{\code{type}}{A character vector of length one. Either "sce" for Single Cell Experiment,
