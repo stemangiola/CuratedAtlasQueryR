@@ -61,7 +61,7 @@ get_single_cell_experiment <- function(data, ...){
     inherits(raw_data, "tbl"),
     has_name(raw_data, c("cell_", "file_id_db"))
   )
-  get_data_container(data, ..., repository = pseudobulk_url, grouping_column = "file_id_db")
+  get_data_container(data, ..., repository = COUNTS_URL, grouping_column = "file_id_db")
 }
 
 #' Gets a Pseudobulk from curated metadata
@@ -83,7 +83,7 @@ get_pseudobulk <- function(data, ...) {
     inherits(raw_data, "tbl"),
     has_name(raw_data, c("cell_", "file_id", "sample_", "cell_type_harmonised"))
   )
-  get_data_container(data, ..., repository = COUNTS_URL, grouping_column = "file_id")
+  get_data_container(data, ..., repository = pseudobulk_url, grouping_column = "file_id")
 }
 
 #' Gets data from curated metadata container
