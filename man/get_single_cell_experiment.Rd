@@ -4,15 +4,16 @@
 \alias{get_single_cell_experiment}
 \title{Gets a SingleCellExperiment from curated metadata}
 \usage{
-get_single_cell_experiment(...)
+get_single_cell_experiment(data, ...)
 }
 \arguments{
-\item{...}{
-  Arguments passed on to \code{\link[=get_summarized_experiment]{get_summarized_experiment}}
-  \describe{
-    \item{\code{data}}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db}, \code{file_id} column, which
-correspond to a single cell ID, file subdivision for internal use, and a single cell sample ID.
+\item{data}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db} columns,
+which correspond to a single cell ID, file subdivision for internal use.
 They can be obtained from the \code{\link[=get_metadata]{get_metadata()}} function.}
+
+\item{...}{
+  Arguments passed on to \code{\link[=get_data_container]{get_data_container}}
+  \describe{
     \item{\code{assays}}{A character vector whose elements must be either "counts"
 and/or "cpm" and/or "quantile_normalised", representing the corresponding assay(s) you want to request.
 By default only the count assay is downloaded. If you are interested in
@@ -22,10 +23,10 @@ provided, it should indicate a local file path where any remotely accessed
 files should be copied.}
     \item{\code{repository}}{A character vector of length one. If provided, it should be
 an HTTP URL pointing to the location where the single cell data is stored.}
+    \item{\code{grouping_column}}{A character vector of metadata column for grouping. "file_id_db" for
+for Single Cell Experiment, "file_id" for pseudobulk.}
     \item{\code{features}}{An optional character vector of features (ie genes) to return
 the counts for. By default counts for all features will be returned.}
-    \item{\code{type}}{A character vector of length one. Either "sce" for Single Cell Experiment,
-or "pseudobulk".}
   }}
 }
 \description{

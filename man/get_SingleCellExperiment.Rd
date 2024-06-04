@@ -10,7 +10,9 @@ get_SingleCellExperiment(...)
 \item{...}{
   Arguments passed on to \code{\link[=get_single_cell_experiment]{get_single_cell_experiment}}
   \describe{
-    \item{\code{}}{}
+    \item{\code{data}}{A data frame containing, at minimum, \code{cell_}, \code{file_id_db} columns,
+which correspond to a single cell ID, file subdivision for internal use.
+They can be obtained from the \code{\link[=get_metadata]{get_metadata()}} function.}
   }}
 }
 \description{
