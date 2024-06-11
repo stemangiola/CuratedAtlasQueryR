@@ -15,6 +15,11 @@ cache <- rlang::env(
 #' @return A character vector of URLs to parquet files to download
 #' @examples
 #' get_database_url("metadata.0.2.3.parquet")
+#' @references Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen, 
+#'   A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human 
+#'   immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+#'   doi:10.1101/2023.06.08.542671.
+#' @source [Mangiola et al.,2023](https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3)
 get_database_url <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")) {
   glue::glue(
     "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/{databases}")
@@ -26,6 +31,11 @@ get_database_url <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0
 #' @return A character scalar consisting of the URL
 #' @examples
 #' get_metadata(remote_url = SAMPLE_DATABASE_URL, cache_directory = tempdir())
+#' @references Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen, 
+#'   A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human 
+#'   immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+#'   doi:10.1101/2023.06.08.542671.
+#' @source [Mangiola et al.,2023](https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3)
 SAMPLE_DATABASE_URL <- single_line_str(
   "https://object-store.rc.nectar.org.au/v1/
     AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/
@@ -142,6 +152,12 @@ SAMPLE_DATABASE_URL <- single_line_str(
 #' ```R
 #' get_metadata(cache_directory = path.expand('~'))
 #' ```
+#' 
+#' @references Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen, 
+#'   A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human 
+#'   immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+#'   doi:10.1101/2023.06.08.542671.
+#' @source [Mangiola et al.,2023](https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3)
 get_metadata <- function(
     remote_url = get_database_url(),
     cache_directory = get_default_cache_dir(),

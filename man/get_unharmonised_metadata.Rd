@@ -3,6 +3,9 @@
 \name{get_unharmonised_metadata}
 \alias{get_unharmonised_metadata}
 \title{Returns unharmonised metadata for a metadata query}
+\source{
+\href{https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3}{Mangiola et al.,2023}
+}
 \usage{
 get_unharmonised_metadata(metadata, ...)
 }
@@ -44,4 +47,10 @@ utility that allows easy fetching of this data if necessary.
 \examples{
 harmonised <- dplyr::filter(get_metadata(), tissue == "kidney blood vessel")
 unharmonised <- get_unharmonised_metadata(harmonised)
+}
+\references{
+Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen,
+A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human
+immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+doi:10.1101/2023.06.08.542671.
 }

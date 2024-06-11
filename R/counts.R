@@ -37,6 +37,11 @@ pseudobulk_url <- single_line_str(
 #' @inheritDotParams get_single_cell_experiment
 #' @importFrom cli cli_alert_warning
 #' @export
+#' @references Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen, 
+#'   A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human 
+#'   immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+#'   doi:10.1101/2023.06.08.542671.
+#' @source [Mangiola et al.,2023](https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3)
 get_SingleCellExperiment <- function(...){
   single_line_str("This function name is deprecated. 
                     Please use `get_single_cell_experiment()` instead") |>
@@ -55,6 +60,11 @@ get_SingleCellExperiment <- function(...){
 #' meta <- get_metadata() |> head(2)
 #' sce <- get_single_cell_experiment(meta)
 #' @export
+#' @references Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen, 
+#'   A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human 
+#'   immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+#'   doi:10.1101/2023.06.08.542671.
+#' @source [Mangiola et al.,2023](https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3)
 get_single_cell_experiment <- function(data, ...){
   raw_data <- collect(data)
   assert_that(
@@ -77,6 +87,11 @@ get_single_cell_experiment <- function(data, ...){
 #' pseudobulk <- meta |> get_pseudobulk()
 #' }
 #' @export
+#' @references Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen, 
+#'   A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human 
+#'   immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+#'   doi:10.1101/2023.06.08.542671.
+#' @source [Mangiola et al.,2023](https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3)
 get_pseudobulk <- function(data, ...) {
   raw_data <- collect(data)
   assert_that(
@@ -118,6 +133,11 @@ get_pseudobulk <- function(data, ...) {
 #' @importFrom cli cli_alert_success cli_alert_info
 #' @importFrom rlang .data
 #' @importFrom S4Vectors DataFrame
+#' @references Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen, 
+#'   A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human 
+#'   immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+#'   doi:10.1101/2023.06.08.542671.
+#' @source [Mangiola et al.,2023](https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3)
 get_data_container <- function(
     data,
     assays = "counts",
