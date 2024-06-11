@@ -20,6 +20,11 @@
 #' data(sample_sce_obj)
 #' import_one_sce(sample_sce_obj,
 #'                cache_dir = get_default_cache_dir())
+#' @references Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen, 
+#'   A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human 
+#'   immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+#'   doi:10.1101/2023.06.08.542671.
+#' @source [Mangiola et al.,2023](https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3)
 import_one_sce <- function(
     sce_obj,  
     cache_dir = get_default_cache_dir()

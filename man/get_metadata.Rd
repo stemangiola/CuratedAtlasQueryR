@@ -3,6 +3,9 @@
 \name{get_metadata}
 \alias{get_metadata}
 \title{Gets the Curated Atlas metadata as a data frame.}
+\source{
+\href{https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3}{Mangiola et al.,2023}
+}
 \usage{
 get_metadata(
   remote_url = get_database_url(),
@@ -116,4 +119,10 @@ filtered_metadata <- get_metadata() |>
             cell_type \%LIKE\% "\%CD4\%"
     )
 
+}
+\references{
+Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen,
+A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human
+immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+doi:10.1101/2023.06.08.542671.
 }

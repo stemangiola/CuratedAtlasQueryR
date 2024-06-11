@@ -3,6 +3,9 @@
 \name{get_default_cache_dir}
 \alias{get_default_cache_dir}
 \title{Returns the default cache directory with a version number}
+\source{
+\href{https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3}{Mangiola et al.,2023}
+}
 \usage{
 get_default_cache_dir()
 }
@@ -14,4 +17,10 @@ Returns the default cache directory with a version number
 }
 \examples{
 get_metadata(cache_directory = get_default_cache_dir())
+}
+\references{
+Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen,
+A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human
+immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+doi:10.1101/2023.06.08.542671.
 }

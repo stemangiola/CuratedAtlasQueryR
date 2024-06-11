@@ -8,6 +8,9 @@ demonstration, and vignette purposes only}
 \format{
 An object of class \code{character} of length 1.
 }
+\source{
+\href{https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3}{Mangiola et al.,2023}
+}
 \usage{
 SAMPLE_DATABASE_URL
 }
@@ -20,5 +23,11 @@ demonstration, and vignette purposes only
 }
 \examples{
 get_metadata(remote_url = SAMPLE_DATABASE_URL, cache_directory = tempdir())
+}
+\references{
+Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen,
+A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human
+immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+doi:10.1101/2023.06.08.542671.
 }
 \keyword{datasets}

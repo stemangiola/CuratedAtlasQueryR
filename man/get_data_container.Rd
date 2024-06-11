@@ -3,6 +3,9 @@
 \name{get_data_container}
 \alias{get_data_container}
 \title{Gets data from curated metadata container}
+\source{
+\href{https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3}{Mangiola et al.,2023}
+}
 \usage{
 get_data_container(
   data,
@@ -40,4 +43,10 @@ the counts for. By default counts for all features will be returned.}
 Given a data frame of Curated Atlas metadata obtained from \code{\link[=get_metadata]{get_metadata()}},
 returns a \code{\link[SummarizedExperiment:SummarizedExperiment-class]{SummarizedExperiment::SummarizedExperiment}} object
 corresponding to the samples in that data frame
+}
+\references{
+Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen,
+A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human
+immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+doi:10.1101/2023.06.08.542671.
 }

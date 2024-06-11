@@ -4,6 +4,9 @@
 \alias{get_seurat}
 \title{Given a data frame of HCA metadata, returns a Seurat object corresponding to
 the samples in that data frame}
+\source{
+\href{https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3}{Mangiola et al.,2023}
+}
 \usage{
 get_seurat(...)
 }
@@ -27,5 +30,10 @@ the samples in that data frame
 \examples{
 meta <- get_metadata() |> head(2)
 seurat <- get_seurat(meta)
-
+}
+\references{
+Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen,
+A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human
+immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+doi:10.1101/2023.06.08.542671.
 }

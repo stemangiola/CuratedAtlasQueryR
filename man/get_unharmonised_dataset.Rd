@@ -3,6 +3,9 @@
 \name{get_unharmonised_dataset}
 \alias{get_unharmonised_dataset}
 \title{Returns unharmonised metadata for selected datasets.}
+\source{
+\href{https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3}{Mangiola et al.,2023}
+}
 \usage{
 get_unharmonised_dataset(
   dataset_id,
@@ -48,4 +51,10 @@ unharmonised_meta <- get_unharmonised_dataset(dataset)
 unharmonised_tbl <- dplyr::collect(unharmonised_meta[[dataset]])
 dplyr::left_join(harmonised_meta, unharmonised_tbl, by=c("file_id", "cell_"))
 }
+}
+\references{
+Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen,
+A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human
+immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+doi:10.1101/2023.06.08.542671.
 }

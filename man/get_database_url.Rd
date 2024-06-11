@@ -3,6 +3,9 @@
 \name{get_database_url}
 \alias{get_database_url}
 \title{Returns the URLs for all metadata files}
+\source{
+\href{https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3}{Mangiola et al.,2023}
+}
 \usage{
 get_database_url(
   databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")
@@ -19,4 +22,10 @@ Returns the URLs for all metadata files
 }
 \examples{
 get_database_url("metadata.0.2.3.parquet")
+}
+\references{
+Mangiola, S., M. Milton, N. Ranathunga, C. S. N. Li-Wai-Suen,
+A. Odainic, E. Yang, W. Hutchison et al. "A multi-organ map of the human
+immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
+doi:10.1101/2023.06.08.542671.
 }
