@@ -229,4 +229,28 @@ test_that("get_pseudobulk() syncs appropriate files", {
     expect_gt(1)
 })
 
+test_that("get_pseudobulk() syncs appropriate fixed file", {
+  temp <- tempfile()
+  ids <- c(
+    "b50b15f1-bf19-4775-ab89-02512ec941a6",
+    "bffedc04-5ba1-46d4-885c-989a294bedd4",
+    "cc3ff54f-7587-49ea-b197-1515b6d98c4c",
+    "0af763e1-0e2f-4de6-9563-5abb0ad2b01e",
+    "51f114ae-232a-4550-a910-934e175db814",
+    "327927c7-c365-423c-9ebc-07acb09a0c1a",
+    "3ae36927-c188-4511-88cc-572ee1edf906",
+    "6ed2cdc2-dda8-4908-ad6c-cead9afee85e",
+    "56e0359f-ee8d-4ba5-a51d-159a183643e5",
+    "5c64f247-5b7c-4842-b290-65c722a65952"
+  )
+  meta <- get_metadata(cache_directory = temp) |> dplyr::filter(file_id %in% ids)
+  
+  # The remote dataset should have many genes
+  sme <- get_pseudobulk(meta, cache_directory = temp)
+  sme |>
+    row.names() |>
+    length() |>
+    expect_gt(1)
+})
+
 
