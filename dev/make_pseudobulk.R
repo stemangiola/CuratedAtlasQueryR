@@ -48,6 +48,7 @@ tar_script(
           slurm_memory_gigabytes_per_cpu = 5,
           slurm_cpus_per_task = 1,
           workers = 200,
+          tasks_max = 5,
           verbose = T
         ),
         crew_controller_slurm(
@@ -62,6 +63,7 @@ tar_script(
           slurm_memory_gigabytes_per_cpu = 20,
           slurm_cpus_per_task = 1,
           workers = 50,
+         # tasks_max = 5,
           verbose = T
         ),
         crew_controller_slurm(
@@ -69,6 +71,7 @@ tar_script(
           slurm_memory_gigabytes_per_cpu = 40,
           slurm_cpus_per_task = 1,
           workers = 30,
+          tasks_max = 5,
           verbose = T
         ),
         crew_controller_slurm(
@@ -76,6 +79,7 @@ tar_script(
           slurm_memory_gigabytes_per_cpu = 80,
           slurm_cpus_per_task = 1,
           workers = 20,
+          tasks_max = 5,
           verbose = T
         ),
         crew_controller_slurm(
@@ -83,11 +87,13 @@ tar_script(
           slurm_memory_gigabytes_per_cpu = 400,
           slurm_cpus_per_task = 2,
           workers = 1,
+          tasks_max = 5,
           verbose = T
         )
       ),
-      resources = tar_resources(crew = tar_resources_crew("slurm_2_20")) ,
-      debug = "pseudobulk_file_id_3e12a178"
+      #debug = "pseudobulk_file_id",
+      
+      resources = tar_resources(crew = tar_resources_crew("slurm_2_20")) 
       #, # Set the target you want to debug.
       #cue = tar_cue(mode = "never")		
     )
@@ -98,6 +104,11 @@ tar_script(
       
       my_metadata =
         get_metadata(cache_directory = CAQ_directory) |>
+        
+        # DROP FETAL SCI-SEQ FOR THE MOMENT
+        filter(collection_id != "c114c20f-1ef4-49a5-9c2e-d965787fb90c") |> 
+        ################################
+        
         distinct(file_id, sample_, cell_, file_id_db, cell_type_harmonised) |>
         as_tibble() |> 
         mutate(chunk = sample_) |> 
@@ -139,7 +150,7 @@ tar_script(
             # We will reattach rowames later
             my_assay = assay(.x, "counts") |>  as("sparseMatrix")
             rownames(my_assay) = NULL
-            SummarizedExperiment(assays = my_assay, colData = colData(.x))
+            SummarizedExperiment(assays = list(counts = my_assay), colData = colData(.x))
             
           }
         ))
@@ -170,19 +181,19 @@ tar_script(
               select(-any_of(c("file_id_db", ".cell", "original_cell_id")))
             
             
-            # Identify samples with many genes
-            sample_with_many_genes =
-              se |>
-              assay("counts") |>
-              apply(2, function(x) (x>0) |> which() |> length()) |>
-              enframe() |>
-              mutate(name = as.character(name)) |>
-              filter(value > 5000) |>
-              pull(name)
-            se = se[,sample_with_many_genes, drop=FALSE]
-            
-            # Filter samples with too few cells
-            se = se |> filter(.aggregated_cells > 10)
+            # # Identify samples with many genes
+            # sample_with_many_genes =
+            #   se |>
+            #   assay("counts") |>
+            #   apply(2, function(x) (x>0) |> which() |> length()) |>
+            #   enframe() |>
+            #   mutate(name = as.character(name)) |>
+            #   filter(value > 5000) |>
+            #   pull(name)
+            # se = se[,sample_with_many_genes, drop=FALSE]
+            # 
+            # # Filter samples with too few cells
+            # se = se |> filter(.aggregated_cells > 10)
             
             se
             
@@ -221,14 +232,6 @@ tar_script(
     #-----------------------#
     list(
       
-      # # Do metadata
-      # tarchetypes::tar_group_by(
-      #   chunks_df,
-      #   define_chunks(),
-      #   file_id, sample_chunk, 
-      #   resources = tar_resources(crew = tar_resources_crew("slurm_1_40"))
-      # ),
-      
       # Get rownames
       tar_target(
         sce_rownames,
@@ -263,16 +266,14 @@ tar_script(
         metadata_split_pseudobulk_SMALL,
         metadata_split_SMALL |>  get_sce() |> get_pseudobulk(),
         pattern = map(metadata_split_SMALL),
-        iteration = "group",
         resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))
       ),
       
-      # Get SCE SMALL
+      # Get SCE BIG
       tar_target(
         metadata_split_pseudobulk_BIG,
         metadata_split_BIG |>  get_sce() |> get_pseudobulk(),
         pattern = map(metadata_split_BIG),
-        iteration = "group",
         resources = tar_resources(crew = tar_resources_crew("slurm_1_80"))
       ),
       
@@ -281,8 +282,7 @@ tar_script(
         metadata_grouped_pseudobulk,
         metadata_split_pseudobulk_SMALL |> bind_rows(metadata_split_pseudobulk_BIG),
         file_id,
-        resources = tar_resources(crew = tar_resources_crew("slurm_2_400")), 
-        deployment = "main"
+        resources = tar_resources(crew = tar_resources_crew("slurm_2_400"))
       ),
       
       # Aggregate
@@ -290,8 +290,7 @@ tar_script(
         pseudobulk_file_id,
         metadata_grouped_pseudobulk |> aggregate(sce_rownames) ,
         pattern = map(metadata_grouped_pseudobulk),
-        iteration = "group",
-        resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))
+        resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))#, deployment = "main"
       )
       
     )
@@ -305,12 +304,12 @@ tar_script(
 
 tar_make(
   #callr_function = NULL,
-  # reporter = "summary",
+  reporter = "verbose_positives",
   script = glue("{result_directory}/_targets.R"),
-  store = result_directory
+  store = glue("{result_directory}/_targets")
 )
 
 
 
-# tar_read(pseudobulk_file_id, store = "/vast/projects/cellxgene_curated/pseudobulk_0.2.3.4")
+tar_read(pseudobulk_file_id, store = "/vast/projects/cellxgene_curated/pseudobulk_0.2.3.4/_targets")
 
