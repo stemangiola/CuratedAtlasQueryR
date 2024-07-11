@@ -19,6 +19,12 @@ a network connection is required for most functionality.
 
 <img src="man/figures/svcf_logo.jpeg" width="155x" height="58px" /><img src="man/figures/czi_logo.png" width="129px" height="58px" /><img src="man/figures/bioconductor_logo.jpg" width="202px" height="58px" /><img src="man/figures/vca_logo.png" width="219px" height="58px" /><img src="man/figures/nectar_logo.png" width="180px" height="58px" />
 
+# Usage
+
+The API has delivered more than 15Tb of data to the community in the first year. Thanks!
+
+<img src="man/figures/downloads.png" width="40%"  />
+
 # Query interface
 
 ## Installation
@@ -109,7 +115,7 @@ single_cell_counts =
 
 single_cell_counts
 #> # A SingleCellExperiment-tibble abstraction: 1,571 × 57
-#> # [90mFeatures=36229 | Cells=1571 | Assays=counts[0m
+#> # [90mFeatures=36229 | Cells=1571 | Assays=counts[0m
 #>    .cell sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ X_sam…⁸
 #>    <chr> <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  
 #>  1 AGCG… 11a7dc… CD4-po… cd4 th1       3 cd4 tcm cd8 t   th1     10b339… Donor_…
@@ -154,7 +160,7 @@ single_cell_counts =
 
 single_cell_counts
 #> # A SingleCellExperiment-tibble abstraction: 1,571 × 57
-#> # [90mFeatures=36229 | Cells=1571 | Assays=cpm[0m
+#> # [90mFeatures=36229 | Cells=1571 | Assays=cpm[0m
 #>    .cell sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ X_sam…⁸
 #>    <chr> <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  
 #>  1 AGCG… 11a7dc… CD4-po… cd4 th1       3 cd4 tcm cd8 t   th1     10b339… Donor_…
@@ -196,7 +202,7 @@ single_cell_counts =
 
 single_cell_counts
 #> # A SingleCellExperiment-tibble abstraction: 1,571 × 57
-#> # [90mFeatures=1 | Cells=1571 | Assays=cpm[0m
+#> # [90mFeatures=1 | Cells=1571 | Assays=cpm[0m
 #>    .cell sample_ cell_…¹ cell_…² confi…³ cell_…⁴ cell_…⁵ cell_…⁶ sampl…⁷ X_sam…⁸
 #>    <chr> <chr>   <chr>   <chr>     <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  
 #>  1 AGCG… 11a7dc… CD4-po… cd4 th1       3 cd4 tcm cd8 t   th1     10b339… Donor_…
@@ -293,17 +299,7 @@ HLA-A across all tissues
     #> ℹ Downloading 0 files, totalling 0 GB
     #> ℹ Reading files.
     #> ℹ Compiling Single Cell Experiment.
-    #> Warning: Transformation introduced infinite values in continuous y-axis
-    #> Warning in min(x): no non-missing arguments to min; returning Inf
-    #> Warning in max(x): no non-missing arguments to max; returning -Inf
 
-![](/stornext/Home/data/allstaff/m/milton.m/HCAquery/README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
-
-    #> Warning: Transformation introduced infinite values in continuous y-axis
-    #> Warning in min(x): no non-missing arguments to min; returning Inf
-    #> Warning in max(x): no non-missing arguments to max; returning -Inf
-
-![](/stornext/Home/data/allstaff/m/milton.m/HCAquery/README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
 
 ``` r
 library(tidySingleCellExperiment)
@@ -313,8 +309,6 @@ counts |>
   ggplot(aes( disease, `HLA.A`,color = file_id)) +
   geom_jitter(shape=".") 
 ```
-
-![](/stornext/Home/data/allstaff/m/milton.m/HCAquery/README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ![](man/figures/HLA_A_disease_plot.png)<!-- -->
 
@@ -337,8 +331,6 @@ metadata |>
 #> ℹ Reading files.
 #> ℹ Compiling Single Cell Experiment.
 ```
-
-![](/stornext/Home/data/allstaff/m/milton.m/HCAquery/README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ![](man/figures/HLA_A_tissue_plot.png)<!-- -->
 
