@@ -20,7 +20,8 @@ get_counts_per_million <- function(input_sce_obj, output_dir, hd5_file_dir) {
   col_sums <- colSums(as.matrix(assay(data)))
   selected_cols <- which(col_sums >0 & col_sums < Inf)
   
-  sce <- SingleCellExperiment(list(counts_per_million = scuttle::calculateCPM(data[,selected_cols ,drop=FALSE ], assay.type = "X")))
+  assay_name <- assays(data) |> names()
+  sce <- SingleCellExperiment(list(counts_per_million = scuttle::calculateCPM(data[,selected_cols ,drop=FALSE ], assay.type = assay_name)))
   rownames(sce) <- rownames(data[,selected_cols  ])
   colnames(sce) <- colnames(data[,selected_cols  ])
   
