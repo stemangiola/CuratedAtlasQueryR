@@ -7,7 +7,11 @@
 \href{https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3}{Mangiola et al.,2023}
 }
 \usage{
-import_one_sce(sce_obj, cache_dir = get_default_cache_dir())
+import_one_sce(
+  sce_obj,
+  cache_dir = get_default_cache_dir(),
+  pseudobulk = FALSE
+)
 }
 \arguments{
 \item{sce_obj}{A SingleCellExperiment object from RDS, the metadata slot of which
@@ -16,6 +20,9 @@ must contain \code{cell_} and \code{dataset_id}}
 \item{cache_dir}{Optional character vector of length 1. A file path on
 your local system to a directory (not a file) that will be used to store
 \code{metadata.parquet}}
+
+\item{pseudobulk}{Optional character. Set to TRUE for generating and importing pseudobulk,
+the metadata slot of which must contain \code{file_id}, \code{cell_type_harmonised} and \code{sample_}}
 }
 \value{
 A metadata.parquet strip from the SingleCellExperiment object.

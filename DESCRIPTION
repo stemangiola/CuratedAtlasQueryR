@@ -1,7 +1,7 @@
 Type: Package
 Package: CuratedAtlasQueryR
 Title: Queries the Human Cell Atlas
-Version: 1.3.8
+Version: 1.4.8
 Authors@R: c(
     person(
         "Stefano",
@@ -95,7 +95,8 @@ Imports:
     duckdb,
     stringr,
     checkmate,
-    stringfish
+    stringfish,
+    tidySingleCellExperiment
 Suggests:
     zellkonverter,
     rmarkdown,
@@ -107,7 +108,6 @@ Suggests:
     spelling,
     forcats,
     ggplot2,
-    tidySingleCellExperiment,
     rprojroot,
     openssl,
     scuttle,

@@ -203,17 +203,27 @@ test_that("get_metadata() expect a unique cell_type `b` is present, which comes 
   expect_true(n_cell > 0)
 })
   
-test_that("import_one_sce() loads metadata from a SingleCellExperiment object into a parquet file", {
+test_that("import_one_sce() loads metadata from a SingleCellExperiment object into a parquet file and generates pseudobulk", {
+  # Test both functionalities together because if import them independently,
+  # the sample data will be loaded into the cache, which causes the second import to fail the unique file check
   data(sample_sce_obj)
   temp <- tempfile()
   dataset_id <- "GSE122999"
   import_one_sce(sce_obj = sample_sce_obj,
-                         cache_dir = temp)
+                         cache_dir = temp,
+                 pseudobulk = TRUE)
   
   dataset_id %in% (get_metadata(cache_directory = temp) |> 
                     dplyr::distinct(dataset_id) |> 
                     dplyr::pull()) |>
     expect(failure_message = "The correct metadata was not created")
+  
+  sme <- get_metadata(cache_directory = temp) |> filter(file_id == "id1") |>
+    get_pseudobulk(cache_directory = file.path(temp, "pseudobulk"))
+  sme |>
+    row.names() |>
+    length() |>
+    expect_gt(1)
 })
 
 test_that("get_pseudobulk() syncs appropriate files", {
@@ -252,5 +262,4 @@ test_that("get_pseudobulk() syncs appropriate fixed file", {
     length() |>
     expect_gt(1)
 })
-
 
