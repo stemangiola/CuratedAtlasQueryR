@@ -96,7 +96,8 @@ Imports:
     stringr,
     checkmate,
     stringfish,
-    tidySingleCellExperiment
+    tidySingleCellExperiment,
+    tidybulk
 Suggests:
     zellkonverter,
     rmarkdown,

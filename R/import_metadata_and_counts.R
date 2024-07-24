@@ -20,6 +20,7 @@
 #' @importFrom SummarizedExperiment assay
 #' @importFrom stringr str_detect
 #' @importFrom tidySingleCellExperiment aggregate_cells
+#' @importFrom tidybulk quantile_normalise_abundance
 #' @examples
 #' data(sample_sce_obj)
 #' import_one_sce(sample_sce_obj,
@@ -138,20 +139,40 @@ import_one_sce <- function(
   # convert metadata_tbl to parquet if above checkpoints pass
   arrow::write_parquet(metadata_tbl, file.path(cache_dir, "metadata.parquet"))
   
-  # generate pseudobulk
+  # generate pseudobulk counts and quantile_normalised counts
   if (isTRUE(pseudobulk)) {
     file_id <- metadata_tbl$file_id |> unique() |> as.character()
       
-    cli_alert_info("Generating pseudobulk from {file_id}. ")
-    create_pseudobulk <- sce_obj |> aggregate_cells(c(sample_, cell_type_harmonised)) 
+    cli_alert_info("Generating pseudobulk counts from {file_id}. ")
+    pseudobulk_counts <- sce_obj |> aggregate_cells(c(sample_, cell_type_harmonised)) 
+    
+    normalised_counts_best_distribution <- assay(pseudobulk_counts, "counts") |> as.matrix() |>
+      preprocessCore::normalize.quantiles.determine.target()
+    
+    normalised_counts <- pseudobulk_counts |> quantile_normalise_abundance(
+      method="preprocesscore_normalize_quantiles_use_target",
+      target_distribution = normalised_counts_best_distribution
+    )
+    
+    assay(normalised_counts, "counts") <- NULL
+    names(assays(normalised_counts)) <- "quantile_normalised"
     
     if (!dir.exists(file.path(cache_dir, "pseudobulk/original"))) {
       cache_dir |> file.path("pseudobulk/original") |> dir.create(recursive = TRUE)
     }
     
-    pseudobulk_path <- file.path(cache_dir, "pseudobulk/original", basename(file_id))
-    saveHDF5SummarizedExperiment(create_pseudobulk, pseudobulk_path )
-    cli_alert_info("pseudobulk are generated in {.path {pseudobulk_path}}. ")
+    if (!dir.exists(file.path(cache_dir, "pseudobulk/quantile_normalised"))) {
+      cache_dir |> file.path("pseudobulk/quantile_normalised") |> dir.create(recursive = TRUE)
+    }
+    
+    path <- file.path(cache_dir, "pseudobulk")
+    pseudobulk_counts_path <- file.path(path, "original", basename(file_id))
+    pseudobulk_qnorm_path <- file.path(path, "quantile_normalised", basename(file_id))
+    
+    saveHDF5SummarizedExperiment(pseudobulk_counts, pseudobulk_counts_path )
+    saveHDF5SummarizedExperiment(normalised_counts, pseudobulk_qnorm_path )
+    
+    cli_alert_info("pseudobulk are generated in {.path {path}}. ")
   }
   
 }
