@@ -146,7 +146,8 @@ import_one_sce <- function(
     cli_alert_info("Generating pseudobulk counts from {file_id}. ")
     pseudobulk_counts <- sce_obj |> aggregate_cells(c(sample_, cell_type_harmonised)) 
     
-    normalised_counts_best_distribution <- assay(pseudobulk_counts, "counts") |> as.matrix() |>
+    assay_name <- pseudobulk_counts |> assays() |> names()
+    normalised_counts_best_distribution <- assay(pseudobulk_counts, assay_name) |> as.matrix() |>
       preprocessCore::normalize.quantiles.determine.target()
     
     normalised_counts <- pseudobulk_counts |> quantile_normalise_abundance(
@@ -154,7 +155,7 @@ import_one_sce <- function(
       target_distribution = normalised_counts_best_distribution
     )
     
-    assay(normalised_counts, "counts") <- NULL
+    assay(normalised_counts, assay_name) <- NULL
     names(assays(normalised_counts)) <- "quantile_normalised"
     
     if (!dir.exists(file.path(cache_dir, "pseudobulk/original"))) {
