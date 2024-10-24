@@ -16,12 +16,13 @@ library(CuratedAtlasQueryR)
 library(fs)
 library(HPCell)
 library(crew.cluster)
-directory = "~/scratch/Census_rerun/split_h5ad_based_on_sample_id/"
+directory = "/home/users/allstaff/shen.m/scratch/Census_rerun/split_h5ad_based_on_sample_id/"
 sample_anndata <- dir(glue("{directory}"), full.names = T)
-downloaded_samples_tbl <- read_parquet("~/scratch/Census_rerun/census_samples_to_download_groups.parquet")
+downloaded_samples_tbl <- read_parquet("/home/users/allstaff/shen.m/scratch/Census_rerun/census_samples_to_download_groups.parquet")
 downloaded_samples_tbl <- downloaded_samples_tbl |>
   rename(cell_number = list_length) |> 
-  mutate(file_name = glue("{directory}{sample_2}.h5ad") |> as.character(), 
+  mutate(cell_number = cell_number |> as.integer(),
+         file_name = glue("{directory}{sample_2}.h5ad") |> as.character(), 
          tier = case_when(
            cell_number < 500 ~ "tier_1", cell_number >= 500 &
              cell_number < 1000 ~ "tier_2", cell_number >= 1000 &
@@ -36,7 +37,7 @@ sample_tbl = downloaded_samples_tbl |> left_join(get_metadata() |> select(datase
 
 
 sample_tbl <- sample_tbl |> left_join(sample_meta, by = "dataset_id") |> distinct(file_name, tier, cell_number, dataset_id, sample_2,
-                                                                                  observation_joinid, x_normalization, x_approximate_distribution) |>
+                                                                                  x_normalization, x_approximate_distribution) |>
   mutate(transform_method = case_when(str_like(x_normalization, "C%") ~ "log",
                                       x_normalization == "none" ~ "log",
                                       x_normalization == "normalized" ~ "log",
