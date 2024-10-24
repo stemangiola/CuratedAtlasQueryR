@@ -5,17 +5,21 @@
 #' @param cache_dir Optional character vector of length 1. A file path on
 #'   your local system to a directory (not a file) that will be used to store
 #'   `metadata.parquet`
+#' @param pseudobulk Optional character. Set to TRUE for generating and importing pseudobulk,
+#' the metadata slot of which must contain `file_id`, `cell_type_harmonised` and `sample_`
+#' 
 #' @export
 #' @return A metadata.parquet strip from the SingleCellExperiment object. 
 #' Directories store counts and counts per million in the provided cache directory.
 #' @importFrom checkmate check_true check_character check_subset assert
 #' @importFrom dplyr select distinct pull
-#' @importFrom cli cli_alert_info
+#' @importFrom cli cli_alert_info cli_alert_warning
 #' @importFrom rlang .data
 #' @importFrom SingleCellExperiment reducedDims rowData reducedDims<-
 #' @importFrom S4Vectors metadata metadata<-
-#' @importFrom SummarizedExperiment assay
+#' @importFrom SummarizedExperiment assay assay<-
 #' @importFrom stringr str_detect
+#' @importFrom HDF5Array saveHDF5SummarizedExperiment
 #' @examples
 #' data(sample_sce_obj)
 #' import_one_sce(sample_sce_obj,
@@ -27,7 +31,8 @@
 #' @source [Mangiola et al.,2023](https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3)
 import_one_sce <- function(
     sce_obj,  
-    cache_dir = get_default_cache_dir()
+    cache_dir = get_default_cache_dir(),
+    pseudobulk = FALSE
   ) {
   original_dir <- file.path(cache_dir, "original")
   
@@ -63,6 +68,18 @@ import_one_sce <- function(
     reducedDims(sce_obj) <- NULL
   }
   
+    # Pseudobulk checkpoint 
+  pseudobulk_sample <- c("sample_", "cell_type_harmonised")
+  if (isTRUE(pseudobulk)) {
+    assert(
+      all(pseudobulk_sample %in% (colData(sce_obj) |> colnames()) ),
+      "Sample_ and cell_type_harmonised columns must be in the SingleCellExperiment colData")
+    
+    assert(c(pseudobulk_sample, "file_id") %in% (names(metadata_tbl)) |> all() ,
+           "SingleCellExperiment metadata must at least contain sample_, cell_type_harmonised,
+           file_id for pseudobulk generation"
+    ) }
+  
   # Create original and cpm folders in the cache directory if not exist
   if (!dir.exists(original_dir)) {
     cache_dir |> file.path("original") |> dir.create(recursive = TRUE)
@@ -73,10 +90,14 @@ import_one_sce <- function(
   }
   
   # Check whether count H5 directory has been generated
-  all(!file_id_db %in% dir(original_dir)) |>
-    check_true() |>
-    assert("The filename for count assay (file_id_db) already exists in the cache directory.")
-  
+  if (any(file_id_db %in% dir(original_dir))) {
+    cli_alert_warning(
+      single_line_str(
+        "Import API says: The filename for count assay (file_id_db) already exists in the cache directory. "
+      )
+    )
+  }
+
   # Check the metadata contains cell_, file_id_db, sample_ with correct types
   check_true("cell_" %in% colnames(metadata_tbl))
   check_true("file_id_db" %in% names(metadata_tbl)) 
@@ -88,9 +109,14 @@ import_one_sce <- function(
   
   # Check cell_ values are not duplicated when join with parquet
   cells <- select(get_metadata(cache_directory = cache_dir), .data$cell_) |> as_tibble()
-  (!any(metadata_tbl$cell_ %in% cells$cell_)) |> 
-    assert("Cell names (cell_) should not clash with cells that already exist in the atlas.")
-  
+  if ((any(metadata_tbl$cell_ %in% cells$cell_))) 
+    cli_alert_warning(
+      single_line_str(
+        "Import API says:
+        Cells in your SingleCellExperiment already exists in the atlas."
+      )
+    )
+
   # Check age_days is either -99 or greater than 365
   if (any(colnames(metadata_tbl) == "age_days")) {
     assert(all(metadata_tbl$age_days==-99 | metadata_tbl$age_days> 365),
@@ -114,9 +140,69 @@ import_one_sce <- function(
   
   # check metadata sample file ID match the count file ID in cache directory
   all(metadata_tbl |> pull(.data$file_id_db) %in% dir(original_dir)) |> 
-    assert("The filename for count assay, which matches the file_id_db column in the metadata, already exists in the cache directory.")
+    assert("The filename for count assay, which matches the file_id_db column in 
+           the metadata, already exists in the cache directory.")
   
   # convert metadata_tbl to parquet if above checkpoints pass
   arrow::write_parquet(metadata_tbl, file.path(cache_dir, "metadata.parquet"))
+  
+  # Generate pseudobulk
+  if (isTRUE(pseudobulk)) sce_obj |> calculate_pseudobulk(cache_dir = cache_dir)
 }
+
+
+#' Generate pseudobulk counts and quantile_normalised counts
+#' @param sce_data A SingleCellExperiment object from RDS, the metadata slot of which
+#' must contain `cell_` and `dataset_id`
+#' @param cache_dir Optional character vector of length 1. A file path on
+#'   your local system to a directory (not a file) that will be used to store pseudobulk counts
+#' @return Pseudobulk counts in `HDF5` format stored in the cache directory
+#' @export
+#' @importFrom S4Vectors metadata
+#' @importFrom dplyr select distinct pull
+#' @importFrom cli cli_alert_info cli_alert_warning
+#' @importFrom S4Vectors metadata
+#' @importFrom SummarizedExperiment assay assay<- assays
+#' @importFrom tidySingleCellExperiment aggregate_cells
+#' @importFrom tidybulk quantile_normalise_abundance
+#' @importFrom HDF5Array saveHDF5SummarizedExperiment
+
+calculate_pseudobulk <- function(sce_data,
+                                 cache_dir = get_default_cache_dir()) {
+  metadata_tbl <- metadata(sce_data)$data
+  file_id <- metadata_tbl$file_id |> unique() |> as.character()
+  
+  if (!dir.exists(file.path(cache_dir, "pseudobulk/original"))) {
+    cache_dir |> file.path("pseudobulk/original") |> dir.create(recursive = TRUE)
+  }
+  
+  if (!dir.exists(file.path(cache_dir, "pseudobulk/quantile_normalised"))) {
+    cache_dir |> file.path("pseudobulk/quantile_normalised") |> dir.create(recursive = TRUE)
+  }
+  
+  cli_alert_info("Generating pseudobulk counts from {file_id}. ")
+  pseudobulk_counts <- sce_data |> aggregate_cells(c(sample_, cell_type_harmonised)) 
+  
+  assay_name <- pseudobulk_counts |> assays() |> names()
+  normalised_counts_best_distribution <- assay(pseudobulk_counts, assay_name) |> as.matrix() |>
+    preprocessCore::normalize.quantiles.determine.target()
+  
+  normalised_counts <- pseudobulk_counts |> quantile_normalise_abundance(
+    method="preprocesscore_normalize_quantiles_use_target",
+    target_distribution = normalised_counts_best_distribution
+  )
+  
+  assay(normalised_counts, assay_name) <- NULL
+  names(assays(normalised_counts)) <- "quantile_normalised"
+
+  path <- file.path(cache_dir, "pseudobulk")
+  pseudobulk_counts_path <- file.path(path, "original", basename(file_id))
+  pseudobulk_qnorm_path <- file.path(path, "quantile_normalised", basename(file_id))
+  
+  saveHDF5SummarizedExperiment(pseudobulk_counts, pseudobulk_counts_path, replace = TRUE )
+  saveHDF5SummarizedExperiment(normalised_counts, pseudobulk_qnorm_path , replace = TRUE)
+  
+  cli_alert_info("pseudobulk are generated in {.path {path}}. ")
+}
+
 
