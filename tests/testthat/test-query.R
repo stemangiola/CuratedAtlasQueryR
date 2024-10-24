@@ -253,4 +253,16 @@ test_that("get_pseudobulk() syncs appropriate fixed file", {
     expect_gt(1)
 })
 
+test_that("get_single_cell_experiment() syncs prostate atlas", {
+  temp <- tempfile()
+  # A sample from prostate atlas
+  sample <- "GSM4089151"
+  meta <- get_metadata(cache_directory = temp) |> filter(sample_ == sample)
+  sce <- meta |> get_single_cell_experiment(cache_directory = temp)
+  sce |>
+    row.names() |>
+    length() |>
+    expect_gt(1)
+})
+
 

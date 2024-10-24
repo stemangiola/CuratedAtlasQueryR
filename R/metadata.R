@@ -10,7 +10,8 @@ cache <- rlang::env(
 )
 
 #' Returns the URLs for all metadata files 
-#' @param databases A character vector specifying the names of the metadata files. Default is c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")
+#' @param databases A character vector specifying the names of the metadata files. 
+#' Default is c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet", "prostate.0.1.0.parquet")
 #' @export
 #' @return A character vector of URLs to parquet files to download
 #' @examples
@@ -20,7 +21,8 @@ cache <- rlang::env(
 #'   immune system across age, sex and ethnicity." bioRxiv (2023): 2023-06.
 #'   doi:10.1101/2023.06.08.542671.
 #' @source [Mangiola et al.,2023](https://www.biorxiv.org/content/10.1101/2023.06.08.542671v3)
-get_database_url <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet")) {
+get_database_url <- function(databases = c("metadata.0.2.3.parquet", "fibrosis.0.2.3.parquet",
+                                           "prostate.0.1.0.parquet")) {
   glue::glue(
     "https://object-store.rc.nectar.org.au/v1/AUTH_06d6e008e3e642da99d806ba3ea629c5/metadata/{databases}")
 }
