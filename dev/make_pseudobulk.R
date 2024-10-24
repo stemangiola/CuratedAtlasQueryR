@@ -34,8 +34,9 @@ tar_script(
       memory = "transient",
       storage = "worker",
       retrieval = "worker",
-      #error = "continue",
+      error = "continue",
       format = "qs",
+      # cue = tar_cue(mode = "never")		,
       
       #-----------------------#
       # SLURM
@@ -56,14 +57,15 @@ tar_script(
           slurm_memory_gigabytes_per_cpu = 10,
           slurm_cpus_per_task = 1,
           workers = 100,
+          tasks_max = 5,
           verbose = T
         ),
         crew_controller_slurm(
           name = "slurm_1_20",
           slurm_memory_gigabytes_per_cpu = 20,
           slurm_cpus_per_task = 1,
-          workers = 50,
-         # tasks_max = 5,
+          workers = 60,
+          tasks_max = 5,
           verbose = T
         ),
         crew_controller_slurm(
@@ -78,7 +80,7 @@ tar_script(
           name = "slurm_1_80",
           slurm_memory_gigabytes_per_cpu = 80,
           slurm_cpus_per_task = 1,
-          workers = 20,
+          workers = 5,
           tasks_max = 5,
           verbose = T
         ),
@@ -91,11 +93,11 @@ tar_script(
           verbose = T
         )
       ),
-      #debug = "pseudobulk_file_id",
+      # debug = "pseudobulk_file_id_quantile_normalised_2_7240767f602a5810",
       
       resources = tar_resources(crew = tar_resources_crew("slurm_2_20")) 
       #, # Set the target you want to debug.
-      #cue = tar_cue(mode = "never")		
+      #
     )
     
     split_metadata = function(){
@@ -108,22 +110,58 @@ tar_script(
         # DROP FETAL SCI-SEQ FOR THE MOMENT
         filter(collection_id != "c114c20f-1ef4-49a5-9c2e-d965787fb90c") |> 
         ################################
-        
-        distinct(file_id, sample_, cell_, file_id_db, cell_type_harmonised) |>
+      
+        # this, because for curated Atlas, query, I don't need of the other meta data, 
+        # I can add it later from the full meta data 
+        select(file_id, sample_, cell_, file_id_db, cell_type_harmonised) |>
         as_tibble() |> 
         mutate(chunk = sample_) |> 
         nest(data = -c(chunk, file_id)) |> 
-        mutate(number_of_cells = map_int(data, nrow))
+        mutate(number_of_cells = map_int(data, nrow)) 
       
+      
+      # Add a subsampled version of the sci seq
+      my_sci_seq = 
+        get_metadata(cache_directory = CAQ_directory) |>
+        
+        # DROP FETAL SCI-SEQ FOR THE MOMENT
+        filter(collection_id == "c114c20f-1ef4-49a5-9c2e-d965787fb90c") |> 
+        select(file_id, sample_, cell_, file_id_db, cell_type_harmonised) |>
+        as_tibble() |> 
+        nest(data = -c(file_id, sample_, cell_type_harmonised)) |> 
+        mutate(n = map_int(data, nrow)) |> 
+        mutate(data = map2(
+          data, n,
+          ~ .x |> slice_sample( n = min(.y, 10000), replace = FALSE) 
+        )) |> 
+        unnest(data) |> 
+        select(-n) |> 
+        mutate(chunk = sample_) |> 
+        nest(data = -c(chunk, file_id)) |> 
+        mutate(number_of_cells = map_int(data, nrow)) 
+    
+      my_metadata |> bind_rows(my_sci_seq)
+        
+        
     }
     
-    get_sce = 	function(tissue_cell_type_metadata) {
+    get_sce = 	function(tissue_cell_type_metadata, sce_rownames) {
+      
+      cache.path = "/vast/projects/mangiola_immune_map/caq_cloud3"
+      dir.create(cache.path, recursive = TRUE, showWarnings = FALSE)
       
       tissue_cell_type_metadata |>
         mutate(data = pmap(
           list(data),
           ~ ..1 |>
-            get_single_cell_experiment(cache_directory = "/vast/projects/cellxgene_curated") 
+            get_single_cell_experiment(cache_directory = cache.path) 
+          # |> 
+          #   
+          #   # !!!!
+          #   # this is needed, because, for some reason, the local data repository, still has ENSEMBL genes, 
+          #   # while the cloud repository does not
+          #   _[sce_rownames,] 
+          
           # |>
           # 	mutate(sample_se =
           # 				 	
@@ -162,7 +200,7 @@ tar_script(
       print("Start aggregate")
       gc()
       
-      se = 
+ 
         se_df |>
         
         # Add columns and filter
@@ -170,9 +208,9 @@ tar_script(
           data, file_id,
           ~ {
             
-            ## TEMPORARY FIX BECAUSE I FORGOT TO ADD ASSAY NAME
-            assays(.x) = .x |> assays() |> as.list() |>  set_names("counts")
-            #####
+            # ## TEMPORARY FIX BECAUSE I FORGOT TO ADD ASSAY NAME
+            # assays(.x) = .x |> assays() |> as.list() |>  set_names("counts")
+            # #####
             
             # Add columns
             se = 
@@ -222,7 +260,8 @@ tar_script(
                             rownames(se) = se_rownames
                             
                             se
-                          }))
+                          })
+              )
       
     }
     
@@ -263,8 +302,8 @@ tar_script(
       
       # Get SCE SMALL
       tar_target(
-        metadata_split_pseudobulk_SMALL,
-        metadata_split_SMALL |>  get_sce() |> get_pseudobulk(),
+        metadata_split_pseudobulk_SMALL_2,
+        metadata_split_SMALL |>  get_sce(sce_rownames) |> get_pseudobulk(),
         pattern = map(metadata_split_SMALL),
         resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))
       ),
@@ -272,25 +311,53 @@ tar_script(
       # Get SCE BIG
       tar_target(
         metadata_split_pseudobulk_BIG,
-        metadata_split_BIG |>  get_sce() |> get_pseudobulk(),
+        metadata_split_BIG |>  get_sce(sce_rownames) |> get_pseudobulk(),
         pattern = map(metadata_split_BIG),
         resources = tar_resources(crew = tar_resources_crew("slurm_1_80"))
       ),
       
       # Group samples
       tarchetypes::tar_group_by(
-        metadata_grouped_pseudobulk,
-        metadata_split_pseudobulk_SMALL |> bind_rows(metadata_split_pseudobulk_BIG),
+        metadata_grouped_pseudobulk_2,
+        metadata_split_pseudobulk_SMALL_2 |> bind_rows(metadata_split_pseudobulk_BIG),
         file_id,
         resources = tar_resources(crew = tar_resources_crew("slurm_2_400"))
-      ),
-      
+      )  ,
+
       # Aggregate
       tar_target(
-        pseudobulk_file_id,
-        metadata_grouped_pseudobulk |> aggregate(sce_rownames) ,
-        pattern = map(metadata_grouped_pseudobulk),
-        resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))#, deployment = "main"
+        pseudobulk_grouped_by_file_id_2,
+        metadata_grouped_pseudobulk_2 |> aggregate(sce_rownames) ,
+        pattern = map(metadata_grouped_pseudobulk_2),
+        resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))
+      ) ,
+
+      # Quantile normalisation taking a "good looking distribution"
+      tar_target(
+        the_best_target_distribution,
+        pseudobulk_grouped_by_file_id_2 |>
+          filter(file_id== "c0dca32e-fa64-4448-bc12-2b8f16702c29") |>
+          pull(data) |>
+          _[[1]] |>
+          assay( "counts") |>
+          as.matrix() |>
+          preprocessCore::normalize.quantiles.determine.target() ,
+        resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))
+      ),
+
+      tar_target(
+        pseudobulk_file_id_quantile_normalised_3,
+        pseudobulk_grouped_by_file_id_2 |> mutate(data = map(
+          data,
+          ~ .x |>
+            quantile_normalise_abundance(
+              method="preprocesscore_normalize_quantiles_use_target", 
+              target_distribution = the_best_target_distribution
+            ) |>
+            select(-counts)
+        )) ,
+        pattern = map(pseudobulk_grouped_by_file_id_2),
+        resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))
       )
       
     )
@@ -303,13 +370,13 @@ tar_script(
 
 
 tar_make(
-  #callr_function = NULL,
-  reporter = "verbose_positives",
+  # callr_function = NULL,
+  reporter = "summary",
   script = glue("{result_directory}/_targets.R"),
   store = glue("{result_directory}/_targets")
 )
 
 
 
-tar_read(pseudobulk_file_id, store = "/vast/projects/cellxgene_curated/pseudobulk_0.2.3.4/_targets")
+tar_read(pseudobulk_file_id_quantile_normalised_3, store = "/vast/projects/cellxgene_curated/pseudobulk_0.2.3.4/_targets")
 
