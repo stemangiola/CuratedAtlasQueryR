@@ -127,7 +127,7 @@ biocViews:
     Transcription,
     Transcriptomics
 Encoding: UTF-8
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 LazyDataCompression: xz
 URL: https://github.com/stemangiola/CuratedAtlasQueryR
 BugReports: https://github.com/stemangiola/CuratedAtlasQueryR/issues

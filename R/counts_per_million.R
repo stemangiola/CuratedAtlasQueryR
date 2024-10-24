@@ -12,7 +12,7 @@
 get_counts_per_million <- function(input_sce_obj, output_dir, hd5_file_dir) {
 
   # Save SCE to the cache directory counts folder
-  input_sce_obj |> saveHDF5SummarizedExperiment(hd5_file_dir)
+  input_sce_obj |> saveHDF5SummarizedExperiment(hd5_file_dir, replace=TRUE)
   
   data <- input_sce_obj
   
@@ -39,6 +39,6 @@ get_counts_per_million <- function(input_sce_obj, output_dir, hd5_file_dir) {
   # Check if there is a memory issue 
   assays(sce) <- assays(sce) |> map(DelayedArray::realize)
   
-  sce |> saveHDF5SummarizedExperiment(output_dir)
+  sce |> saveHDF5SummarizedExperiment(output_dir, replace = TRUE)
 } 
 
