@@ -16,13 +16,13 @@ library(CuratedAtlasQueryR)
 library(fs)
 library(HPCell)
 library(crew.cluster)
-directory = "/home/users/allstaff/shen.m/scratch/Census_rerun/split_h5ad_based_on_sample_id/"
+directory = "/vast/scratch/users/shen.m/Census_rerun/split_h5ad_based_on_sample_id/"
 sample_anndata <- dir(glue("{directory}"), full.names = T)
-downloaded_samples_tbl <- read_parquet("/home/users/allstaff/shen.m/scratch/Census_rerun/census_samples_to_download_groups.parquet")
+downloaded_samples_tbl <- read_parquet("/vast/scratch/users/shen.m/Census_rerun/census_samples_to_download_groups.parquet")
 downloaded_samples_tbl <- downloaded_samples_tbl |>
-  rename(cell_number = list_length) |> 
+  rename(cell_number = list_length) |>
   mutate(cell_number = cell_number |> as.integer(),
-         file_name = glue("{directory}{sample_2}.h5ad") |> as.character(), 
+         file_name = glue("{directory}{sample_2}.h5ad") |> as.character(),
          tier = case_when(
            cell_number < 500 ~ "tier_1", cell_number >= 500 &
              cell_number < 1000 ~ "tier_2", cell_number >= 1000 &
@@ -30,6 +30,7 @@ downloaded_samples_tbl <- downloaded_samples_tbl |>
          ))
 
 result_directory = "/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024"
+
 sample_meta <- tar_read(metadata_dataset_id_common_sample_columns, store = glue("{result_directory}/_targets"))
 sample_tbl = downloaded_samples_tbl |> left_join(get_metadata() |> select(dataset_id, contains("norm")) |>
                                  distinct() |> filter(!is.na(x_normalization)) |>
@@ -108,8 +109,7 @@ sample_tbl <- sample_tbl |> mutate(transformation_function = map(
       eval()
   ))
 
-#sample_tbl |> saveRDS("~/scratch/Census_rerun/sample_tbl_input_for_hpcell.rds")
-sample_tbl <- readRDS("~/scratch/Census_rerun/sample_tbl_input_for_hpcell.rds")
+sample_tbl <- readRDS("/vast/scratch/users/shen.m/Census_rerun/sample_tbl_input_for_hpcell.rds")
 
 # Set the parent directory where the subdirectories will be created
 # parent_dir <- "~/scratch/Census_rerun/"
@@ -128,13 +128,14 @@ sample_tbl <- readRDS("~/scratch/Census_rerun/sample_tbl_input_for_hpcell.rds")
 # }
 
 # Run 1000 samples per run. Save log and result in the corresponding store
-store = "~/scratch/Census_rerun/run3/"
+store = "/vast/projects/mangiola_immune_map/PostDoc/CuratedAtlasQueryR/dev/debug_hpcell/target_store"
 setwd(glue("{store}"))
 sliced_sample_tbl = sample_tbl |> slice(2001:3000) |> select(file_name, tier, cell_number, dataset_id,
                                                           sample_2, transformation_function)
 
 # Enable sample_names.rds to store sample names for the input
 sample_names <- sliced_sample_tbl |> pull(file_name)  |> set_names(sliced_sample_tbl |> pull(sample_2))
+sample_names  = sample_names |> str_replace("/home/users/allstaff/shen.m/scratch", "/vast/scratch/users/shen.m")
 
 sample_names |>
   initialise_hpc(
@@ -178,29 +179,17 @@ sample_names |>
       )
     )
     
-  ) |>
+  )  |>
   tranform_assay(fx = sliced_sample_tbl |>
                    pull(transformation_function),
-                 target_output = "sce_transformed") |>
+                 target_output = "sce_transformed") 
+
+|>
   
   # Remove empty outliers based on RNA count threshold per cell
-  remove_empty_threshold(target_input = "sce_transformed", RNA_feature_threshold = 200) |>
-  
-  # Remove dead cells
-  remove_dead_scuttle(target_input = "sce_transformed") |>
-  
-  # Score cell cycle
-  score_cell_cycle_seurat(target_input = "sce_transformed") |>
-  
-  # Remove doublets
-  remove_doublets_scDblFinder(target_input = "sce_transformed") |>
+  remove_empty_DropletUtils(target_input = "sce_transformed", RNA_feature_threshold = 200) |>
   
   # Annotation
-  annotate_cell_type(target_input = "sce_transformed", azimuth_reference = "pbmcref") |>
-  
-  normalise_abundance_seurat_SCT(
-    factors_to_regress = c("subsets_Mito_percent", "subsets_Ribo_percent", "G2M.Score"),
-    target_input = "sce_transformed"
-  )
+  annotate_cell_type(target_input = "sce_transformed", azimuth_reference = "pbmcref") 
 
 
