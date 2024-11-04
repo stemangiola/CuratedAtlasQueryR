@@ -1,8 +1,10 @@
+.rs.restartR()
 library(tidyverse)
 library(targets)
 library(glue)
 
 result_directory = "/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024"
+
 
 tar_script(
   {
@@ -27,19 +29,16 @@ tar_script(
         "glue", "qs",  "purrr", "tidybulk", "tidySummarizedExperiment",  "crew", "magrittr", "digest", "readr", "forcats"
       ),
       
-      garbage_collection = TRUE,
-      #trust_object_timestamps = TRUE,
-      memory = "transient",
-      storage = "worker",
-      retrieval = "worker",
-      #error = "continue",
+      memory = "transient", 
+      garbage_collection = 100, 
+      storage = "worker", 
+      retrieval = "worker", 
+      error = "continue", 
+      #  debug = "dataset_id_sce_b5312463451d7ee3", 
+      cue = tar_cue(mode = "never"),
       format = "qs",
-      
-      # Set the target you want to debug.
-      #debug = "metadata_sample",
 
-      cue = tar_cue(mode = "never")		,
-      
+
       #-----------------------#
       # SLURM
       #-----------------------#
@@ -227,7 +226,8 @@ tar_script(
           "assay",
           "experiment___",
           "disease",
-          "run_from_cell_id"
+          "run_from_cell_id",
+          "is_primary_data"
         ), na.rm = TRUE, sep = "___", remove = F) |>
         
         
@@ -246,12 +246,20 @@ tar_script(
       
       cache.path = "/vast/scratch/users/mangiola.s/cellxgenedp"
       dir.create(cache.path, recursive = TRUE, showWarnings = FALSE)
-
+      
       h5_path = .x |> files_download(dry.run = FALSE, cache.path = cache.path)
       
       sce = 
         h5_path |> 
-        readH5AD(use_hdf5 = TRUE,  obs = FALSE, raw = FALSE, skip_assays = TRUE, layers=FALSE, reader = "R"	)
+        readH5AD(use_hdf5 = TRUE,  raw = FALSE, skip_assays = TRUE, layers=FALSE, reader = "R"	) 
+      
+      
+      if(is.null(sce) || !"donor_id" %in% colnames(colData(sce)))
+        sce = 
+        h5_path |> 
+        readH5AD(use_hdf5 = TRUE, raw = FALSE, skip_assays = TRUE, layers=FALSE	)
+      
+      
       
       file.remove(h5_path)
       
@@ -297,7 +305,7 @@ tar_script(
       #   select(sample_, any_of(sample_column_to_preserve)) |> 
       #   distinct()
       
-
+      
       
       metadata
     }
@@ -312,7 +320,7 @@ tar_script(
         colnames()
       
       # Select only sample_ columns
-        metadata |>
+      metadata |>
         select(sample_, any_of(sample_column_to_preserve)) |>
         distinct()
       
@@ -339,7 +347,7 @@ tar_script(
           ) |> 
           group_split(dataset_id),
         iteration = "list",
-        resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))
+        resources = tar_resources(crew = tar_resources_crew("slurm_1_80"))
       ),
       
       # Get SCE SMALL
@@ -348,9 +356,11 @@ tar_script(
         get_metadata(files_dataset_id),
         pattern = map(files_dataset_id),
         iteration = "list",
-        resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))
+        resources = tar_resources(crew = tar_resources_crew("slurm_1_20")), 
+        deployment = "main"
       ),
       
+      # select column that are present in half of the datasets at least, so the common column
       tar_target(
         common_columns,
         metadata_dataset_id |>
@@ -365,20 +375,37 @@ tar_script(
       tar_target(
         metadata_dataset_id_common_sample_columns,
         metadata_dataset_id |> 
+          
+          # Only get primary data
+          # filter(is_primary_data=="TRUE") |> 
+          
           mutate(cell_ =  as.character(cell_)) |> 
           select(any_of(common_columns)) |> 
+          
+          # Drop some clearly cell-wise columns
+          select(-any_of(c("observation_joinid", "cell_")), -contains("cell_type")) |> 
+          
           select_sample_columns(),
         pattern = map(metadata_dataset_id),
-        resources = tar_resources(crew = tar_resources_crew("slurm_1_20") )
+        resources = tar_resources(crew = tar_resources_crew("slurm_1_80") )
       ),
       
       tar_target(
         metadata_dataset_id_cell_to_sample_mapping,
         metadata_dataset_id |> 
-          mutate(cell_ =  as.character(cell_)) |> 
-          select(cell_, sample_, donor_id),
+          
+          # Only get primary data
+          # filter(is_primary_data=="TRUE") |> 
+          
+          mutate(
+            cell_ =  as.character(cell_), 
+            observation_joinid = as.character(observation_joinid)
+          ) |> 
+          # select(cell_, observation_joinid, sample_, donor_id),
+          select(observation_joinid, cell_, sample_, donor_id, dataset_id, is_primary_data, sample_heuristic, cell_type, cell_type_ontology_term_id),
         pattern = map(metadata_dataset_id),
-        resources = tar_resources(crew = tar_resources_crew("slurm_1_20"))
+        resources = tar_resources(crew = tar_resources_crew("slurm_1_80")),
+        deployment = "main"
       )
       
     )
@@ -389,19 +416,162 @@ tar_script(
   script = glue("{result_directory}/_targets.R")
 )
 
+job::job({
+  
+  tar_make(
+    # callr_function = NULL,
+    reporter = "summary",
+    script = glue("{result_directory}/_targets.R"),
+    store = glue("{result_directory}/_targets")
+  )
+  
+})
 
-tar_make(
-  #callr_function = NULL,
-  reporter = "verbose_positives",
-  script = glue("{result_directory}/_targets.R"),
-  store = glue("{result_directory}/_targets")
+
+library(arrow)
+library(dplyr)
+library(duckdb)
+
+# # Sample metadata
+# tar_read(metadata_dataset_id_common_sample_columns, store = glue("{result_directory}/_targets")) |>
+#   write_parquet("/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/sample_metadata.parquet")
+
+# # Sample to cell link
+# tar_read(metadata_dataset_id_cell_to_sample_mapping, store = glue("{result_directory}/_targets")) |> 
+#   write_parquet("/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_ids_for_metadata.parquet")
+
+
+
+
+# sample_metadata <- tbl(
+#   dbConnect(duckdb::duckdb(), dbdir = ":memory:"),
+#   sql("SELECT * FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/sample_metadata.parquet')")
+# )
+# # 
+# cell_ids_for_metadata <- tbl(
+#   dbConnect(duckdb::duckdb(), dbdir = ":memory:"),
+#   sql("SELECT * FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_ids_for_metadata.parquet')")
+# )
+# 
+# cell_to_refined_sample_from_Mengyuan <- tbl(
+#   dbConnect(duckdb::duckdb(), dbdir = ":memory:"),
+#   sql("SELECT * FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/census_samples_to_download.parquet')")
+# ) |>
+#   select(cell_, observation_joinid, dataset_id, sample_id = sample_2) |> 
+#   
+
+# 
+write_parquet_to_parquet = function(data_tbl, output_parquet, compression = "gzip") {
+  
+  # Establish connection to DuckDB in-memory database
+  con_write <- dbConnect(duckdb::duckdb(), dbdir = ":memory:")
+  
+  # Register `data_tbl` within the DuckDB connection (this doesn't load it into memory)
+  duckdb::duckdb_register(con_write, "data_tbl_view", data_tbl)
+  
+  # Use DuckDB's COPY command to write `data_tbl` directly to Parquet with compression
+  copy_query <- paste0("
+  COPY data_tbl_view TO '", output_parquet, "' (FORMAT PARQUET, COMPRESSION '", compression, "');
+  ")
+  
+  # Execute the COPY command
+  dbExecute(con_write, copy_query)
+  
+  # Unregister the temporary view
+  duckdb::duckdb_unregister(con_write, "data_tbl_view")
+  
+  # Disconnect from the database
+  dbDisconnect(con_write, shutdown = TRUE)
+}
+
+# Establish a connection to DuckDB in memory
+con <- dbConnect(duckdb::duckdb(), dbdir = ":memory:")
+
+# Create views for each of the datasets in DuckDB
+dbExecute(con, "
+  CREATE VIEW cell_to_refined_sample_from_Mengyuan AS
+  SELECT cell_, observation_joinid, dataset_id, sample_2 AS sample_id, cell_type, cell_type_ontology_term_id
+  FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/census_samples_to_download.parquet')
+")
+
+dbExecute(con, "
+  CREATE VIEW cell_ids_for_metadata AS
+  SELECT cell_, observation_joinid, sample_, donor_id, dataset_id FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_ids_for_metadata.parquet')
+")
+
+dbExecute(con, "
+  CREATE VIEW sample_metadata AS
+  SELECT * FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/sample_metadata.parquet')
+")
+
+
+
+# Perform joins within DuckDB
+copy_query <- "
+  COPY (
+    SELECT *
+    FROM cell_to_refined_sample_from_Mengyuan
+    
+    LEFT JOIN cell_ids_for_metadata
+      ON cell_ids_for_metadata.cell_ = cell_to_refined_sample_from_Mengyuan.cell_
+      AND cell_ids_for_metadata.observation_joinid = cell_to_refined_sample_from_Mengyuan.observation_joinid
+      AND cell_ids_for_metadata.dataset_id = cell_to_refined_sample_from_Mengyuan.dataset_id
+      
+    LEFT JOIN sample_metadata
+      ON cell_ids_for_metadata.sample_ = sample_metadata.sample_
+      AND cell_ids_for_metadata.donor_id = sample_metadata.donor_id
+      AND cell_ids_for_metadata.dataset_id = sample_metadata.dataset_id
+
+  ) TO '/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_metadata.parquet'
+  (FORMAT PARQUET, COMPRESSION 'gzip');
+"
+
+# Execute the final query to write the result to a Parquet file
+dbExecute(con, copy_query)
+
+# Disconnect from the database
+dbDisconnect(con, shutdown = TRUE)
+
+# cell_metadata <- tbl(
+#   dbConnect(duckdb::duckdb(), dbdir = ":memory:"),
+#   sql("SELECT * FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_metadata.parquet')")
+# )
+# 
+# system("~/bin/rclone copy /vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_metadata.parquet box_adelaide:/Mangiola_ImmuneAtlas/reannotation_consensus/")
+
+
+
+# Get Dharmesh metadata consensus
+# system("~/bin/rclone copy box_adelaide:/Mangiola_ImmuneAtlas/reannotation_consensus/consensus_output_new.parquet /vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/ ")
+# system("~/bin/rclone copy box_adelaide:/Mangiola_ImmuneAtlas/reannotation_consensus/data_driven_consensus_new.parquet /vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/ ")
+# system("~/bin/rclone copy box_adelaide:/Mangiola_ImmuneAtlas/reannotation_consensus/data_driven_consensus.parquet /vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/ ")
+
+# Non immune harmonisation to Dharmesh immune harmonisation
+non_immune_harmonisation = 
+  read_csv("/vast/projects/mangiola_immune_map/PostDoc/CuratedAtlasQueryR/dev/cell_type_harmonisation_non_immune.csv") 
+
+system("~/bin/rclone copy /vast/projects/mangiola_immune_map/PostDoc/CuratedAtlasQueryR/dev/cell_type_harmonisation_non_immune.csv box_adelaide:/Mangiola_ImmuneAtlas/reannotation_consensus/")
+
+
+tbl(
+  dbConnect(duckdb::duckdb(), dbdir = ":memory:"),
+  sql("SELECT * FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/consensus_output_new.parquet')")
+) |> 
+  
+  # Add non immune harmonisation to Dharmesh immune harmonisation
+  mutate(is_immune = reannotation_consensus == "non immune") |> 
+  left_join(non_immune_harmonisation, copy = TRUE
+  ) |> 
+  mutate(reannotation_consensus = case_when(reannotation_consensus=="non immune" ~ non_immune_harmonised_cell_type, TRUE ~ reannotation_consensus)) |> 
+  select(-non_immune_harmonised_cell_type) |> 
+  write_parquet_to_parquet("/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/consensus_output_new_plus_non_immune_harmonisation.parquet")
+
+
+annotation_with_harmonised <- tbl(
+  dbConnect(duckdb::duckdb(), dbdir = ":memory:"),
+  sql("SELECT * FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/consensus_output_new_plus_non_immune_harmonisation.parquet')")
 )
 
-# Sample metadata
-tar_read(metadata_dataset_id_common_sample_columns, store = glue("{result_directory}/_targets"))
-
-# Sample to cell link
-tar_read(metadata_dataset_id_cell_to_sample_mapping, store = glue("{result_directory}/_targets"))
 
 # 
 # # a test to see whether donor ID is present in the new metadata

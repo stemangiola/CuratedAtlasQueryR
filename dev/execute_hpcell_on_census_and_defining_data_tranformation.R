@@ -140,7 +140,7 @@ job::job({
         ),
         crew_controller_slurm(
           name = "tier_4",
-          script_lines = "#SBATCH --mem 70G",
+          script_lines = "#SBATCH --mem 200G", # There should be a tier 5 with 12Gb for sample of 40K cells
           slurm_cpus_per_task = 1,
           workers = 100,
           tasks_max = 10,
@@ -148,7 +148,7 @@ job::job({
           launch_max = 5
         )
       ),
-      verbosity = "summary",
+      verbosity = "verbose_positives",
       # debug_step = "annotation_tbl_tier_4",
       update = "never", 
       error = "continue",
@@ -171,16 +171,172 @@ job::job({
 
 
 
-tar_meta(starts_with("annotation_tbl"), store = "/vast/projects/mangiola_immune_map/PostDoc/immuneHealthyBodyMap/census_hpcell_oct_2024/target_store") |> 
-  filter(!error |> is.na()) |> arrange(desc(time)) |> select(error, name)
+tar_meta(starts_with("annotation_tbl_tier_4"), store = "/vast/projects/mangiola_immune_map/PostDoc/immuneHealthyBodyMap/census_hpcell_oct_2024/target_store") |> 
+  filter(!data |> is.na()) |> arrange(desc(time)) |> select(error, name)
 
 # I have to check the input of this NULL target 
 # annotation_tbl_tier_1_ecac957542df0c20
 
-tar_workspace(annotation_tbl_tier_4_8fcdb6edc543d3ea, store = "/vast/projects/mangiola_immune_map/PostDoc/immuneHealthyBodyMap/census_hpcell_oct_2024/target_store")
+tar_workspace(annotation_tbl_tier_4_a95d2334c8388111, store = "/vast/projects/mangiola_immune_map/PostDoc/immuneHealthyBodyMap/census_hpcell_oct_2024/target_store")
 annotation_label_transfer(sce_transformed_tier_4, empty_droplets_tbl = empty_tbl_tier_4, reference_azimuth = "pbmcref", feature_nomenclature = gene_nomenclature)
 
-tar_read_raw("annotation_tbl_tier_1_ecac957542df0c20", store = "/vast/projects/mangiola_immune_map/PostDoc/immuneHealthyBodyMap/census_hpcell_oct_2024/target_store")
 
+#' Pipeline for Lightening Annotations in High-Performance Computing Environment
+#' 
+#' This pipeline is designed to read, process, and "lighten" large annotation tables in an HPC environment.
+#' It uses the `targets` package for reproducibility and `crew` for efficient job scheduling on a Slurm cluster.
+#' The `lighten_annotation` function selects and processes specific columns from large tables to reduce memory usage.
+#' 
+#' The pipeline consists of:
+#' - **Crew Controllers**: Four tiers of Slurm controllers with varying memory allocations to optimize resource usage.
+#' - **Targets**:
+#'   - `my_store`: Defines the path to the target storage directory, ensuring all targets use the correct storage location.
+#'   - `target_name`: Retrieves metadata to identify branch targets for annotation.
+#'   - `annotation_tbl_light`: Applies `lighten_annotation` to process each target name, optimally running with `tier_1` resources.
+#' 
+#' @libraries:
+#'   - `dplyr`, `magrittr`, `tibble`, `targets`, `tarchetypes` for data manipulation and pipeline structure.
+#'   - `crew`, `crew.cluster` for parallel computation and cluster scheduling in an HPC environment.
+#' 
+#' @options:
+#'   - Memory settings, garbage collection frequency, and error handling are set to handle large data efficiently.
+#'   - The `cue` option is set to `never` for forced target updates if needed.
+#'   - `controller` is a group of Slurm controllers to manage computation across memory tiers.
+#' 
+#' @function `lighten_annotation`: Processes each annotation table target, unnesting and selecting specific columns to reduce data size.
+#'
+#' @example Usage:
+#'   The pipeline script is saved as `/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target.R` and can be run using `tar_make()`.
+
+tar_script({
+  library(dplyr)
+  library(magrittr)
+  library(tibble)
+  library(targets)
+  library(tarchetypes)
+  library(crew)
+  library(crew.cluster)
+  tar_option_set(
+    memory = "transient", 
+    garbage_collection = 100, 
+    storage = "worker", 
+    retrieval = "worker", 
+    error = "continue", 
+    #  debug = "dataset_id_sce_b5312463451d7ee3", 
+    cue = tar_cue(mode = "never"), 
+    controller = crew_controller_group(
+      list(
+        crew_controller_slurm(
+          name = "tier_1", 
+          script_lines = "#SBATCH --mem 8G",
+          slurm_cpus_per_task = 1, 
+          workers = 300, 
+          tasks_max = 10,
+          verbose = T,
+          launch_max = 5
+        ),
+        
+        crew_controller_slurm(
+          name = "tier_2",
+          script_lines = "#SBATCH --mem 10G",
+          slurm_cpus_per_task = 1,
+          workers = 300,
+          tasks_max = 10,
+          verbose = T,
+          launch_max = 5
+        ),
+        crew_controller_slurm(
+          name = "tier_3",
+          script_lines = "#SBATCH --mem 15G",
+          slurm_cpus_per_task = 1,
+          workers = 300,
+          tasks_max = 10,
+          verbose = T,
+          launch_max = 5
+        ),
+        crew_controller_slurm(
+          name = "tier_4",
+          script_lines = "#SBATCH --mem 50G",
+          slurm_cpus_per_task = 1,
+          workers = 30,
+          tasks_max = 10,
+          verbose = T,
+          launch_max = 5
+        )
+      )
+    ), 
+    trust_object_timestamps = TRUE
+  )
+  
+  lighten_annotation = function(target_name, my_store ){
+    annotation_tbl = tar_read_raw( target_name,  store = my_store )
+    if(annotation_tbl |> is.null()) return(NULL)
+    
+    annotation_tbl |> 
+      unnest(blueprint_scores_fine) |> 
+      select(.cell, blueprint_first.labels.fine, monaco_first.labels.fine, any_of("azimuth_predicted.celltype.l2"), monaco_scores_fine, contains("macro"), contains("CD4") ) |> 
+      unnest(monaco_scores_fine) |> 
+      select(.cell, blueprint_first.labels.fine, monaco_first.labels.fine, any_of("azimuth_predicted.celltype.l2"), contains("macro") , contains("CD4"), contains("helper"), contains("Th")) 
+  }
+  
+  list(
+    
+    # The input DO NOT DELETE
+    tar_target(my_store, "/vast/projects/mangiola_immune_map/PostDoc/immuneHealthyBodyMap/census_hpcell_oct_2024/target_store", deployment = "main"),
+    
+    tar_target(
+      target_name,
+      tar_meta(
+        starts_with("annotation_tbl_tier_"), 
+        store = my_store) |> 
+        filter(type=="branch") |> 
+        pull(name),
+      deployment = "main"
+    )    ,
+    
+    tar_target(
+      annotation_tbl_light,
+      lighten_annotation(target_name, my_store),
+      packages = c("dplyr", "tidyr"),
+      pattern = map(target_name),
+      resources = tar_resources(
+        crew = tar_resources_crew(controller = "tier_1")
+      )
+    )
+  )
+  
+  
+}, script = "/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target.R", ask = FALSE)
+
+job::job({
+  
+  tar_make(
+    script = "/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target.R", 
+    store = "/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target", 
+    reporter = "summary"
+  )
+  
+})
+
+# Sample metadata
+library(arrow)
+library(dplyr)
+library(duckdb)
+
+cell_type_original <- tbl(
+  dbConnect(duckdb::duckdb(), dbdir = ":memory:"),
+  sql("SELECT * FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_metadata.parquet')")
+) |>
+  mutate(cell_ = paste0(cell_, "___", dataset_id)) |> 
+  select(.cell = cell_, observation_joinid, contains("cell_type"), dataset_id,  self_reported_ethnicity, tissue, donor_id,  sample_id, is_primary_data, assay)
+
+
+tar_read(annotation_tbl_light, store = "/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target") |>
+  left_join(cell_type_original, copy = TRUE) |> 
+  write_parquet("/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_annotation.parquet")
+
+system("~/bin/rclone copy /vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_annotation.parquet box_adelaide:/Mangiola_ImmuneAtlas/reannotation_consensus/")
+
+# tar_workspaces(annotation_tbl_light_c8078b8175604dd3,  store = "/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target")
 
 # tar_invalidate(starts_with("annotation_tbl_tier_"), store = "/vast/projects/mangiola_immune_map/PostDoc/immuneHealthyBodyMap/census_hpcell_oct_2024/target_store")
