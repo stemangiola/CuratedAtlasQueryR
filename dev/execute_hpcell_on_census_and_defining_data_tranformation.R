@@ -337,6 +337,8 @@ tar_read(annotation_tbl_light, store = "/vast/scratch/users/mangiola.s/lighten_a
 
 system("~/bin/rclone copy /vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_annotation.parquet box_adelaide:/Mangiola_ImmuneAtlas/reannotation_consensus/")
 
+
+
 # tar_workspaces(annotation_tbl_light_c8078b8175604dd3,  store = "/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target")
 
 # tar_invalidate(starts_with("annotation_tbl_tier_"), store = "/vast/projects/mangiola_immune_map/PostDoc/immuneHealthyBodyMap/census_hpcell_oct_2024/target_store")
