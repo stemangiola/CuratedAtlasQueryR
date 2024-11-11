@@ -218,11 +218,11 @@ tar_script({
   library(crew.cluster)
   tar_option_set(
     memory = "transient", 
-    garbage_collection = 100, 
+    garbage_collection = 1000, 
     storage = "worker", 
     retrieval = "worker", 
     error = "continue", 
-    #  debug = "dataset_id_sce_b5312463451d7ee3", 
+    debug = "annotation_tbl_light", 
     cue = tar_cue(mode = "never"), 
     controller = crew_controller_group(
       list(
@@ -230,7 +230,7 @@ tar_script({
           name = "tier_1", 
           script_lines = "#SBATCH --mem 8G",
           slurm_cpus_per_task = 1, 
-          workers = 300, 
+          workers = 500, 
           tasks_max = 10,
           verbose = T,
           launch_max = 5
@@ -276,7 +276,8 @@ tar_script({
       unnest(blueprint_scores_fine) |> 
       select(.cell, blueprint_first.labels.fine, monaco_first.labels.fine, any_of("azimuth_predicted.celltype.l2"), monaco_scores_fine, contains("macro"), contains("CD4") ) |> 
       unnest(monaco_scores_fine) |> 
-      select(.cell, blueprint_first.labels.fine, monaco_first.labels.fine, any_of("azimuth_predicted.celltype.l2"), contains("macro") , contains("CD4"), contains("helper"), contains("Th")) 
+      select(.cell, blueprint_first.labels.fine, monaco_first.labels.fine, any_of("azimuth_predicted.celltype.l2"), contains("macro") , contains("CD4"), contains("helper"), contains("Th")) |> 
+      rename(cell_ = .cell)
   }
   
   list(
@@ -313,7 +314,7 @@ job::job({
   tar_make(
     script = "/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target.R", 
     store = "/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target", 
-    reporter = "summary"
+    reporter = "summary", callr_function = NULL
   )
   
 })
@@ -323,16 +324,26 @@ library(arrow)
 library(dplyr)
 library(duckdb)
 
-cell_type_original <- tbl(
+# Write annotation light
+tar_read(annotation_tbl_light, store = "/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target") |> 
+  rename(
+    blueprint_first_labels_fine = blueprint_first.labels.fine, 
+    monaco_first_labels_fine = monaco_first.labels.fine, 
+    azimuth_predicted_celltype_l2 = azimuth_predicted.celltype.l2
+  ) |> 
+  write_parquet("/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/annotation_tbl_light.parquet")
+
+cell_metadata <- tbl(
   dbConnect(duckdb::duckdb(), dbdir = ":memory:"),
   sql("SELECT * FROM read_parquet('/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_metadata.parquet')")
 ) |>
   mutate(cell_ = paste0(cell_, "___", dataset_id)) |> 
-  select(.cell = cell_, observation_joinid, contains("cell_type"), dataset_id,  self_reported_ethnicity, tissue, donor_id,  sample_id, is_primary_data, assay)
+  select(cell_, observation_joinid, contains("cell_type"), dataset_id,  self_reported_ethnicity, tissue, donor_id,  sample_id, is_primary_data, assay)
+
 
 
 tar_read(annotation_tbl_light, store = "/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target") |>
-  left_join(cell_type_original, copy = TRUE) |> 
+  left_join(cell_metadata, copy = TRUE) |> 
   write_parquet("/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_annotation.parquet")
 
 system("~/bin/rclone copy /vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/cell_annotation.parquet box_adelaide:/Mangiola_ImmuneAtlas/reannotation_consensus/")
