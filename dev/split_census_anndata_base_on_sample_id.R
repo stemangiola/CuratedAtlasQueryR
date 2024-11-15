@@ -93,7 +93,8 @@ computing_resources = crew.cluster::crew_controller_slurm(
   slurm_memory_gigabytes_per_cpu = 30, 
   slurm_cpus_per_task = 1,
   workers = 75,
-  verbose = TRUE
+  verbose = TRUE, 
+  seconds_idle = 30
 )
 tar_option_set(
   memory = "transient",

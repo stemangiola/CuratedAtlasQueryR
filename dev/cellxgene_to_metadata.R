@@ -51,7 +51,8 @@ tar_script({
         slurm_cpus_per_task = 1,
         workers = 200,
         tasks_max = 5,
-        verbose = T
+        verbose = T, 
+        seconds_idle = 30
       ),
       crew_controller_slurm(
         name = "slurm_1_10",
@@ -59,7 +60,8 @@ tar_script({
         slurm_cpus_per_task = 1,
         workers = 100,
         tasks_max = 5,
-        verbose = T
+        verbose = T, 
+        seconds_idle = 30
       ),
       crew_controller_slurm(
         name = "slurm_1_20",
@@ -67,7 +69,8 @@ tar_script({
         slurm_cpus_per_task = 1,
         workers = 100,
         tasks_max = 5,
-        verbose = T, 
+        verbose = T, , 
+        seconds_idle = 30
         script_directory = paste0("/vast/scratch/users/mangiola.s/cellxgenedp/crew_cluster/", basename(tempdir()))
       ),
       crew_controller_slurm(
@@ -76,7 +79,8 @@ tar_script({
         slurm_cpus_per_task = 1,
         workers = 50,
         tasks_max = 5,
-        verbose = T
+        verbose = T, 
+        seconds_idle = 30
       ),
       crew_controller_slurm(
         name = "slurm_1_80",
@@ -84,7 +88,8 @@ tar_script({
         slurm_cpus_per_task = 1,
         workers = 30,
         tasks_max = 5,
-        verbose = T
+        verbose = T, 
+        seconds_idle = 30
       ),
       crew_controller_slurm(
         name = "slurm_1_200",
@@ -92,7 +97,8 @@ tar_script({
         slurm_cpus_per_task = 1,
         workers = 5,
         tasks_max = 5,
-        verbose = T
+        verbose = T, 
+        seconds_idle = 30
       )
     ),
     resources = tar_resources(crew = tar_resources_crew("slurm_1_10"))  
@@ -898,7 +904,6 @@ age_days_tbl =
 
 age_days_tbl |>
   write_parquet("/vast/projects/cellxgene_curated/metadata_cellxgenedp_Apr_2024/age_days.parquet")
-
 
 
 
