@@ -71,7 +71,6 @@ tar_script({
         tasks_max = 5,
         verbose = T, , 
         seconds_idle = 30
-        script_directory = paste0("/vast/scratch/users/mangiola.s/cellxgenedp/crew_cluster/", basename(tempdir()))
       ),
       crew_controller_slurm(
         name = "slurm_1_40",
