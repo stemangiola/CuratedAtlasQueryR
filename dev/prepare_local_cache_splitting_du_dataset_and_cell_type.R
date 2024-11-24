@@ -48,7 +48,7 @@ job::job({
       dbplyr::window_order(cell_count) |>  # Ensure dataset_id order
       mutate(sample_index = row_number()) |>  # Create sequential index within each dataset
       mutate(sample_chunk = (sample_index - 1) %/% 1000 + 1) |>  # Assign chunks (up to 1000 samples per chunk)
-      mutate(cell_chunk = cumsum(cell_count) %/% 20000 + 1) |> # max 20K cells per sample
+      mutate(cell_chunk = cumsum(cell_count) %/% 100000 + 1) |> # max 20K cells per sample
       ungroup() 
     
     tbl(
