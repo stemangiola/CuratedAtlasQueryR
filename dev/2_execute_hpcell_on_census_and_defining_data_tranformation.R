@@ -106,49 +106,23 @@ job::job({
       store = "/vast/projects/mangiola_immune_map/PostDoc/immuneHealthyBodyMap/census_hpcell_oct_2024/target_store/",
       gene_nomenclature = "ensembl",
       data_container_type = "anndata",
-      tier = tiers,
+      # tier = tiers, # WE DON"T NEED AS WE HAVE ELASTIC RESOURCES NOW
       computing_resources = list(
-        crew_controller_slurm(
-          name = "tier_1", 
-          script_lines = "#SBATCH --mem 8G",
-          slurm_cpus_per_task = 1, 
-          workers = 300, 
-          tasks_max = 10,
-          verbose = T,
-          launch_max = 10, 
-          seconds_idle = 30
-        ),
         
         crew_controller_slurm(
-          name = "tier_2",
-          script_lines = "#SBATCH --mem 10G",
-          slurm_cpus_per_task = 1,
-          workers = 200,
-          tasks_max = 10,
-          verbose = T,
-          launch_max = 10, 
-          seconds_idle = 30
-        ),
-        crew_controller_slurm(
-          name = "tier_3",
-          script_lines = "#SBATCH --mem 15G",
-          slurm_cpus_per_task = 1,
-          workers = 100,
-          tasks_max = 10,
-          verbose = T,
-          launch_max = 5, 
-          seconds_idle = 30
-        ),
-        crew_controller_slurm(
-          name = "tier_4",
-          script_lines = "#SBATCH --mem 200G", # There should be a tier 5 with 12Gb for sample of 40K cells
-          slurm_cpus_per_task = 1,
-          workers = 100,
-          tasks_max = 10,
-          verbose = T,
-          launch_max = 5, 
-          seconds_idle = 30
+          name = "elastic",
+          workers = 300,
+          tasks_max = 20,
+          seconds_idle = 30,
+          crashes_error = 5,
+          options_cluster = crew_options_slurm(
+            memory_gigabytes_required = c(8, 10, 40, 80, 200), 
+            cpus_per_task = 2, 
+            time_minutes = c(60, 60*4, 60*4, 60*24, 60*24),
+            verbose = T
+          )
         )
+        
       ),
       verbosity = "summary",
       # debug_step = "annotation_tbl_tier_4",
