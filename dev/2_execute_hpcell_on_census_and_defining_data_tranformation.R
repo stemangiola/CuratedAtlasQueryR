@@ -182,7 +182,6 @@ annotation_label_transfer(sce_transformed_tier_4, empty_droplets_tbl = empty_tbl
 #' @function `lighten_annotation`: Processes each annotation table target, unnesting and selecting specific columns to reduce data size.
 #'
 #' @example Usage:
-#'   The pipeline script is saved as `/vast/scratch/users/mangiola.s/lighten_annotation_tbl_target.R` and can be run using `tar_make()`.
 tar_script({
   library(dplyr)
   library(magrittr)

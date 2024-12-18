@@ -774,7 +774,7 @@ job::job({
     se, 
     verbose = TRUE, 
     file = "/vast/projects/cellxgene_curated/cellNexus/pseudobulk_sample_cell_type_1_0_4.h5ad", 
-    X_name = "counts_scaled"
+    X_name = "counts"
   )
 })
 
